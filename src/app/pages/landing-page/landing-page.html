@@ -1,0 +1,83 @@
+<div class="landing-wrapper">
+    <!-- Navbar -->
+    <nav class="landing-nav">
+        <div class="nav-content">
+            <a routerLink="/" class="nav-logo">
+                <i class="pi pi-shield" style="font-size: 1.5rem"></i>
+                <span>SecureApp</span>
+            </a>
+            <div class="nav-actions">
+                <p-button label="Iniciar Sesión" icon="pi pi-sign-in" [text]="true" [routerLink]="['/login']"
+                    styleClass="nav-btn"></p-button>
+                <p-button label="Registrarse" icon="pi pi-user-plus" [rounded]="true" [routerLink]="['/register']"
+                    severity="contrast"></p-button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+        <div class="hero-content">
+            <span class="hero-badge">🔐 Plataforma Segura</span>
+            <h1 class="hero-title">Protege tu información<br><span class="gradient-text">con tecnología avanzada</span>
+            </h1>
+            <p class="hero-subtitle">Gestiona tus datos de forma segura, rápida y confiable con nuestra plataforma de
+                última generación.</p>
+            <div class="hero-actions">
+                <p-button label="Comenzar Gratis" icon="pi pi-arrow-right" iconPos="right" size="large" [rounded]="true"
+                    [routerLink]="['/register']" severity="contrast"></p-button>
+                <p-button label="Saber Más" icon="pi pi-info-circle" size="large" [rounded]="true" [outlined]="true"
+                    severity="contrast"></p-button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="section-header">
+            <h2 class="section-title">¿Por qué elegirnos?</h2>
+            <p class="section-subtitle">Características diseñadas para brindarte la mejor experiencia</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="pi pi-shield" style="font-size: 2rem"></i>
+                </div>
+                <h3>Seguridad Avanzada</h3>
+                <p>Encriptación de extremo a extremo para proteger toda tu información sensible.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="pi pi-bolt" style="font-size: 2rem"></i>
+                </div>
+                <h3>Alto Rendimiento</h3>
+                <p>Velocidad optimizada para una experiencia fluida en cualquier dispositivo.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="pi pi-users" style="font-size: 2rem"></i>
+                </div>
+                <h3>Soporte 24/7</h3>
+                <p>Nuestro equipo está disponible en todo momento para ayudarte.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+        <p-divider></p-divider>
+        <div class="footer-content">
+            <span>© 2026 SecureApp — Irving R.P.</span>
+            <div class="footer-links">
+                <a href="#">Privacidad</a>
+                <a href="#">Términos</a>
+                <a href="#">Contacto</a>
+            </div>
+        </div>
+    </footer>
+</div>
