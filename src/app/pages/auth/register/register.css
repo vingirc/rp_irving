@@ -1,4 +1,4 @@
-/* === Auth Page Shared Styles === */
+/* === Auth Page Styles – Register === */
 
 .auth-wrapper {
     min-height: 100vh;
@@ -8,7 +8,7 @@
     justify-content: center;
     position: relative;
     overflow: hidden;
-    padding: 2rem;
+    padding: 2rem 1rem;
 }
 
 .auth-bg-shapes {
@@ -30,6 +30,7 @@
     background: linear-gradient(135deg, #667eea, #764ba2);
     top: -15%;
     right: -10%;
+    animation: float 8s ease-in-out infinite;
 }
 
 .auth-bg-shapes .shape-2 {
@@ -38,13 +39,50 @@
     background: linear-gradient(135deg, #f093fb, #f5576c);
     bottom: -15%;
     left: -10%;
+    animation: float 10s ease-in-out infinite reverse;
+}
+
+.auth-bg-shapes .shape-3 {
+    width: 250px;
+    height: 250px;
+    background: linear-gradient(135deg, #43e97b, #38f9d7);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse 6s ease-in-out infinite;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 0.15;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    50% {
+        opacity: 0.25;
+        transform: translate(-50%, -50%) scale(1.1);
+    }
 }
 
 .auth-container {
     position: relative;
     z-index: 1;
     width: 100%;
-    max-width: 420px;
+    max-width: 520px;
 }
 
 .back-link {
@@ -68,6 +106,19 @@
     border-radius: 1.5rem;
     padding: 2.5rem;
     backdrop-filter: blur(20px);
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .auth-header {
@@ -97,19 +148,48 @@
 .auth-form {
     display: flex;
     flex-direction: column;
-    gap: 1.3rem;
+    gap: 1.1rem;
 }
 
 .field-group {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.35rem;
 }
 
 .field-group label {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     font-weight: 500;
     color: rgba(255, 255, 255, 0.6);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.field-group label i {
+    font-size: 0.8rem;
+    color: #a0b4ff;
+}
+
+.field-error {
+    color: #f87171;
+    font-size: 0.76rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .auth-footer {
@@ -131,4 +211,15 @@
 
 .auth-footer a:hover {
     color: #c0ccff;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 1.8rem 1.2rem;
+    }
+
+    .auth-container {
+        max-width: 100%;
+    }
 }

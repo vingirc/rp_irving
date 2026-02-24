@@ -1,4 +1,4 @@
-/* === Auth Page Shared Styles === */
+/* === Auth Page Styles – Login === */
 
 .auth-wrapper {
     min-height: 100vh;
@@ -30,6 +30,7 @@
     background: linear-gradient(135deg, #667eea, #764ba2);
     top: -15%;
     right: -10%;
+    animation: float 8s ease-in-out infinite;
 }
 
 .auth-bg-shapes .shape-2 {
@@ -38,6 +39,12 @@
     background: linear-gradient(135deg, #f093fb, #f5576c);
     bottom: -15%;
     left: -10%;
+    animation: float 10s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
 }
 
 .auth-container {
@@ -68,6 +75,12 @@
     border-radius: 1.5rem;
     padding: 2.5rem;
     backdrop-filter: blur(20px);
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .auth-header {
@@ -110,6 +123,41 @@
     font-size: 0.85rem;
     font-weight: 500;
     color: rgba(255, 255, 255, 0.6);
+}
+
+.field-error {
+    color: #f87171;
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.credentials-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1rem;
+    border-radius: 0.75rem;
+    background: rgba(160, 180, 255, 0.08);
+    border: 1px solid rgba(160, 180, 255, 0.15);
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.credentials-hint i {
+    color: #a0b4ff;
+    font-size: 0.9rem;
+}
+
+.credentials-hint strong {
+    color: #a0b4ff;
 }
 
 .auth-footer {

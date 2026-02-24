@@ -1,7 +1,10 @@
+<p-toast position="top-center" />
+
 <div class="auth-wrapper">
     <div class="auth-bg-shapes">
         <div class="shape shape-1"></div>
         <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
     </div>
     <div class="auth-container">
         <a routerLink="/" class="back-link">
@@ -13,28 +16,139 @@
                 <h1>Crear Cuenta</h1>
                 <p>Completa tus datos para registrarte</p>
             </div>
-            <div class="auth-form">
+
+            <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form">
+
+                <!-- Usuario -->
                 <div class="field-group">
-                    <label for="username">Nombre de Usuario</label>
-                    <input pInputText id="username" placeholder="Tu nombre de usuario" class="w-full" />
+                    <label for="username"><i class="pi pi-user"></i> Nombre de Usuario</label>
+                    <input pInputText id="username" formControlName="username" placeholder="ej. irving_dev"
+                        class="w-full" />
+                    @if (f['username'].touched && f['username'].errors) {
+                    <small class="field-error">
+                        @if (f['username'].errors['required']) {
+                        <i class="pi pi-exclamation-circle"></i> El nombre de usuario es obligatorio
+                        } @else if (f['username'].errors['minlength']) {
+                        <i class="pi pi-exclamation-circle"></i> Mínimo 3 caracteres
+                        }
+                    </small>
+                    }
                 </div>
+
+                <!-- Email -->
                 <div class="field-group">
-                    <label for="email">Correo Electrónico</label>
-                    <input pInputText id="email" placeholder="tu@correo.com" class="w-full" />
+                    <label for="email"><i class="pi pi-envelope"></i> Correo Electrónico</label>
+                    <input pInputText id="email" formControlName="email" placeholder="tu@correo.com" class="w-full" />
+                    @if (f['email'].touched && f['email'].errors) {
+                    <small class="field-error">
+                        @if (f['email'].errors['required']) {
+                        <i class="pi pi-exclamation-circle"></i> El correo es obligatorio
+                        } @else if (f['email'].errors['email']) {
+                        <i class="pi pi-exclamation-circle"></i> Ingresa un correo válido
+                        }
+                    </small>
+                    }
                 </div>
+
+                <!-- Nombre Completo -->
                 <div class="field-group">
-                    <label for="password">Contraseña</label>
-                    <p-password id="password" [feedback]="true" [toggleMask]="true" placeholder="••••••••"
-                        styleClass="w-full" inputStyleClass="w-full"></p-password>
+                    <label for="fullName"><i class="pi pi-id-card"></i> Nombre Completo</label>
+                    <input pInputText id="fullName" formControlName="fullName" placeholder="Nombre y apellidos"
+                        class="w-full" />
+                    @if (f['fullName'].touched && f['fullName'].errors) {
+                    <small class="field-error">
+                        <i class="pi pi-exclamation-circle"></i> El nombre completo es obligatorio
+                    </small>
+                    }
                 </div>
+
+                <!-- Fecha de Nacimiento -->
                 <div class="field-group">
-                    <label for="confirmPassword">Confirmar Contraseña</label>
-                    <p-password id="confirmPassword" [feedback]="false" [toggleMask]="true" placeholder="••••••••"
-                        styleClass="w-full" inputStyleClass="w-full"></p-password>
+                    <label for="birthDate"><i class="pi pi-calendar"></i> Fecha de Nacimiento</label>
+                    <p-datepicker id="birthDate" formControlName="birthDate" [maxDate]="maxDate" dateFormat="dd/mm/yy"
+                        placeholder="Selecciona tu fecha" [showIcon]="true" styleClass="w-full"
+                        inputStyleClass="w-full" />
+                    @if (f['birthDate'].touched && f['birthDate'].errors) {
+                    <small class="field-error">
+                        @if (f['birthDate'].errors['required']) {
+                        <i class="pi pi-exclamation-circle"></i> La fecha de nacimiento es obligatoria
+                        } @else if (f['birthDate'].errors['underAge']) {
+                        <i class="pi pi-exclamation-circle"></i> Debes ser mayor de 18 años
+                        }
+                    </small>
+                    }
                 </div>
-                <p-button label="Registrarse" icon="pi pi-user-plus" styleClass="w-full" severity="contrast"
-                    [rounded]="true"></p-button>
-            </div>
+
+                <!-- Teléfono -->
+                <div class="field-group">
+                    <label for="phone"><i class="pi pi-phone"></i> Teléfono (10 dígitos)</label>
+                    <p-inputmask id="phone" formControlName="phone" mask="9999999999" placeholder="Ej. 6141234567"
+                        styleClass="w-full" />
+                    @if (f['phone'].touched && f['phone'].errors) {
+                    <small class="field-error">
+                        @if (f['phone'].errors['required']) {
+                        <i class="pi pi-exclamation-circle"></i> El teléfono es obligatorio
+                        } @else if (f['phone'].errors['pattern']) {
+                        <i class="pi pi-exclamation-circle"></i> Solo 10 dígitos numéricos
+                        }
+                    </small>
+                    }
+                </div>
+
+                <!-- Dirección -->
+                <div class="field-group">
+                    <label for="address"><i class="pi pi-map-marker"></i> Dirección</label>
+                    <input pInputText id="address" formControlName="address"
+                        placeholder="Calle, número, colonia, ciudad" class="w-full" />
+                    @if (f['address'].touched && f['address'].errors) {
+                    <small class="field-error">
+                        <i class="pi pi-exclamation-circle"></i> La dirección es obligatoria
+                    </small>
+                    }
+                </div>
+
+                <!-- Contraseña -->
+                <div class="field-group">
+                    <label for="password"><i class="pi pi-lock"></i> Contraseña</label>
+                    <p-password id="password" formControlName="password" [toggleMask]="true"
+                        placeholder="Mínimo 10 caracteres" styleClass="w-full" inputStyleClass="w-full" />
+                    @if (f['password'].touched && f['password'].errors) {
+                    <small class="field-error">
+                        @if (f['password'].errors['required']) {
+                        <i class="pi pi-exclamation-circle"></i> La contraseña es obligatoria
+                        } @else if (f['password'].errors['minlength']) {
+                        <i class="pi pi-exclamation-circle"></i> Mínimo 10 caracteres
+                        } @else if (f['password'].errors['noSpecialChar']) {
+                        <i class="pi pi-exclamation-circle"></i> Debe contener al menos un símbolo: {{ specialSymbols }}
+                        }
+                    </small>
+                    }
+                </div>
+
+                <!-- Confirmar Contraseña -->
+                <div class="field-group">
+                    <label for="confirmPassword"><i class="pi pi-lock"></i> Confirmar Contraseña</label>
+                    <p-password id="confirmPassword" formControlName="confirmPassword" [feedback]="false"
+                        [toggleMask]="true" placeholder="Repite tu contraseña" styleClass="w-full"
+                        inputStyleClass="w-full" />
+                    @if (f['confirmPassword'].touched && (f['confirmPassword'].errors ||
+                    registerForm.errors?.['passwordMismatch'])) {
+                    <small class="field-error">
+                        @if (f['confirmPassword'].errors?.['required']) {
+                        <i class="pi pi-exclamation-circle"></i> Confirma tu contraseña
+                        } @else if (registerForm.errors?.['passwordMismatch']) {
+                        <i class="pi pi-exclamation-circle"></i> Las contraseñas no coinciden
+                        }
+                    </small>
+                    }
+                </div>
+
+                <!-- Botón de Registro -->
+                <p-button type="submit" label="Registrarse" icon="pi pi-user-plus" styleClass="w-full"
+                    severity="contrast" [rounded]="true" [disabled]="registerForm.invalid"></p-button>
+
+            </form>
+
             <div class="auth-footer">
                 <span>¿Ya tienes cuenta?</span>
                 <a routerLink="/login">Inicia Sesión</a>
