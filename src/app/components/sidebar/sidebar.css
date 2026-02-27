@@ -37,9 +37,20 @@
     letter-spacing: 0.5px;
 }
 
-.logo i {
-    color: #a0b4ff;
-    font-size: 1.8rem;
+.logo-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #4338ca, #667eea);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.logo-icon-container .emoji-icon {
+    font-size: 1.25rem;
+    line-height: 1;
 }
 
 .sidebar-menu {

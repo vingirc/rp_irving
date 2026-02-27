@@ -1,0 +1,23 @@
+.group-container {
+    padding: 1rem;
+}
+
+.group-container h2 {
+    color: var(--text-color, #333333);
+    margin-bottom: 1.5rem;
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.total-number {
+    font-size: 3rem;
+    font-weight: 700;
+    text-align: center;
+    margin: 1rem 0;
+    color: var(--primary-color);
+}

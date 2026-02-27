@@ -1,0 +1,73 @@
+.user-profile-container {
+    padding: 1.5rem;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+.profile-info-header {
+    flex-grow: 1;
+}
+
+.profile-info-header h2 {
+    margin: 0;
+    font-size: 2rem;
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+.mt-4 {
+    margin-top: 1.5rem;
+    display: block;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.info-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    opacity: 0.8;
+}
+
+.info-value {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.status-active {
+    font-weight: 700;
+}
+
+/* Adjusting PrimeNG Fieldset inner spacing for better fit */
+:host ::ng-deep .p-fieldset {
+    margin-bottom: 1.5rem;
+}
+
+:host ::ng-deep .p-fieldset .p-fieldset-content {
+    padding: 1.5rem;
+}

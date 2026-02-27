@@ -1,0 +1,23 @@
+<div class="group-container">
+    <h2>Gestión de Grupos</h2>
+
+    <div class="cards-grid">
+        <!-- Total Card -->
+        <p-card header="Total" subheader="Grupos Registrados" [style]="{ width: '100%', height: '100%' }">
+            <div class="total-number">
+                42
+            </div>
+            <ng-template pTemplate="footer">
+                <p>Número de grupos activos en el sistema.</p>
+            </ng-template>
+        </p-card>
+
+        <!-- Advances Card -->
+        <p-card header="Avances" subheader="Progreso Reciente" [style]="{ width: '100%', height: '100%' }">
+            <!-- Emtpy card content as requested -->
+            <div class="empty-advances-content">
+                <p>No hay avances recientes para mostrar.</p>
+            </div>
+        </p-card>
+    </div>
+</div>

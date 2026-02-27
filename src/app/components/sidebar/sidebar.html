@@ -1,8 +1,10 @@
 <div class="sidebar-container">
     <div class="sidebar-header">
         <div class="logo">
-            <i class="pi pi-shield"></i>
-            <span>SecurePortal</span>
+            <div class="logo-icon-container">
+                <span class="emoji-icon">🔒</span>
+            </div>
+            <span>SecureApp</span>
         </div>
     </div>
 
@@ -13,6 +15,16 @@
             class="menu-item">
             <i class="pi pi-home"></i>
             <span>Inicio</span>
+        </a>
+
+        <a routerLink="/home/group" routerLinkActive="active-link" class="menu-item">
+            <i class="pi pi-users"></i>
+            <span>Grupos</span>
+        </a>
+
+        <a routerLink="/home/user" routerLinkActive="active-link" class="menu-item">
+            <i class="pi pi-user"></i>
+            <span>Perfil</span>
         </a>
 
         <a routerLink="/" class="menu-item">
@@ -29,5 +41,9 @@
             <i class="pi pi-sign-out"></i>
             <span>Cerrar Sesión</span>
         </a>
+
+        <div class="version-status">
+            <span>Versión en desarrollo</span>
+        </div>
     </div>
 </div>
