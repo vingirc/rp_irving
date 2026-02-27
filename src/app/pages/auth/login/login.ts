@@ -68,7 +68,7 @@ export class Login {
         detail: 'Inicio de sesión exitoso. Redirigiendo...',
         life: 2500
       });
-      setTimeout(() => this.router.navigate(['/']), 1500);
+      setTimeout(() => this.router.navigate(['/home']), 1500);
     } else {
       this.messageService.add({
         severity: 'error',

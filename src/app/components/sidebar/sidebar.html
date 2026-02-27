@@ -1,0 +1,33 @@
+<div class="sidebar-container">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="pi pi-shield"></i>
+            <span>SecurePortal</span>
+        </div>
+    </div>
+
+    <div class="sidebar-menu">
+        <div class="menu-section">Navegación</div>
+
+        <a routerLink="/home" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}"
+            class="menu-item">
+            <i class="pi pi-home"></i>
+            <span>Inicio</span>
+        </a>
+
+        <a routerLink="/" class="menu-item">
+            <i class="pi pi-globe"></i>
+            <span>Landing Page</span>
+        </a>
+
+        <!-- Divisor -->
+        <div class="menu-divider"></div>
+
+        <div class="menu-section mt-auto">Sesión</div>
+
+        <a routerLink="/login" class="menu-item logout">
+            <i class="pi pi-sign-out"></i>
+            <span>Cerrar Sesión</span>
+        </a>
+    </div>
+</div>

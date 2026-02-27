@@ -1,0 +1,125 @@
+.sidebar-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #0a0a1a;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar-container::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 200px;
+    height: 200px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    filter: blur(80px);
+    opacity: 0.15;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.sidebar-header {
+    padding: 2.5rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.5px;
+}
+
+.logo i {
+    color: #a0b4ff;
+    font-size: 1.8rem;
+}
+
+.sidebar-menu {
+    padding: 1.5rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.menu-section {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    padding-left: 0.8rem;
+    font-weight: 600;
+}
+
+.menu-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.05);
+    margin: 1rem 0;
+}
+
+.mt-auto {
+    margin-top: auto;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: 0.95rem;
+    border-radius: 0.75rem;
+    transition: all 0.25s ease;
+    font-weight: 500;
+}
+
+.menu-item i {
+    font-size: 1.1rem;
+    transition: transform 0.25s ease;
+}
+
+.menu-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.menu-item:hover i {
+    transform: translateX(4px);
+    color: #a0b4ff;
+}
+
+.menu-item.active-link {
+    background: linear-gradient(90deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+    color: #a0b4ff;
+    border-left: 3px solid #a0b4ff;
+}
+
+.menu-item.logout {
+    color: #fca5a5;
+    margin-top: 0.5rem;
+}
+
+.menu-item.logout:hover {
+    background: rgba(248, 113, 113, 0.1);
+    color: #ffb3b3;
+}
+
+.menu-item.logout i {
+    color: #ef4444;
+}
+
+.menu-item.logout:hover i {
+    color: #f87171;
+    transform: translateX(4px);
+}

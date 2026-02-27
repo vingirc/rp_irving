@@ -1,0 +1,52 @@
+<div class="home-container">
+    <div class="home-header">
+        <h1 class="page-title">Bienvenido, Administrador</h1>
+        <p class="page-subtitle">Aquí está el resumen de tu sistema de seguridad hoy.</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card" *ngFor="let stat of stats">
+            <div class="stat-icon-wrapper" [ngClass]="stat.color">
+                <i class="pi" [ngClass]="stat.icon"></i>
+            </div>
+            <div class="stat-details">
+                <h3>{{stat.title}}</h3>
+                <span class="stat-value">{{stat.value}}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-grid mt-4">
+        <div class="card col-span-2">
+            <div class="card-header">
+                <h2>Actividad Reciente</h2>
+                <p-button label="Ver Todo" [text]="true" styleClass="btn-text"></p-button>
+            </div>
+            <div class="card-body">
+                <div class="activity-list">
+                    <div class="activity-item" *ngFor="let item of recentActivity">
+                        <p-avatar icon="pi pi-user" shape="circle" styleClass="activity-avatar"></p-avatar>
+                        <div class="activity-info">
+                            <span class="activity-user">{{item.user}}</span>
+                            <span class="activity-action">{{item.action}}</span>
+                        </div>
+                        <div class="activity-time">{{item.time}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Estado del Sistema</h2>
+            </div>
+            <div class="card-body flex-center col-flex">
+                <div class="status-circle">
+                    <i class="pi pi-check-circle"></i>
+                </div>
+                <h3 class="status-title">Sistema Operativo</h3>
+                <p class="status-desc">Todos los servicios están funcionando correctamente y protegidos.</p>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,17 @@
+<div class="main-layout">
+  <app-sidebar class="layout-sidebar"></app-sidebar>
+  <div class="layout-content-wrapper">
+    <header class="topbar">
+      <div class="topbar-logo">
+        <i class="pi pi-shield ml-2"></i> Dashboard Principal
+      </div>
+      <div class="topbar-user">
+        <span class="user-greeting">Hola, Administrador</span>
+        <p-avatar icon="pi pi-user" styleClass="mr-2" size="large" shape="circle" class="custom-avatar"></p-avatar>
+      </div>
+    </header>
+    <main class="layout-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
