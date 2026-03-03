@@ -1,59 +1,125 @@
-<div class="user-profile-container">
-    <p-card [style]="{ width: '100%', maxWidth: '800px', margin: '0 auto' }">
-        <div class="profile-header">
-            <p-avatar
-                image="https://www.cidob.org/sites/default/files/styles/max_width_290/public/2025-07/Pe%C3%B1a%20Nieto.jpg.webp?itok=wMXQyS4P"
-                size="xlarge" shape="circle" [style]="{'width': '120px', 'height': '120px'}">
-            </p-avatar>
-            <div class="profile-info-header">
-                <h2>Enrique Peña Nieto</h2>
-                <span class="role-badge">Usuario Estandar</span>
+<div class="user-container p-4 animate__animated animate__fadeIn">
+    <p-toast></p-toast>
+
+    <div class="profile-card shadow-4">
+        <div class="profile-cover"></div>
+        <div class="profile-content p-4 text-center">
+            <div class="profile-header flex flex-column align-items-center mb-5">
+                <div class="avatar-container mb-3">
+                    <p-avatar icon="pi pi-user" size="xlarge" shape="circle"
+                        [style]="{'width': '120px', 'height': '120px', 'background': 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)', 'color': '#ffffff', 'border': '4px solid #ffffff'}"></p-avatar>
+                    <div class="status-indicator" [class]="profile.status.toLowerCase()"></div>
+                </div>
+                <h2 class="profile-name m-0 text-900">{{profile.fullName}}</h2>
+                <span class="profile-role mt-1 font-medium text-600">{{profile.role}}</span>
+                <span class="profile-username mt-1 text-500 font-italic">@{{profile.username}}</span>
             </div>
-            <div class="profile-actions">
-                <p-button label="Editar Perfil" icon="pi pi-user-edit" severity="info" outlined="true"></p-button>
+
+            <div class="grid profile-details px-3 text-left">
+                <div class="col-12 md:col-6 lg:col-4 mb-4">
+                    <div class="info-item shadow-1">
+                        <i class="pi pi-envelope"></i>
+                        <div class="flex flex-column">
+                            <span class="info-label">Email</span>
+                            <span class="info-value">{{profile.email}}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 md:col-6 lg:col-4 mb-4">
+                    <div class="info-item shadow-1">
+                        <i class="pi pi-calendar"></i>
+                        <div class="flex flex-column">
+                            <span class="info-label">Nacimiento</span>
+                            <span class="info-value">{{profile.birthDate}}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 md:col-6 lg:col-4 mb-4">
+                    <div class="info-item shadow-1">
+                        <i class="pi pi-phone"></i>
+                        <div class="flex flex-column">
+                            <span class="info-label">Teléfono</span>
+                            <span class="info-value">{{profile.phone}}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 mb-4">
+                    <div class="info-item shadow-1">
+                        <i class="pi pi-map-marker"></i>
+                        <div class="flex flex-column">
+                            <span class="info-label">Dirección</span>
+                            <span class="info-value">{{profile.address}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-actions flex justify-content-center gap-3 mt-4">
+                <p-button label="Editar Perfil" icon="pi pi-user-edit" severity="info"
+                    (onClick)="editProfile()"></p-button>
+                <p-button label="Eliminar Cuenta" icon="pi pi-user-minus" severity="danger" [outlined]="true"
+                    (onClick)="deleteProfile()"></p-button>
             </div>
         </div>
+    </div>
 
-        <p-fieldset legend="Datos Personales" [toggleable]="false" class="mt-4">
-            <div class="info-grid">
-                <div class="info-item">
-                    <span class="info-label">Nombre Completo:</span>
-                    <span class="info-value">Enrique Peña Nieto</span>
+    <p-dialog [(visible)]="profileDialog" header="Editar Perfil" [modal]="true" styleClass="p-fluid"
+        [style]="{ width: '550px' }">
+        <ng-template pTemplate="content">
+            <div class="profile-edit-header flex align-items-center justify-content-center mb-4">
+                <p-avatar icon="pi pi-user" size="xlarge" shape="circle"
+                    [style]="{'width': '100px', 'height': '100px'}"></p-avatar>
+            </div>
+
+            <div class="grid p-fluid">
+                <div class="field col-12">
+                    <label for="fullName" class="font-bold">Nombre Completo</label>
+                    <input type="text" pInputText id="fullName" [(ngModel)]="profile.fullName" required autofocus />
+                    <small class="p-error" *ngIf="submitted && !profile.fullName">Nombre es requerido.</small>
                 </div>
-                <div class="info-item">
-                    <span class="info-label">Fecha de Nacimiento:</span>
-                    <span class="info-value">20/07/1966</span>
+
+                <div class="field col-12 md:col-6">
+                    <label for="username" class="font-bold">Usuario</label>
+                    <input type="text" pInputText id="username" [(ngModel)]="profile.username" required />
                 </div>
-                <div class="info-item">
-                    <span class="info-label">Dirección:</span>
-                    <span class="info-value">Residencia Oficial L.P., CDMX</span>
+
+                <div class="field col-12 md:col-6">
+                    <label for="email" class="font-bold">Email</label>
+                    <input type="email" pInputText id="email" [(ngModel)]="profile.email" required />
                 </div>
-                <div class="info-item">
-                    <span class="info-label">Teléfono:</span>
-                    <span class="info-value">5551234567</span>
+
+                <div class="field col-12 md:col-6">
+                    <label for="birthDate" class="font-bold">Fecha de Nacimiento</label>
+                    <input type="date" pInputText id="birthDate" [(ngModel)]="profile.birthDate" />
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label for="phone" class="font-bold">Teléfono</label>
+                    <input type="text" pInputText id="phone" [(ngModel)]="profile.phone" />
+                </div>
+
+                <div class="field col-12">
+                    <label for="address" class="font-bold">Dirección</label>
+                    <input type="text" pInputText id="address" [(ngModel)]="profile.address" />
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label for="role" class="font-bold">Rol</label>
+                    <input type="text" pInputText id="role" [(ngModel)]="profile.role" />
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label for="status" class="font-bold">Estado</label>
+                    <input type="text" pInputText id="status" [(ngModel)]="profile.status" />
                 </div>
             </div>
-        </p-fieldset>
+        </ng-template>
 
-        <p-fieldset legend="Datos de la Cuenta" [toggleable]="false" class="mt-4">
-            <div class="info-grid">
-                <div class="info-item">
-                    <span class="info-label">Nombre de Usuario:</span>
-                    <span class="info-value">epeña_nieto</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Correo Electrónico:</span>
-                    <span class="info-value">enrique.pn&#64;mexico.gob.mx</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Estado de Cuenta:</span>
-                    <span class="info-value status-active">Activo</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Último Acceso:</span>
-                    <span class="info-value">26/02/2026 - 19:35</span>
-                </div>
-            </div>
-        </p-fieldset>
-    </p-card>
+        <ng-template pTemplate="footer">
+            <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="hideDialog()"></p-button>
+            <p-button label="Guardar" icon="pi pi-check" [text]="true" (onClick)="saveProfile()"></p-button>
+        </ng-template>
+    </p-dialog>
+
+    <p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
 </div>

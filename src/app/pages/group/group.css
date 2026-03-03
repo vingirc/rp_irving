@@ -1,23 +1,69 @@
 .group-container {
-    padding: 1rem;
+    background-color: var(--surface-v);
+    min-height: calc(100vh - 100px);
 }
 
-.group-container h2 {
-    color: var(--text-color, #333333);
+.card {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+}
+
+.flex {
+    display: flex;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.justify-content-between {
+    justify-content: space-between;
+}
+
+.m-0 {
+    margin: 0;
+}
+
+.mb-4 {
     margin-bottom: 1.5rem;
 }
 
-.cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
+.mr-2 {
+    margin-right: 0.5rem;
+}
+
+.mt-3 {
     margin-top: 1rem;
 }
 
-.total-number {
-    font-size: 3rem;
-    font-weight: 700;
-    text-align: center;
-    margin: 1rem 0;
-    color: var(--primary-color);
+.p-input-icon-left>input {
+    padding-left: 2.5rem;
+}
+
+/* Adjust table headers for premium look */
+:host ::v-deep .p-datatable .p-datatable-header {
+    background: #f8f9fa;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    padding: 1.5rem;
+}
+
+:host ::v-deep .p-datatable .p-datatable-thead>tr>th {
+    background: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+}
+
+:host ::v-deep .p-button.p-button-success.p-button-outlined {
+    background-color: transparent;
+    color: #22c55e;
+    border: 1px solid;
+}
+
+:host ::v-deep .p-button.p-button-danger.p-button-outlined {
+    background-color: transparent;
+    color: #ef4444;
+    border: 1px solid;
 }

@@ -11,20 +11,10 @@
     <div class="sidebar-menu">
         <div class="menu-section">Navegación</div>
 
-        <a routerLink="/home" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}"
-            class="menu-item">
-            <i class="pi pi-home"></i>
-            <span>Inicio</span>
-        </a>
-
-        <a routerLink="/home/group" routerLinkActive="active-link" class="menu-item">
-            <i class="pi pi-users"></i>
-            <span>Grupos</span>
-        </a>
-
-        <a routerLink="/home/user" routerLinkActive="active-link" class="menu-item">
-            <i class="pi pi-user"></i>
-            <span>Perfil</span>
+        <a *ngFor="let item of menuItems" [routerLink]="item.path" routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{exact: item.exact}" class="menu-item">
+            <i [class]="item.icon"></i>
+            <span>{{item.title}}</span>
         </a>
 
         <a routerLink="/" class="menu-item">

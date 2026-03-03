@@ -15,9 +15,9 @@ export const routes: Routes = [
         path: 'home',
         component: MainLayout,
         children: [
-            { path: '', component: Home },
-            { path: 'group', component: Group },
-            { path: 'user', component: User }
+            { path: '', component: Home, data: { title: 'Inicio', icon: 'pi pi-home' } },
+            { path: 'group', component: Group, data: { title: 'Grupos', icon: 'pi pi-users' } },
+            { path: 'user', component: User, data: { title: 'Perfil', icon: 'pi pi-user' } }
         ]
     },
     { path: '**', redirectTo: '' }
