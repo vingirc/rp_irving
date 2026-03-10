@@ -1,0 +1,79 @@
+<div class="management-container p-4">
+    <p-toast></p-toast>
+    <p-confirmDialog></p-confirmDialog>
+
+    <div class="card shadow-2">
+        <div class="flex justify-content-between align-items-center mb-4 p-3 border-bottom-1 surface-border">
+            <h2 class="m-0">Gestión de Usuarios (Super Admin)</h2>
+            <p-button label="Exportar" icon="pi pi-upload" severity="secondary" [text]="true"></p-button>
+        </div>
+
+        <p-table [value]="users" [rows]="10" [paginator]="true" [rowHover]="true" #dt>
+            <ng-template pTemplate="caption">
+                <div class="flex justify-content-between">
+                    <span class="p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                            placeholder="Buscar usuarios..." />
+                    </span>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Usuario</th>
+                    <th>Email</th>
+                    <th>Nombre Completo</th>
+                    <th>Rol</th>
+                    <th>Permisos</th>
+                    <th style="width: 8rem"></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-user>
+                <tr>
+                    <td>@{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td class="font-bold">{{ user.fullName }}</td>
+                    <td>
+                        <p-tag [value]="user.role" [severity]="getRoleSeverity(user.role)"></p-tag>
+                    </td>
+                    <td>
+                        <span class="text-sm">{{ user.permissions.join(', ') }}</span>
+                    </td>
+                    <td>
+                        <div class="flex gap-2">
+                            <p-button *hasPermission="'user_edit'" icon="pi pi-pencil" [rounded]="true"
+                                [outlined]="true" (onClick)="editUser(user)"></p-button>
+
+                            <p-button *hasPermission="'user_delete'" icon="pi pi-trash" severity="danger"
+                                [rounded]="true" [outlined]="true" (onClick)="deleteUser(user)"></p-button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <p-dialog [(visible)]="userDialog" header="Editar Usuario" [modal]="true" styleClass="p-fluid"
+        [style]="{ width: '450px' }">
+        <div class="field mt-3" *ngIf="selectedUser">
+            <label for="fullName">Nombre Completo</label>
+            <input type="text" pInputText id="fullName" [(ngModel)]="selectedUser.fullName" required />
+        </div>
+        <div class="field mt-3" *ngIf="selectedUser">
+            <label for="role">Rol del Sistema</label>
+            <p-select [options]="roles" [(ngModel)]="selectedUser.role" placeholder="Selecciona un rol"></p-select>
+        </div>
+        <div class="field mt-3" *ngIf="selectedUser">
+            <label>Permisos</label>
+            <div class="flex flex-wrap gap-2">
+                <p-tag value="Lectura" severity="secondary"></p-tag>
+                <p-tag value="Escritura" severity="secondary"></p-tag>
+                <p-tag value="Gestión" severity="secondary"></p-tag>
+            </div>
+        </div>
+        <ng-template pTemplate="footer">
+            <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="userDialog = false"></p-button>
+            <p-button label="Guardar" icon="pi pi-check" [text]="true" (onClick)="saveUser()"></p-button>
+        </ng-template>
+    </p-dialog>
+</div>

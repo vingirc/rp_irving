@@ -7,12 +7,16 @@
 }
 
 .layout-sidebar {
-  width: 280px;
+  /* width: 280px; <- ELIMINADA: Ya no forzamos un ancho fijo aquí */
   background: #0a0a1a;
   color: white;
   flex-shrink: 0;
   box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
   z-index: 10;
+
+  /* NUEVO: Permite que el contenedor host tome el tamaño y las transiciones de su hijo (.sidebar-container) */
+  display: flex;
+  height: 100%;
 }
 
 .layout-content-wrapper {
@@ -55,7 +59,7 @@
 
 .user-greeting {
   font-size: 0.95rem;
-  color: #64748b;
+  color: #334155;
   font-weight: 500;
 }
 

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterModule, Router, Route } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 })
 export class Sidebar {
   menuItems: any[] = [];
+  isCollapsed: boolean = true; // El sidebar iniciará plegado por defecto
 
   constructor(private router: Router) {
     this.generateMenu();
@@ -28,5 +29,9 @@ export class Sidebar {
           exact: route.path === ''
         }));
     }
+  }
+
+  toggleSidebar() {
+    this.isCollapsed = !this.isCollapsed;
   }
 }

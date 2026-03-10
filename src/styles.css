@@ -20,3 +20,46 @@ a {
     color: inherit;
     text-decoration: none;
 }
+
+/* Contrast Improvements */
+.layout-content {
+    color: #1e293b;
+    /* Dark Slate for main content on light background */
+}
+
+/* Utility classes for contrast */
+.text-900 {
+    color: #0f172a !important;
+}
+
+.text-800 {
+    color: #1e293b !important;
+}
+
+.text-700 {
+    color: #334155 !important;
+}
+
+.text-600 {
+    color: #475569 !important;
+}
+
+.text-secondary,
+.p-text-secondary,
+.text-xs.text-secondary,
+.text-400,
+.text-500 {
+    color: #475569 !important;
+    /* Slate 600 for better visibility */
+}
+
+.text-600 {
+    color: #334155 !important;
+}
+
+/* PrimeNG Specific Overrides if needed */
+.p-inputtextarea:disabled,
+.p-inputtext:disabled {
+    color: #334155 !important;
+    opacity: 0.8 !important;
+}

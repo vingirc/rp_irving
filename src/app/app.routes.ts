@@ -4,8 +4,9 @@ import { Login } from './pages/auth/login/login';
 import { Register } from './pages/auth/register/register';
 import { MainLayout } from './layouts/main-layout/main-layout';
 import { Home } from './pages/home/home';
-import { Group } from './pages/group/group';
-import { User } from './pages/user/user';
+import { GroupComponent } from './pages/group/group';
+import { UserComponent } from './pages/user/user';
+import { ManagementComponent } from './pages/management/management';
 
 export const routes: Routes = [
     { path: '', component: LandingPage },
@@ -16,8 +17,9 @@ export const routes: Routes = [
         component: MainLayout,
         children: [
             { path: '', component: Home, data: { title: 'Inicio', icon: 'pi pi-home' } },
-            { path: 'group', component: Group, data: { title: 'Grupos', icon: 'pi pi-users' } },
-            { path: 'user', component: User, data: { title: 'Perfil', icon: 'pi pi-user' } }
+            { path: 'group', component: GroupComponent, data: { title: 'Grupos', icon: 'pi pi-users' } },
+            { path: 'user', component: UserComponent, data: { title: 'Perfil', icon: 'pi pi-user' } },
+            { path: 'management', component: ManagementComponent, data: { title: 'Gestión', icon: 'pi pi-cog' } }
         ]
     },
     { path: '**', redirectTo: '' }

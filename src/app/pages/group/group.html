@@ -1,118 +1,190 @@
 <div class="group-container p-4">
     <p-toast></p-toast>
+    <p-confirmDialog></p-confirmDialog>
 
-    <div class="card shadow-2">
-        <p-toolbar styleClass="mb-4 gap-2">
-            <ng-template pTemplate="left">
-                <p-button label="Nuevo" icon="pi pi-plus" severity="success" class="mr-2"
-                    (onClick)="openNew()"></p-button>
-                <p-button label="Eliminar" icon="pi pi-trash" severity="danger" (onClick)="deleteSelectedGroups()"
-                    [disabled]="!selectedGroups || !selectedGroups.length"></p-button>
-            </ng-template>
-        </p-toolbar>
+    <div *ngIf="view === 'list'">
+        <div class="card shadow-2">
+            <p-toolbar styleClass="mb-4 gap-2">
+                <ng-template pTemplate="left">
+                    <p-button *hasPermission="'group_add'" label="Nuevo Grupo" icon="pi pi-plus" severity="success"
+                        class="mr-2" (onClick)="openNewGroup()"></p-button>
+                </ng-template>
+            </p-toolbar>
 
-        <p-table #dt [value]="groups" [rows]="10" [paginator]="true" [globalFilterFields]="['nombre', 'autor', 'nivel']"
-            [tableStyle]="{ 'min-width': '75rem' }" [(selection)]="selectedGroups" [rowHover]="true" dataKey="id"
-            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} grupos"
-            [showCurrentPageReport]="true">
-
-            <ng-template pTemplate="caption">
-                <div class="flex align-items-center justify-content-between">
-                    <h4 class="m-0">Gestión de Grupos</h4>
-                    <span class="p-input-icon-left">
-                        <i class="pi pi-search"></i>
-                        <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')"
-                            placeholder="Buscar..." />
-                    </span>
-                </div>
-            </ng-template>
-
-            <ng-template pTemplate="header">
-                <tr>
-                    <th style="width: 4rem">
-                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-                    </th>
-                    <th pSortableColumn="nombre" style="min-width:15rem">Nombre <p-sortIcon field="nombre"></p-sortIcon>
-                    </th>
-                    <th pSortableColumn="nivel">Nivel <p-sortIcon field="nivel"></p-sortIcon></th>
-                    <th pSortableColumn="autor">Autor <p-sortIcon field="autor"></p-sortIcon></th>
-                    <th pSortableColumn="integrantes">Integrantes <p-sortIcon field="integrantes"></p-sortIcon></th>
-                    <th pSortableColumn="tickets">Tickets <p-sortIcon field="tickets"></p-sortIcon></th>
-                    <th></th>
-                </tr>
-            </ng-template>
-
-            <ng-template pTemplate="body" let-group>
-                <tr>
-                    <td>
-                        <p-tableCheckbox [value]="group"></p-tableCheckbox>
-                    </td>
-                    <td>{{ group.nombre }}</td>
-                    <td>{{ group.nivel }}</td>
-                    <td>{{ group.autor }}</td>
-                    <td>{{ group.integrantes }}</td>
-                    <td>{{ group.tickets }}</td>
-                    <td>
-                        <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" severity="success"
-                            (onClick)="editGroup(group)"></p-button>
-                        <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
-                            (onClick)="deleteGroup(group)"></p-button>
-                    </td>
-                </tr>
-            </ng-template>
-
-            <ng-template pTemplate="summary">
-                <div class="flex align-items-center justify-content-between">
-                    En total hay {{ groups ? groups.length : 0 }} grupos.
-                </div>
-            </ng-template>
-        </p-table>
+            <p-table [value]="groups" [rows]="10" [paginator]="true" [tableStyle]="{ 'min-width': '75rem' }"
+                [rowHover]="true">
+                <ng-template pTemplate="caption">
+                    <div class="flex align-items-center justify-content-between">
+                        <h4 class="m-0">Mis Grupos y Espacios</h4>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="min-width:15rem">Nombre</th>
+                        <th>Descripción</th>
+                        <th>Integrantes</th>
+                        <th style="width: 10rem"></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-group>
+                    <tr class="cursor-pointer hover:surface-100" (click)="selectGroup(group)">
+                        <td class="font-bold">{{ group.name }}</td>
+                        <td>{{ group.description }}</td>
+                        <td>
+                            <p-tag [value]="group.members.length + ' miembros'" severity="info"></p-tag>
+                        </td>
+                        <td class="text-right">
+                            <p-button icon="pi pi-chevron-right" [rounded]="true" [text]="true"></p-button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
     </div>
 
-    <p-dialog [(visible)]="groupDialog" [header]="group.id ? 'Editar Grupo' : 'Nuevo Grupo'" [modal]="true"
-        styleClass="p-fluid" [style]="{ width: '450px' }">
-        <ng-template pTemplate="content">
-            <div class="field mt-3">
-                <label for="nombre">Nombre</label>
-                <input type="text" pInputText id="nombre" [(ngModel)]="group.nombre" required autofocus />
-                <small class="p-error" *ngIf="submitted && !group.nombre">Nombre es requerido.</small>
+    <div *ngIf="view === 'detail' && selectedGroup" class="fadein">
+        <div class="header-nav flex justify-content-between align-items-center mb-4">
+            <div class="flex align-items-center gap-3">
+                <p-button icon="pi pi-arrow-left" [rounded]="true" [text]="true" (onClick)="backToGroups()"></p-button>
+                <h1 class="text-3xl font-bold m-0">{{ selectedGroup.name }}</h1>
+                <p-tag [value]="selectedGroup.description" severity="secondary"></p-tag>
             </div>
-
-            <div class="field mt-3">
-                <label for="nivel">Nivel</label>
-                <input type="text" pInputText id="nivel" [(ngModel)]="group.nivel" required />
-                <small class="p-error" *ngIf="submitted && !group.nivel">Nivel es requerido.</small>
+            <div class="flex gap-2">
+                <p-selectButton [options]="displayModes" [(ngModel)]="displayMode" optionLabel="label"
+                    optionValue="value">
+                    <ng-template let-item pTemplate="item">
+                        <i [class]="item.icon" class="mr-2"></i>
+                        <span>{{item.label}}</span>
+                    </ng-template>
+                </p-selectButton>
+                <p-button *hasPermission="'ticket_add'" label="Nuevo Ticket" icon="pi pi-plus" severity="primary"
+                    (onClick)="openNewTicket()"></p-button>
             </div>
+        </div>
 
-            <div class="field mt-3">
-                <label for="autor">Autor</label>
-                <input type="text" pInputText id="autor" [(ngModel)]="group.autor" required />
-                <small class="p-error" *ngIf="submitted && !group.autor">Autor es requerido.</small>
-            </div>
-
-            <div class="formgrid grid mt-3">
-                <div class="field col">
-                    <label for="integrantes">Integrantes</label>
-                    <input type="number" pInputText id="integrantes" [(ngModel)]="group.integrantes" />
+        <div *ngIf="displayMode === 'kanban'" class="kanban-board flex gap-3 overflow-x-auto pb-4">
+            <div *ngFor="let col of kanbanColumns" class="kanban-col flex-shrink-0" style="width: 300px;">
+                <div class="col-header flex justify-content-between align-items-center p-3 border-round-top border-bottom-1 border-300"
+                    [ngStyle]="{'background-color': 'var(--' + col.color + '-100)'}">
+                    <span class="font-bold uppercase text-sm">{{ col.label }}</span>
+                    <p-tag [value]="getTicketsByStatus(col.value).length.toString()" severity="secondary"
+                        [rounded]="true"></p-tag>
                 </div>
-                <div class="field col">
-                    <label for="tickets">Tickets</label>
-                    <input type="text" pInputText id="tickets" [(ngModel)]="group.tickets" />
+                <div class="col-content p-2 surface-50 border-round-bottom min-h-screen">
+                    <div *ngFor="let ticket of getTicketsByStatus(col.value)"
+                        class="ticket-card card bg-white border-round p-3 mb-2 cursor-pointer hover:surface-100"
+                        (click)="viewTicket(ticket)">
+                        <div class="flex justify-content-between mb-2">
+                            <span class="text-xs font-bold text-700">{{ ticket.id }}</span>
+                            <p-tag [value]="ticket.priority"
+                                [severity]="ticket.priority === 'Urgente' || ticket.priority === 'Inmediato' ? 'danger' : 'warn'"></p-tag>
+                        </div>
+                        <div class="font-bold mb-3 text-900">{{ ticket.title }}</div>
+                        <div class="flex justify-content-between align-items-center">
+                            <p-avatar [label]="ticket.assignedToName?.charAt(0) || '?'" shape="circle" size="normal"
+                                [title]="ticket.assignedToName"></p-avatar>
+                            <span class="text-xs font-semibold text-600">{{ ticket.deadline | date:'shortDate' }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <div class="field mt-3">
-                <label for="descripcion">Descripción</label>
-                <textarea id="descripcion" pInputTextarea [(ngModel)]="group.descripcion" required rows="3"
-                    cols="20"></textarea>
+        <div *ngIf="displayMode === 'list'" class="card shadow-2">
+            <p-table [value]="groupTickets()" [rows]="10" [paginator]="true" [rowHover]="true"
+                [globalFilterFields]="['title', 'status', 'priority', 'assignedToName']" #dtList>
+                <ng-template pTemplate="caption">
+                    <div class="flex justify-content-between">
+                        <span class="p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text"
+                                (input)="dtList.filterGlobal($any($event.target).value, 'contains')"
+                                placeholder="Buscar tickets..." />
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
+                        <th pSortableColumn="title">Título <p-sortIcon field="title"></p-sortIcon></th>
+                        <th pSortableColumn="status">Estado <p-sortIcon field="status"></p-sortIcon></th>
+                        <th pSortableColumn="priority">Prioridad <p-sortIcon field="priority"></p-sortIcon></th>
+                        <th pSortableColumn="assignedToName">Asignado <p-sortIcon field="assignedToName"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="deadline">Fecha Límite <p-sortIcon field="deadline"></p-sortIcon></th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-ticket>
+                    <tr>
+                        <td>{{ ticket.id }}</td>
+                        <td class="font-bold">{{ ticket.title }}</td>
+                        <td>
+                            <p-tag [value]="ticket.status"
+                                [severity]="ticket.status === 'Hecho' ? 'success' : 'info'"></p-tag>
+                        </td>
+                        <td>{{ ticket.priority }}</td>
+                        <td>{{ ticket.assignedToName || 'Sin asignar' }}</td>
+                        <td>{{ ticket.deadline | date:'shortDate' }}</td>
+                        <td>
+                            <p-button icon="pi pi-eye" [rounded]="true" [outlined]="true"
+                                (onClick)="viewTicket(ticket)"></p-button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <div class="mt-5" *hasPermission="'groups_edit'">
+            <div class="card p-4">
+                <div class="flex justify-content-between align-items-center mb-4">
+                    <h3 class="m-0">Gestión de Miembros</h3>
+                    <div class="flex gap-2">
+                        <span class="p-input-icon-left">
+                            <i class="pi pi-envelope"></i>
+                            <input type="text" pInputText placeholder="Email o Usuario" [(ngModel)]="newMemberEmail" />
+                        </span>
+                        <p-button label="Añadir" icon="pi pi-user-plus" (onClick)="addMember()"></p-button>
+                    </div>
+                </div>
+                <div class="grid">
+                    <div *ngFor="let member of groupMembers" class="col-12 md:col-6 lg:col-4">
+                        <div
+                            class="member-item flex align-items-center p-3 border-1 surface-border border-round hover:surface-100 transition-colors transition-duration-150">
+                            <p-avatar [label]="member.fullName.charAt(0)" shape="circle" size="large" class="mr-3"
+                                styleClass="bg-primary text-white"></p-avatar>
+                            <div class="flex-grow-1">
+                                <span class="block font-bold">{{ member.fullName }}</span>
+                                <span class="text-sm text-secondary">{{ member.email }}</span>
+                            </div>
+                            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [text]="true"
+                                (onClick)="removeMember(member.id)"></p-button>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </ng-template>
+        </div>
+    </div>
 
+    <p-dialog [(visible)]="ticketDialog" [modal]="true" [style]="{width: '80vw'}" [maximizable]="true"
+        [contentStyle]="{padding: '0'}" [showHeader]="false" styleClass="ticket-dialog">
+        <app-ticket [ticket]="$any(selectedTicket)" [currentUserId]="'user1'" [currentUserRole]="'admin'"
+            (onClose)="ticketDialog = false" (onSave)="ticketDialog = false"></app-ticket>
+    </p-dialog>
+
+    <p-dialog [(visible)]="groupDialog" header="Configuración de Grupo" [modal]="true" styleClass="p-fluid">
+        <div class="field mt-3" *ngIf="selectedGroup">
+            <label for="name">Nombre del Grupo</label>
+            <input type="text" pInputText id="name" [(ngModel)]="selectedGroup.name" required autofocus />
+            <small class="p-error" *ngIf="submitted && !selectedGroup.name">El nombre es requerido.</small>
+        </div>
+        <div class="field mt-3" *ngIf="selectedGroup">
+            <label for="description">Descripción</label>
+            <textarea id="description" pInputTextarea [(ngModel)]="selectedGroup.description" rows="3"></textarea>
+        </div>
         <ng-template pTemplate="footer">
-            <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="hideDialog()"></p-button>
+            <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="groupDialog = false"></p-button>
             <p-button label="Guardar" icon="pi pi-check" [text]="true" (onClick)="saveGroup()"></p-button>
         </ng-template>
     </p-dialog>
-
-    <p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
 </div>

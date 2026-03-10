@@ -1,0 +1,106 @@
+<div class="ticket-detail-container p-4" *ngIf="ticket">
+    <div class="header flex justify-content-between align-items-center mb-4">
+        <div class="title-section">
+            <span class="p-text-secondary text-sm mb-1 block">{{ ticket.id }}</span>
+            <input type="text" pInputText [(ngModel)]="ticket.title" [disabled]="!canEditFull"
+                class="w-full text-2xl font-bold border-none bg-transparent p-0 focus:shadow-none"
+                placeholder="Título del Ticket" />
+        </div>
+        <div class="actions">
+            <p-button icon="pi pi-times" [rounded]="true" [text]="true" severity="secondary"
+                (onClick)="onClose.emit()"></p-button>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="col-12 lg:col-8">
+            <div class="card p-3 mb-4">
+                <label class="block font-semibold mb-2">Descripción</label>
+                <textarea pInputTextarea [(ngModel)]="ticket.description" [disabled]="!canEditFull" rows="5"
+                    class="w-full" placeholder="Añade una descripción detallada..."></textarea>
+            </div>
+
+            <div class="card p-3 mb-4">
+                <label class="block font-semibold mb-3">Comentarios</label>
+                <div class="comments-list mb-3">
+                    <div *ngFor="let comment of ticket.comments" class="comment-item mb-3">
+                        <div class="flex align-items-center mb-1">
+                            <span class="font-bold mr-2 text-primary">{{ comment.userName }}</span>
+                            <span class="text-xs text-secondary">{{ comment.createdAt | date:'short' }}</span>
+                        </div>
+                        <div class="comment-text p-2 border-round surface-100">
+                            {{ comment.text }}
+                        </div>
+                    </div>
+                </div>
+                <div class="add-comment flex gap-2" *hasPermission="'ticket_edit'">
+                    <input type="text" pInputText [(ngModel)]="newComment" placeholder="Escribe un comentario..."
+                        class="flex-grow-1" (keyup.enter)="addComment()" />
+                    <p-button icon="pi pi-send" (onClick)="addComment()" [disabled]="!newComment.trim()"></p-button>
+                </div>
+            </div>
+
+            <div class="card p-3">
+                <label class="block font-semibold mb-3">Historial de Cambios</label>
+                <div class="history-list">
+                    <div *ngFor="let entry of ticket.history" class="history-item flex gap-3 mb-2 text-sm">
+                        <span class="text-secondary white-space-nowrap">{{ entry.timestamp | date:'shortTime' }}</span>
+                        <span class="font-bold">{{ entry.userName }}</span>
+                        <span>{{ entry.action }}:</span>
+                        <span class="text-secondary">{{ entry.details }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 lg:col-4">
+            <div class="card p-3 mb-4">
+                <div class="field mb-4">
+                    <label class="block font-semibold mb-2">Estado</label>
+                    <p-select [options]="statuses" [(ngModel)]="ticket.status" (onChange)="onStatusChange($event.value)"
+                        [disabled]="!canEditStatus"></p-select>
+                </div>
+
+                <div class="field mb-4">
+                    <label class="block font-semibold mb-2">Prioridad</label>
+                    <p-select [options]="priorities" [(ngModel)]="ticket.priority" optionLabel="label"
+                        optionValue="value" [disabled]="!canEditFull"></p-select>
+                </div>
+
+                <div class="field mb-4">
+                    <label class="block font-semibold mb-2">Asignado a</label>
+                    <div class="flex align-items-center p-2 border-1 border-round surface-border">
+                        <i class="pi pi-user mr-2"></i>
+                        <span>{{ ticket.assignedToName || 'Sin asignar' }}</span>
+                    </div>
+                </div>
+
+                <p-divider></p-divider>
+
+                <div class="field mb-4">
+                    <label class="block font-semibold mb-2">Creado por</label>
+                    <div class="flex align-items-center text-sm text-secondary">
+                        <i class="pi pi-user mr-2"></i>
+                        <span>{{ ticket.creatorName }}</span>
+                    </div>
+                    <div class="text-xs text-secondary mt-1">{{ ticket.createdAt | date:'medium' }}</div>
+                </div>
+
+                <div class="field mb-4">
+                    <label class="block font-semibold mb-2">Fecha Límite</label>
+                    <p-datepicker [(ngModel)]="ticket.deadline" [showIcon]="true"
+                        [disabled]="!canEditFull"></p-datepicker>
+                </div>
+            </div>
+
+            <div class="flex flex-column gap-2">
+                <ng-container *hasPermission="'ticket_edit'">
+                    <p-button label="Guardar Cambios" icon="pi pi-check" (onClick)="save()" severity="success"
+                        class="w-full" *ngIf="canEditStatus"></p-button>
+                </ng-container>
+                <p-button label="Cerrar" [outlined]="true" severity="secondary" (onClick)="onClose.emit()"
+                    class="w-full"></p-button>
+            </div>
+        </div>
+    </div>
+</div>

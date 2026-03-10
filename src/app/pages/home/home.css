@@ -29,7 +29,7 @@
 }
 
 .page-subtitle {
-    color: #64748b;
+    color: #334155;
     font-size: 1rem;
 }
 
@@ -87,7 +87,7 @@
 
 .stat-details h3 {
     font-size: 0.85rem;
-    color: #64748b;
+    color: #334155;
     font-weight: 600;
     text-transform: uppercase;
     margin-bottom: 0.3rem;
@@ -197,13 +197,13 @@
 }
 
 .activity-action {
-    color: #64748b;
+    color: #334155;
     font-size: 0.85rem;
 }
 
 .activity-time {
     font-size: 0.8rem;
-    color: #94a3b8;
+    color: #475569;
     white-space: nowrap;
 }
 
@@ -229,7 +229,7 @@
 }
 
 .status-desc {
-    color: #64748b;
+    color: #334155;
     font-size: 0.9rem;
     line-height: 1.5;
 }

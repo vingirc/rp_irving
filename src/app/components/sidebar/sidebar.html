@@ -1,39 +1,42 @@
-<div class="sidebar-container">
+<div class="sidebar-container" [class.collapsed]="isCollapsed">
     <div class="sidebar-header">
         <div class="logo">
             <div class="logo-icon-container">
                 <span class="emoji-icon">🔒</span>
             </div>
-            <span>SecureApp</span>
+            <span class="logo-text">SecureApp</span>
         </div>
+
+        <button class="toggle-btn" (click)="toggleSidebar()">
+            <i class="pi" [ngClass]="isCollapsed ? 'pi-angle-right' : 'pi-angle-left'"></i>
+        </button>
     </div>
 
     <div class="sidebar-menu">
         <div class="menu-section">Navegación</div>
 
         <a *ngFor="let item of menuItems" [routerLink]="item.path" routerLinkActive="active-link"
-            [routerLinkActiveOptions]="{exact: item.exact}" class="menu-item">
+            [routerLinkActiveOptions]="{exact: item.exact}" class="menu-item" [title]="isCollapsed ? item.title : ''">
             <i [class]="item.icon"></i>
-            <span>{{item.title}}</span>
+            <span class="menu-text">{{item.title}}</span>
         </a>
 
-        <a routerLink="/" class="menu-item">
+        <a routerLink="/" class="menu-item" [title]="isCollapsed ? 'Landing Page' : ''">
             <i class="pi pi-globe"></i>
-            <span>Landing Page</span>
+            <span class="menu-text">Landing Page</span>
         </a>
 
-        <!-- Divisor -->
         <div class="menu-divider"></div>
 
         <div class="menu-section mt-auto">Sesión</div>
 
-        <a routerLink="/login" class="menu-item logout">
+        <a routerLink="/login" class="menu-item logout" [title]="isCollapsed ? 'Cerrar Sesión' : ''">
             <i class="pi pi-sign-out"></i>
-            <span>Cerrar Sesión</span>
+            <span class="menu-text">Cerrar Sesión</span>
         </a>
 
         <div class="version-status">
-            <span>Versión en desarrollo</span>
+            <span class="menu-text">Versión en desarrollo</span>
         </div>
     </div>
 </div>

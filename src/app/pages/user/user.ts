@@ -12,6 +12,9 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToolbarModule } from 'primeng/toolbar';
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { TicketService } from '../../services/ticket.service';
+import { inject, computed } from '@angular/core';
+import { TagModule } from 'primeng/tag';
 
 export interface ProfileData {
   id?: string;
@@ -40,36 +43,49 @@ export interface ProfileData {
     FieldsetModule,
     ToastModule,
     ConfirmDialogModule,
-    ToolbarModule
+    ToolbarModule,
+    TagModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './user.html',
   styleUrl: './user.css',
 })
-export class User implements OnInit {
+export class UserComponent implements OnInit {
   profile: ProfileData = {
-    id: '1',
-    username: 'epena_nieto',
-    email: 'enrique.pn@mexico.gob.mx',
-    fullName: 'Enrique Peña Nieto',
-    birthDate: '1966-07-20',
-    phone: '5551234567',
-    address: 'Residencia Oficial L.P., CDMX',
-    role: 'Usuario Estandar',
+    id: 'user1',
+    username: 'irving_dev',
+    email: 'irving@example.com',
+    fullName: 'Irving Developer',
+    birthDate: '1995-05-15',
+    phone: '555-0199',
+    address: 'CDMX, México',
+    role: 'admin',
     status: 'Activo'
   };
+
+  private ticketService = inject(TicketService);
+  private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
+
+  userTickets = computed(() => {
+    return this.ticketService.tickets().filter(t => t.assignedTo === this.profile.id);
+  });
+
+  ticketSummary = computed(() => {
+    const tickets = this.userTickets();
+    return {
+      open: tickets.filter(t => t.status === 'Pendiente' || t.status === 'Revisión' || t.status === 'Bloqueado').length,
+      inProgress: tickets.filter(t => t.status === 'En Progreso').length,
+      done: tickets.filter(t => t.status === 'Hecho').length
+    };
+  });
 
   profileDialog: boolean = false;
   submitted: boolean = false;
 
-  constructor(
-    private messageService: MessageService,
-    private confirmationService: ConfirmationService
-  ) { }
+  constructor() { }
 
-  ngOnInit() {
-    // Initial profile already set as mock data
-  }
+  ngOnInit() { }
 
   editProfile() {
     this.profileDialog = true;
@@ -81,7 +97,6 @@ export class User implements OnInit {
       header: 'Eliminar Cuenta',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        // Here we would normally call a service to delete the account
         this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Cuenta Marcada para Eliminación', life: 3000 });
       }
     });
@@ -94,9 +109,7 @@ export class User implements OnInit {
 
   saveProfile() {
     this.submitted = true;
-
     if (this.profile.fullName.trim()) {
-      // In a real app, we would call a service to save
       this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Tu perfil ha sido actualizado', life: 3000 });
       this.profileDialog = false;
     }
