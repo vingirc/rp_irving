@@ -15,6 +15,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { TicketService } from '../../services/ticket.service';
 import { inject, computed } from '@angular/core';
 import { TagModule } from 'primeng/tag';
+import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
 export interface ProfileData {
   id?: string;
@@ -44,7 +45,8 @@ export interface ProfileData {
     ToastModule,
     ConfirmDialogModule,
     ToolbarModule,
-    TagModule
+    TagModule,
+    HasPermissionDirective
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './user.html',

@@ -21,45 +21,109 @@ a {
     text-decoration: none;
 }
 
-/* Contrast Improvements */
+/* Contrast Improvements - Override PrimeNG CSS variables for the LIGHT content area */
 .layout-content {
     color: #1e293b;
-    /* Dark Slate for main content on light background */
+
+    /* Override PrimeNG theme variables for light background context */
+    --text-color: #1e293b;
+    --text-color-secondary: #475569;
+    --surface-ground: #f4f6f8;
+    --surface-card: #ffffff;
+    --surface-border: #e2e8f0;
+    --surface-100: #f1f5f9;
+    --surface-200: #e2e8f0;
+    --surface-300: #cbd5e1;
+    --surface-400: #94a3b8;
+    --surface-500: #64748b;
+    --surface-600: #475569;
+    --surface-700: #334155;
+    --surface-800: #1e293b;
+    --surface-900: #0f172a;
 }
 
-/* Utility classes for contrast */
-.text-900 {
+/* Utility classes for high contrast - scoped to light content area only */
+.layout-content .text-900 {
     color: #0f172a !important;
 }
 
-.text-800 {
+.layout-content .text-800 {
     color: #1e293b !important;
 }
 
-.text-700 {
+.layout-content .text-700 {
     color: #334155 !important;
 }
 
-.text-600 {
+.layout-content .text-600 {
     color: #475569 !important;
 }
 
-.text-secondary,
-.p-text-secondary,
-.text-xs.text-secondary,
-.text-400,
-.text-500 {
+.layout-content .text-secondary,
+.layout-content .p-text-secondary,
+.layout-content .text-xs.text-secondary,
+.layout-content .text-400,
+.layout-content .text-500 {
     color: #475569 !important;
-    /* Slate 600 for better visibility */
 }
 
-.text-600 {
-    color: #334155 !important;
+/* Restore light text inside dark containers (profile card, sidebar) */
+.profile-card .text-900 {
+    color: #ffffff !important;
 }
 
-/* PrimeNG Specific Overrides if needed */
-.p-inputtextarea:disabled,
-.p-inputtext:disabled {
+.profile-card .text-500,
+.profile-card .text-secondary {
+    color: #cbd5e1 !important;
+}
+
+
+/* PrimeNG Specific Overrides */
+.layout-content .p-inputtextarea:disabled,
+.layout-content .p-inputtext:disabled {
     color: #334155 !important;
     opacity: 0.8 !important;
+}
+
+/* Ensure PrimeNG table text is dark */
+.layout-content .p-datatable .p-datatable-tbody>tr>td {
+    color: #1e293b;
+}
+
+.layout-content .p-datatable .p-datatable-thead>tr>th {
+    color: #334155;
+}
+
+/* Ensure PrimeNG dialog uses light theme when opened from light context */
+.layout-content .p-dialog,
+.ticket-dialog .p-dialog-content {
+    --text-color: #1e293b;
+    --text-color-secondary: #475569;
+    --surface-ground: #f4f6f8;
+    --surface-card: #ffffff;
+}
+
+/* CDK Drag & Drop Global Styles (preview renders outside component scope) */
+.cdk-drag-preview {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    opacity: 0.9;
+    cursor: grabbing;
+    background: white;
+    padding: 0.75rem;
+}
+
+.cdk-drag-placeholder {
+    opacity: 0.3;
+    border: 2px dashed #6366f1;
+    border-radius: 12px;
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drop-list-dragging .cdk-drag:not(.cdk-drag-placeholder) {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }

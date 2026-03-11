@@ -62,7 +62,7 @@
 
     <div class="mb-5">
         <h2 class="text-2xl font-bold mb-4 text-900">Mis Tickets (Kanban)</h2>
-        <div class="kanban-board flex gap-3 overflow-x-auto pb-4">
+        <div class="kanban-board flex gap-3 overflow-x-auto pb-4" cdkDropListGroup>
             <div *ngFor="let col of kanbanColumns" class="kanban-col flex-shrink-0" style="width: 280px;">
                 <div class="col-header flex justify-content-between align-items-center p-3 border-round-top border-bottom-1 surface-border"
                     [ngStyle]="{'background-color': 'var(--' + col.color + '-100)', 'color': 'var(--' + col.color + '-900)'}">
@@ -70,10 +70,11 @@
                     <p-tag [value]="getTicketsByStatus(col.value).length.toString()" severity="secondary"
                         [rounded]="true"></p-tag>
                 </div>
-                <div class="col-content p-2 surface-50 border-round-bottom min-h-20rem">
+                <div class="col-content p-2 surface-50 border-round-bottom min-h-20rem" cdkDropList
+                    [cdkDropListData]="col.value" (cdkDropListDropped)="dropTicket($event, col.value)">
                     <div *ngFor="let ticket of getTicketsByStatus(col.value)"
-                        class="ticket-card card p-3 mb-2 cursor-pointer hover:surface-100 shadow-1 transition-all"
-                        (click)="viewTicket(ticket)">
+                        class="ticket-card card p-3 mb-2 cursor-grab hover:surface-100 shadow-1 transition-all" cdkDrag
+                        [cdkDragData]="ticket" (click)="viewTicket(ticket)">
                         <div class="flex justify-content-between mb-2">
                             <span class="text-xs font-bold text-700">{{ ticket.id }}</span>
                             <p-tag [value]="ticket.priority"

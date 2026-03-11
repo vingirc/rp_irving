@@ -10,11 +10,12 @@ import { Router } from '@angular/router';
 import { TicketComponent } from '../../ticket/ticket';
 import { DialogModule } from 'primeng/dialog';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
+import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, ButtonModule, AvatarModule, CardModule, TagModule, TicketComponent, DialogModule, HasPermissionDirective],
+  imports: [CommonModule, ButtonModule, AvatarModule, CardModule, TagModule, TicketComponent, DialogModule, HasPermissionDirective, DragDropModule],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
@@ -63,7 +64,6 @@ export class Home {
     { user: 'Juan Pérez', action: 'Inició sesión desde nueva IP', time: 'hace 1 día' }
   ];
 
-  // ... rest of the properties
 
   getTicketsByStatus(status: string) {
     return this.assignedTickets().filter(t => t.status === status);
@@ -72,6 +72,20 @@ export class Home {
   viewTicket(ticket: any) {
     this.selectedTicket = { ...ticket };
     this.ticketDialog = true;
+  }
+
+  dropTicket(event: CdkDragDrop<string>, newStatus: string) {
+    const ticket = event.item.data;
+    if (ticket.status !== newStatus) {
+      this.ticketService.updateTicket(ticket.id, { status: newStatus as any });
+      this.ticketService.addHistoryEntry(
+        ticket.id,
+        'Cambio de Estado',
+        `Movido a ${newStatus} (arrastrado)`,
+        this.currentUserId,
+        this.currentMember.fullName
+      );
+    }
   }
 
   openNewTicket() {

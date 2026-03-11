@@ -18,6 +18,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { TicketService } from '../../services/ticket.service';
 import { Ticket, TicketStatus, Group, User } from '../../models/ticket.model';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
+import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-group',
@@ -38,7 +39,8 @@ import { HasPermissionDirective } from '../../directives/has-permission.directiv
     TagModule,
     AvatarModule,
     TicketComponent,
-    HasPermissionDirective
+    HasPermissionDirective,
+    DragDropModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './group.html',
@@ -154,6 +156,21 @@ export class GroupComponent implements OnInit {
   viewTicket(ticket: Ticket) {
     this.selectedTicket = { ...ticket };
     this.ticketDialog = true;
+  }
+
+  dropTicket(event: CdkDragDrop<string>, newStatus: string) {
+    const ticket = event.item.data as Ticket;
+    if (ticket.status !== newStatus) {
+      this.ticketService.updateTicket(ticket.id, { status: newStatus as TicketStatus });
+      this.ticketService.addHistoryEntry(
+        ticket.id,
+        'Cambio de Estado',
+        `Movido a ${newStatus} (arrastrado)`,
+        'user1',
+        'Irving'
+      );
+      this.messageService.add({ severity: 'info', summary: 'Estado actualizado', detail: `"${ticket.title}" movido a ${newStatus}` });
+    }
   }
 
   openNewTicket() {

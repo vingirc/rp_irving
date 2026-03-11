@@ -33,8 +33,8 @@
                 </div>
 
                 <div class="profile-actions flex flex-column gap-2 mt-4">
-                    <p-button label="Editar Perfil" icon="pi pi-user-edit" (onClick)="editProfile()"
-                        styleClass="w-full"></p-button>
+                    <p-button *hasPermission="'user_edit'" label="Editar Perfil" icon="pi pi-user-edit"
+                        (onClick)="editProfile()" styleClass="w-full"></p-button>
                     <p-button label="Cerrar Sesión" icon="pi pi-sign-out" severity="secondary" [outlined]="true"
                         styleClass="w-full"></p-button>
                 </div>
