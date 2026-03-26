@@ -23,21 +23,19 @@
                     <th>Usuario</th>
                     <th>Email</th>
                     <th>Nombre Completo</th>
-                    <th>Rol</th>
                     <th>Permisos</th>
                     <th style="width: 8rem"></th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-user>
                 <tr>
+                    <td class="font-bold">{{ user.fullName }}</td>
                     <td>@{{ user.username }}</td>
                     <td>{{ user.email }}</td>
-                    <td class="font-bold">{{ user.fullName }}</td>
                     <td>
-                        <p-tag [value]="user.role" [severity]="getRoleSeverity(user.role)"></p-tag>
-                    </td>
-                    <td>
-                        <span class="text-sm">{{ user.permissions.join(', ') }}</span>
+                        <div class="flex gap-1 flex-wrap">
+                            <p-tag *ngFor="let perm of user.permissions" [value]="getPermissionLabel(perm)" severity="secondary" />
+                        </div>
                     </td>
                     <td>
                         <div class="flex gap-2">
@@ -55,22 +53,22 @@
 
     <p-dialog [(visible)]="userDialog" header="Editar Usuario" [modal]="true" styleClass="p-fluid"
         [style]="{ width: '450px' }">
-        <div class="field mt-3" *ngIf="selectedUser">
-            <label for="fullName">Nombre Completo</label>
-            <input type="text" pInputText id="fullName" [(ngModel)]="selectedUser.fullName" required />
+        <div class="field mb-4">
+            <label for="fullName" class="block font-bold mb-2">Nombre Completo</label>
+            <input type="text" pInputText id="fullName" [(ngModel)]="selectedUser.fullName" required autofocus class="w-full"
+                [class.ng-invalid]="submitted && !selectedUser.fullName" />
+            <small class="text-red-500 block mt-1" *ngIf="submitted && !selectedUser.fullName">El nombre es requerido.</small>
         </div>
-        <div class="field mt-3" *ngIf="selectedUser">
-            <label for="role">Rol del Sistema</label>
-            <p-select [options]="roles" [(ngModel)]="selectedUser.role" placeholder="Selecciona un rol"></p-select>
+        <div class="field mb-4" *ngIf="selectedUser">
+            <label class="block font-bold mb-2">Permisos de Usuario</label>
+            <p-multiSelect [options]="assignablePermissions" [(ngModel)]="selectedUser.permissions"
+                optionLabel="label" optionValue="value" placeholder="Seleccionar permisos"
+                display="chip" [filter]="true" appendTo="body">
+            </p-multiSelect>
         </div>
-        <div class="field mt-3" *ngIf="selectedUser">
-            <label>Permisos</label>
-            <div class="flex flex-wrap gap-2">
-                <p-tag value="Lectura" severity="secondary"></p-tag>
-                <p-tag value="Escritura" severity="secondary"></p-tag>
-                <p-tag value="Gestión" severity="secondary"></p-tag>
-            </div>
-        </div>
+        <small class="text-secondary mt-1 block">
+            Solo puedes asignar permisos que tú ya posees.
+        </small>
         <ng-template pTemplate="footer">
             <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="userDialog = false"></p-button>
             <p-button label="Guardar" icon="pi pi-check" [text]="true" (onClick)="saveUser()"></p-button>

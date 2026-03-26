@@ -19,7 +19,7 @@ export const routes: Routes = [
             { path: '', component: Home, data: { title: 'Inicio', icon: 'pi pi-home' } },
             { path: 'group', component: GroupComponent, data: { title: 'Grupos', icon: 'pi pi-users' } },
             { path: 'user', component: UserComponent, data: { title: 'Perfil', icon: 'pi pi-user' } },
-            { path: 'management', component: ManagementComponent, data: { title: 'Gestión', icon: 'pi pi-cog' } }
+            { path: 'management', component: ManagementComponent, data: { title: 'Gestión de usuarios', icon: 'pi pi-cog' } }
         ]
     },
     { path: '**', redirectTo: '' }

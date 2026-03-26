@@ -41,7 +41,6 @@ export interface User {
     username: string;
     email: string;
     fullName: string;
-    role: 'user' | 'admin' | 'superAdmin';
     permissions: string[];
     avatar?: string;
 }

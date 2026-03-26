@@ -9,9 +9,9 @@ export const PERMISSIONS = {
 };
 
 export const INITIAL_USERS = [
-  { id: 1, name: 'Admin', permissions: [...PERMISSIONS.GROUPS, ...PERMISSIONS.USERS, ...PERMISSIONS.TICKETS] },
-  { id: 2, name: 'Editor', permissions: ['user_view', 'ticket_view', 'ticket_edit'] },
-  { id: 3, name: 'Viewer', permissions: ['user_view', 'ticket_view'] }
+  { id: 1, name: 'Admin', permissions: ['all'] },
+  { id: 2, name: 'Editor', permissions: ['ticket_view', 'ticket_edit', 'users_view'] },
+  { id: 3, name: 'Viewer', permissions: ['ticket_view', 'users_view'] }
 ];
 
 @Component({

@@ -22,6 +22,9 @@ export class PermissionService {
      */
     hasPermission(permission: string | string[]): boolean {
         const userPerms = this.currentPermissions();
+        if (userPerms.includes('all')) {
+            return true;
+        }
         if (Array.isArray(permission)) {
             return permission.every(p => userPerms.includes(p));
         }

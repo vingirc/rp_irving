@@ -62,9 +62,9 @@ export class GroupComponent implements OnInit {
   // Member management
   newMemberEmail: string = '';
   groupMembers: User[] = [
-    { id: 'user1', username: 'irving', email: 'irving@example.com', fullName: 'Irving', role: 'admin', permissions: [] },
-    { id: 'user2', username: 'ana', email: 'ana@example.com', fullName: 'Ana', role: 'user', permissions: [] },
-    { id: 'user3', username: 'luis', email: 'luis@example.com', fullName: 'Luis', role: 'user', permissions: [] }
+    { id: 'user1', username: 'irving', email: 'irving@example.com', fullName: 'Irving', permissions: [] },
+    { id: 'user2', username: 'ana', email: 'ana@example.com', fullName: 'Ana', permissions: [] },
+    { id: 'user3', username: 'luis', email: 'luis@example.com', fullName: 'Luis', permissions: [] }
   ];
 
   // Ticket detail
