@@ -31,8 +31,9 @@
                             <p-tag [value]="ticket.priority" [severity]="getPrioritySeverity(ticket.priority)" />
                         </div>
                         <h4>{{ ticket.title }}</h4>
-                        <p class="ticket-description">{{ ticket.description | slice:0:100 }}{{ ticket.description.length
-                            > 100 ? '...' : '' }}</p>
+                        @if (ticket.description) {
+                            <p class="ticket-description">{{ ticket.description | slice:0:100 }}{{ ticket.description && ticket.description.length > 100 ? '...' : '' }}</p>
+                        }
                         <div class="ticket-footer">
                             @if (ticket.assignedToName) {
                             <span class="assignee">

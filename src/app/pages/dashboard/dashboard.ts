@@ -158,20 +158,20 @@ export class DashboardComponent implements OnInit {
                 } else {
                     this.groups = response.data;
                 }
-                if (this.groups.length > 0 && !this.selectedGroupId) {
+                if (this.groups?.length > 0 && !this.selectedGroupId) {
                     this.selectedGroupId = this.groups[0].id;
                 }
             }
         } catch (error) {
             console.error('Error loading groups:', error);
+        } finally {
+            this.loading.set(false);
         }
     }
 
     async loadTickets() {
         try {
-            console.log('Loading tickets from WS...');
             const response = await this.apiService.getTickets();
-            console.log('Tickets response:', response);
             
             if (response.statusCode === 200 && Array.isArray(response.data)) {
                 const firstItem = response.data[0];

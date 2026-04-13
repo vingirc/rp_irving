@@ -5,7 +5,7 @@
             <label for="group-select">Grupo:</label>
             <p-select 
                 inputId="group-select"
-                [options]="groups" 
+                [options]="groups || []" 
                 [(ngModel)]="selectedGroupId" 
                 optionLabel="nombre" 
                 optionValue="id"
@@ -83,7 +83,9 @@
                             <p-card styleClass="ticket-card" (click)="viewTicket(ticket)">
                                 <div class="ticket-card-content">
                                     <h4>{{ ticket.title }}</h4>
-                                    <p class="ticket-description">{{ ticket.description | slice:0:80 }}{{ ticket.description.length > 80 ? '...' : '' }}</p>
+                                    @if (ticket.description) {
+                                        <p class="ticket-description">{{ ticket.description | slice:0:80 }}{{ ticket.description && ticket.description.length > 80 ? '...' : '' }}</p>
+                                    }
                                     <div class="ticket-meta">
                                         <p-tag [value]="ticket.priority" [severity]="getPrioritySeverity(ticket.priority)" />
                                         @if (ticket.assignedToName) {
@@ -124,7 +126,7 @@
             </div>
             <div class="detail-row">
                 <strong>Descripción:</strong>
-                <p>{{ selectedTicket.description }}</p>
+                <p>{{ selectedTicket.description || 'Sin descripción' }}</p>
             </div>
             @if (selectedTicket.assignedToName) {
                 <div class="detail-row">

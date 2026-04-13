@@ -225,8 +225,44 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    overflow-y: auto;
     max-height: 500px;
+    overflow-y: auto;
+    position: relative;
+}
+
+.column-content::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    background: linear-gradient(transparent, #f8fafc);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.column-content:hover::after {
+    opacity: 1;
+}
+
+.column-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.column-content::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+.column-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.column-content::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 
 .ticket-card {
