@@ -205,6 +205,23 @@ input.p-inputtext:focus {
     color: #1e293b !important;
 }
 
+.layout-content .p-input-icon-left > i:first-child {
+    margin-left: 0.5rem;
+    color: #475569 !important;
+    opacity: 1 !important;
+}
+
+.layout-content .p-input-icon-left > i,
+.layout-content .p-input-icon-left i,
+.layout-content .p-input-icon-left .pi-search,
+.layout-content .p-input-icon-left .pi {
+    color: #475569 !important;
+}
+
+.layout-content .p-input-icon-left > .p-inputtext {
+    padding-left: 2.5rem;
+}
+
 .layout-content .p-inputtext::placeholder,
 .layout-content .p-inputtextarea::placeholder {
     color: #94a3b8 !important;
@@ -265,6 +282,19 @@ input.p-inputtext:focus {
 .p-dropdown-option.p-highlight {
     background: #e0e7ff !important;
     color: #3730a3 !important;
+}
+
+/* p-select filter input */
+.p-select-panel .p-select-filter {
+    padding-left: 2rem !important;
+}
+
+.p-select-panel .p-select-filter-container {
+    padding-left: 1.5rem !important;
+}
+
+.p-select-panel .p-select-filter-container i {
+    left: 0.5rem !important;
 }
 
 /* Tables - light theme */
