@@ -55,7 +55,20 @@ export class GroupTicketsComponent implements OnInit {
     private confirmationService = inject(ConfirmationService);
     private cdr = inject(ChangeDetectorRef);
 
-    groupId: string | null = null;
+    groups: any[] = [];
+    private _groupIdSignal = signal<string | null>(null);
+
+    get groupId(): string | null {
+        return this._groupIdSignal();
+    }
+
+    set groupId(value: string | null) {
+        if (this._groupIdSignal() !== value) {
+            this._groupIdSignal.set(value);
+            this.onGroupChange();
+        }
+    }
+
     groupName: string = '';
     loading = signal(true);
     viewMode: 'kanban' | 'list' = 'kanban';
@@ -78,8 +91,9 @@ export class GroupTicketsComponent implements OnInit {
     tickets = computed(() => this.ticketService.tickets());
 
     groupTickets = computed(() => {
-        if (!this.groupId) return this.tickets();
-        return this.tickets().filter(t => t.groupId === this.groupId);
+        const id = this._groupIdSignal();
+        if (!id) return [];
+        return this.tickets().filter(t => t.groupId === id);
     });
 
     groupedTickets = computed(() => {
@@ -111,16 +125,68 @@ export class GroupTicketsComponent implements OnInit {
     priorityFilter: Priority | null = null;
 
     async ngOnInit() {
-        this.groupId = this.route.snapshot.paramMap.get('groupId');
+        const routeId = this.route.snapshot.paramMap.get('groupId');
+        if (routeId) {
+            this._groupIdSignal.set(routeId);
+        }
+
         await Promise.all([
             this.loadEstados(),
             this.loadPrioridades(),
-            this.loadGroupInfo(),
-            this.loadTickets()
         ]);
+        
+        // Load groups sequentially after config
+        await this.loadGroups();
+
+        // Si ya había un routeId explícito, cargamos sus tickets aquí, ya que loadGroups no disparará onGroupChange porque groupId ya existe
+        if (routeId) {
+            await Promise.all([
+                this.loadGroupInfo(),
+                this.loadTickets()
+            ]);
+        }
+        
         this.loading.set(false);
         this.cdr.detectChanges();
         setTimeout(() => this.cdr.detectChanges(), 0);
+    }
+
+    async loadGroups() {
+        try {
+            const response = await this.apiService.getMyGroups();
+
+            if (response.statusCode === 200 && Array.isArray(response.data)) {
+                this.groups = response.data.map((g: any) => ({
+                    id: String(g.id || g.grupo_id || ''),
+                    nombre: g.nombre || g.grupos?.nombre || g.name || 'Grupo Sin Nombre'
+                }));
+
+                if (this.groups?.length > 0) {
+                    if (!this.groupId || !this.groups.find(g => g.id === this.groupId)) {
+                        this.groupId = this.groups[0].id;
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error loading groups:', error);
+        } finally {
+            this.cdr.detectChanges();
+        }
+    }
+
+    async onGroupChange() {
+        if (!this.groupId) return;
+        this.loading.set(true);
+        // Ensure UI updates before doing heavy loading
+        this.cdr.detectChanges();
+        
+        await Promise.all([
+            this.loadGroupInfo(),
+            this.loadTickets()
+        ]);
+        
+        this.loading.set(false);
+        this.cdr.detectChanges();
     }
 
     async loadEstados() {

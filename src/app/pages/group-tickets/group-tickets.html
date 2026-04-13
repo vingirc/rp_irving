@@ -2,7 +2,24 @@
     <div class="page-header">
         <div class="header-left">
             <p-button icon="pi pi-arrow-left" [text]="true" (onClick)="goBack()" />
-            <h1>{{ groupName }} Tickets</h1>
+            <h1 class="mr-4">{{ groupName }} Tickets</h1>
+            
+            <div class="group-selector flex align-items-center ml-4">
+                <span class="mr-2 text-700 font-medium">Grupo:</span>
+                @if (groups && groups.length > 0) {
+                    <p-select 
+                        [options]="groups" 
+                        [(ngModel)]="groupId" 
+                        optionLabel="nombre" 
+                        optionValue="id"
+                        [style]="{'min-width': '200px'}" />
+                } @else {
+                    <p-select 
+                        [options]="[{nombre: 'No hay grupos disponibles', id: ''}]"
+                        [disabled]="true"
+                        [style]="{'min-width': '200px'}" />
+                }
+            </div>
         </div>
         <div class="header-actions">
             <p-selectbutton [options]="viewModeOptions" [(ngModel)]="viewMode" optionLabel="label"
@@ -12,134 +29,142 @@
         </div>
     </div>
 
-    @if (viewMode === 'kanban') {
-    <div class="kanban-board" cdkDropListGroup>
-        @for (column of kanbanColumns; track column.value) {
-        <div class="kanban-column">
-            <div class="column-header">
-                <span class="column-title">{{ column.label }}</span>
-                <p-tag [value]="getTicketsByStatus(column.value).length.toString()"
-                    [severity]="getSeverity(column.color)" />
-            </div>
-            <div class="column-content" cdkDropList [cdkDropListData]="column.value"
-                (cdkDropListDropped)="onDrop($event, column.value)">
-                @for (ticket of getTicketsByStatus(column.value); track ticket.id) {
-                <div class="ticket-card surface-card shadow-1 border-round mb-3 bg-white" cdkDrag
-                    [cdkDragData]="ticket">
+    @if (!groups || groups.length === 0) {
+        <div class="flex flex-column align-items-center justify-content-center p-5 surface-card shadow-1 border-round mt-4 text-center">
+            <i class="pi pi-exclamation-circle text-orange-500 mb-4" style="font-size: 4rem"></i>
+            <h2 class="text-900 font-bold m-0 mb-2">No hay grupos disponibles</h2>
+            <p class="text-600 m-0 text-lg">Debes de crear o ser asignado a un grupo para poder visualizar y gestionar sus tickets.</p>
+        </div>
+    } @else {
+        @if (viewMode === 'kanban') {
+        <div class="kanban-board" cdkDropListGroup>
+            @for (column of kanbanColumns; track column.value) {
+            <div class="kanban-column">
+                <div class="column-header">
+                    <span class="column-title">{{ column.label }}</span>
+                    <p-tag [value]="getTicketsByStatus(column.value).length.toString()"
+                        [severity]="getSeverity(column.color)" />
+                </div>
+                <div class="column-content" cdkDropList [cdkDropListData]="column.value"
+                    (cdkDropListDropped)="onDrop($event, column.value)">
+                    @for (ticket of getTicketsByStatus(column.value); track ticket.id) {
+                    <div class="ticket-card surface-card shadow-1 border-round mb-3 bg-white" cdkDrag
+                        [cdkDragData]="ticket">
 
-                    <div class="ticket-header p-3 pb-2 flex justify-content-between align-items-center cursor-grab border-bottom-1 surface-border hover:surface-100"
-                        cdkDragHandle>
-                        <div class="flex align-items-center gap-2">
-                            <i class="pi pi-grip-lines text-500"></i>
-                            <span class="ticket-id font-semibold text-500 text-sm">#{{ ticket.id.slice(0, 8) }}</span>
+                        <div class="ticket-header p-3 pb-2 flex justify-content-between align-items-center cursor-grab border-bottom-1 surface-border hover:surface-100"
+                            cdkDragHandle>
+                            <div class="flex align-items-center gap-2">
+                                <i class="pi pi-grip-lines text-500"></i>
+                                <span class="ticket-id font-semibold text-500 text-sm">#{{ ticket.id.slice(0, 8) }}</span>
+                            </div>
+                            <p-tag [value]="ticket.priority" [severity]="getPrioritySeverity(ticket.priority)" />
                         </div>
-                        <p-tag [value]="ticket.priority" [severity]="getPrioritySeverity(ticket.priority)" />
-                    </div>
 
-                    <div class="ticket-content p-3 cursor-pointer" (click)="viewTicket(ticket)">
-                        <h4 class="m-0 mb-2 text-900">{{ ticket.title }}</h4>
-                        @if (ticket.description) {
-                        <p class="text-600 m-0 text-sm line-height-3">{{ ticket.description | slice:0:80 }}{{
-                            ticket.description && ticket.description.length > 80 ? '...' : '' }}</p>
-                        }
-
-                        <div class="flex justify-content-between align-items-center mt-3 pt-2">
-                            @if (ticket.assignedToName) {
-                            <span class="assignee flex align-items-center text-xs text-700">
-                                <i class="pi pi-user mr-1"></i>
-                                {{ ticket.assignedToName }}
-                            </span>
-                            } @else {
-                            <span class="text-xs text-500">Sin asignar</span>
+                        <div class="ticket-content p-3 cursor-pointer" (click)="viewTicket(ticket)">
+                            <h4 class="m-0 mb-2 text-900">{{ ticket.title }}</h4>
+                            @if (ticket.description) {
+                            <p class="text-600 m-0 text-sm line-height-3">{{ ticket.description | slice:0:80 }}{{
+                                ticket.description && ticket.description.length > 80 ? '...' : '' }}</p>
                             }
-                            <span class="ticket-date text-xs text-500">{{ ticket.createdAt | date:'shortDate' }}</span>
-                        </div>
-                    </div>
 
-                    <div class="drag-placeholder surface-200 border-round" *cdkDragPlaceholder
-                        style="min-height: 120px; border: 2px dashed #aaa;"></div>
+                            <div class="flex justify-content-between align-items-center mt-3 pt-2">
+                                @if (ticket.assignedToName) {
+                                <span class="assignee flex align-items-center text-xs text-700">
+                                    <i class="pi pi-user mr-1"></i>
+                                    {{ ticket.assignedToName }}
+                                </span>
+                                } @else {
+                                <span class="text-xs text-500">Sin asignar</span>
+                                }
+                                <span class="ticket-date text-xs text-500">{{ ticket.createdAt | date:'shortDate' }}</span>
+                            </div>
+                        </div>
+
+                        <div class="drag-placeholder surface-200 border-round" *cdkDragPlaceholder
+                            style="min-height: 120px; border: 2px dashed #aaa;"></div>
+                    </div>
+                    }
+                    @if (getTicketsByStatus(column.value).length === 0) {
+                    <div class="empty-column">
+                        <i class="pi pi-inbox"></i>
+                        <span>Arrastra tickets aquí</span>
+                    </div>
+                    }
                 </div>
+            </div>
+            }
+        </div>
+        } @else {
+        <div class="list-view">
+            <div class="filters-bar">
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText [(ngModel)]="globalFilter" placeholder="Buscar tickets..." />
+                </span>
+                @if (statusOptions.length > 0) {
+                <p-select [options]="statusOptions" [(ngModel)]="statusFilter" optionLabel="label" optionValue="value"
+                    placeholder="Estado" [showClear]="true" />
+                } @else {
+                <p-select [options]="[{label: 'Sin estados', value: ''}]" [disabled]="true" />
                 }
-                @if (getTicketsByStatus(column.value).length === 0) {
-                <div class="empty-column">
-                    <i class="pi pi-inbox"></i>
-                    <span>Arrastra tickets aquí</span>
-                </div>
+                @if (priorityOptions.length > 0) {
+                <p-select [options]="priorityOptions" [(ngModel)]="priorityFilter" optionLabel="label" optionValue="value"
+                    placeholder="Prioridad" [showClear]="true" />
+                } @else {
+                <p-select [options]="[{label: 'Sin prioridades', value: ''}]" [disabled]="true" />
                 }
             </div>
+
+            <p-table [value]="groupTickets()" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[5, 10, 25, 50]"
+                [globalFilterFields]="['title', 'description', 'status', 'priority', 'assignedToName', 'creatorName']"
+                [tableStyle]="{'min-width': '60rem'}" styleClass="p-datatable-gridlines">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="id">ID <p-sortIcon field="id" /></th>
+                        <th pSortableColumn="title">Título <p-sortIcon field="title" /></th>
+                        <th pSortableColumn="status">Estado <p-sortIcon field="status" /></th>
+                        <th pSortableColumn="priority">Prioridad <p-sortIcon field="priority" /></th>
+                        <th>Asignado</th>
+                        <th pSortableColumn="createdAt">Fecha <p-sortIcon field="createdAt" /></th>
+                        <th>Acciones</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-ticket>
+                    <tr>
+                        <td><span class="ticket-id-cell">#{{ ticket.id.slice(0, 8) }}</span></td>
+                        <td>
+                            <div class="ticket-title-cell">
+                                <span class="ticket-title">{{ ticket.title }}</span>
+                                <span class="ticket-desc">{{ ticket.description | slice:0:50 }}...</span>
+                            </div>
+                        </td>
+                        <td><p-tag [value]="ticket.status" [severity]="getSeverity(getColumnColor(ticket.status))" /></td>
+                        <td><p-tag [value]="ticket.priority" [severity]="getPrioritySeverity(ticket.priority)" /></td>
+                        <td>{{ ticket.assignedToName || '-' }}</td>
+                        <td>{{ ticket.createdAt | date:'medium' }}</td>
+                        <td>
+                            <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="info"
+                                (onClick)="viewTicket(ticket)" pTooltip="Ver" />
+                            <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="warn"
+                                (onClick)="editTicket(ticket)" pTooltip="Editar" />
+                            <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger"
+                                (onClick)="deleteTicket(ticket)" pTooltip="Eliminar" />
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="7" class="text-center">
+                            <div class="empty-table">
+                                <i class="pi pi-inbox" style="font-size: 3rem; opacity: 0.3"></i>
+                                <p>No se encontraron tickets</p>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
         </div>
         }
-    </div>
-    } @else {
-    <div class="list-view">
-        <div class="filters-bar">
-            <span class="p-input-icon-left">
-                <i class="pi pi-search"></i>
-                <input pInputText [(ngModel)]="globalFilter" placeholder="Buscar tickets..." />
-            </span>
-            @if (statusOptions.length > 0) {
-            <p-select [options]="statusOptions" [(ngModel)]="statusFilter" optionLabel="label" optionValue="value"
-                placeholder="Estado" [showClear]="true" />
-            } @else {
-            <p-select [options]="[{label: 'Sin estados', value: ''}]" [disabled]="true" />
-            }
-            @if (priorityOptions.length > 0) {
-            <p-select [options]="priorityOptions" [(ngModel)]="priorityFilter" optionLabel="label" optionValue="value"
-                placeholder="Prioridad" [showClear]="true" />
-            } @else {
-            <p-select [options]="[{label: 'Sin prioridades', value: ''}]" [disabled]="true" />
-            }
-        </div>
-
-        <p-table [value]="groupTickets()" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[5, 10, 25, 50]"
-            [globalFilterFields]="['title', 'description', 'status', 'priority', 'assignedToName', 'creatorName']"
-            [tableStyle]="{'min-width': '60rem'}" styleClass="p-datatable-gridlines">
-            <ng-template pTemplate="header">
-                <tr>
-                    <th pSortableColumn="id">ID <p-sortIcon field="id" /></th>
-                    <th pSortableColumn="title">Título <p-sortIcon field="title" /></th>
-                    <th pSortableColumn="status">Estado <p-sortIcon field="status" /></th>
-                    <th pSortableColumn="priority">Prioridad <p-sortIcon field="priority" /></th>
-                    <th>Asignado</th>
-                    <th pSortableColumn="createdAt">Fecha <p-sortIcon field="createdAt" /></th>
-                    <th>Acciones</th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-ticket>
-                <tr>
-                    <td><span class="ticket-id-cell">#{{ ticket.id.slice(0, 8) }}</span></td>
-                    <td>
-                        <div class="ticket-title-cell">
-                            <span class="ticket-title">{{ ticket.title }}</span>
-                            <span class="ticket-desc">{{ ticket.description | slice:0:50 }}...</span>
-                        </div>
-                    </td>
-                    <td><p-tag [value]="ticket.status" [severity]="getSeverity(getColumnColor(ticket.status))" /></td>
-                    <td><p-tag [value]="ticket.priority" [severity]="getPrioritySeverity(ticket.priority)" /></td>
-                    <td>{{ ticket.assignedToName || '-' }}</td>
-                    <td>{{ ticket.createdAt | date:'medium' }}</td>
-                    <td>
-                        <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="info"
-                            (onClick)="viewTicket(ticket)" pTooltip="Ver" />
-                        <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="warn"
-                            (onClick)="editTicket(ticket)" pTooltip="Editar" />
-                        <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger"
-                            (onClick)="deleteTicket(ticket)" pTooltip="Eliminar" />
-                    </td>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="emptymessage">
-                <tr>
-                    <td colspan="7" class="text-center">
-                        <div class="empty-table">
-                            <i class="pi pi-inbox" style="font-size: 3rem; opacity: 0.3"></i>
-                            <p>No se encontraron tickets</p>
-                        </div>
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
-    </div>
     }
 </div>
 
