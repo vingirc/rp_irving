@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS public.usuarios (
   telefono character varying,
   permisos_globales uuid[] DEFAULT '{}'::uuid[],
   fecha_nacimiento date,
+  estado boolean DEFAULT true,
   creado_en timestamp with time zone DEFAULT now()
 );
 
@@ -111,6 +112,36 @@ CREATE TABLE IF NOT EXISTS public.historial_tickets (
   CONSTRAINT historial_tickets_ticket_id_fkey FOREIGN KEY (ticket_id) REFERENCES public.tickets(id),
   CONSTRAINT historial_tickets_usuario_id_fkey FOREIGN KEY (usuario_id) REFERENCES public.usuarios(id)
 );
+
+-- FUNCIÓN DE AUDITORÍA DE TICKETS
+CREATE OR REPLACE FUNCTION public.handle_ticket_audit()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF (TG_OP = 'UPDATE') THEN
+    INSERT INTO public.historial_tickets (ticket_id, usuario_id, accion, detalles)
+    VALUES (
+      NEW.id, 
+      COALESCE(NEW.asignado_id, NEW.autor_id), 
+      'Actualización', 
+      jsonb_build_object(
+        'estado_anterior', (SELECT nombre FROM public.estados WHERE id = OLD.estado_id),
+        'estado_nuevo', (SELECT nombre FROM public.estados WHERE id = NEW.estado_id),
+        'titulo', NEW.titulo
+      )
+    );
+  ELSIF (TG_OP = 'INSERT') THEN
+    INSERT INTO public.historial_tickets (ticket_id, usuario_id, accion, detalles)
+    VALUES (NEW.id, NEW.autor_id, 'Creación', jsonb_build_object('titulo', NEW.titulo));
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- TRIGGER DE AUDITORÍA
+DROP TRIGGER IF EXISTS on_ticket_change ON public.tickets;
+CREATE TRIGGER on_ticket_change
+  AFTER INSERT OR UPDATE ON public.tickets
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_ticket_audit();
 
 CREATE TABLE IF NOT EXISTS public.grupo_usuario_permisos (
   grupo_id uuid NOT NULL,

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -9,6 +9,7 @@ import { ToastModule } from 'primeng/toast';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputMaskModule } from 'primeng/inputmask';
 import { MessageService } from 'primeng/api';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -30,8 +31,8 @@ import { MessageService } from 'primeng/api';
 export class Register {
   registerForm: FormGroup;
   maxDate: Date;
+  private auth = inject(AuthService);
 
-  // Símbolos especiales permitidos
   readonly specialSymbols = '!@#$%^&*(),.?":{}|<>';
 
   constructor(
@@ -39,7 +40,6 @@ export class Register {
     private router: Router,
     private messageService: MessageService
   ) {
-    // Fecha máxima: hace 18 años
     const today = new Date();
     this.maxDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
 
@@ -65,7 +65,6 @@ export class Register {
     return this.registerForm.controls;
   }
 
-  // ─── Validador: contraseña con al menos un símbolo especial ───
   private specialCharValidator(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     if (!value) return null;
@@ -73,7 +72,6 @@ export class Register {
     return hasSpecial ? null : { noSpecialChar: true };
   }
 
-  // ─── Validador: mayor de 18 años ───
   private adultValidator(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     if (!value) return null;
@@ -87,7 +85,6 @@ export class Register {
     return age >= 18 ? null : { underAge: true };
   }
 
-  // ─── Validador: confirmPassword coincide con password ───
   private passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
     const password = group.get('password')?.value;
     const confirmPassword = group.get('confirmPassword')?.value;
@@ -95,7 +92,7 @@ export class Register {
     return password === confirmPassword ? null : { passwordMismatch: true };
   }
 
-  onRegister(): void {
+  async onRegister(): Promise<void> {
     this.registerForm.markAllAsTouched();
 
     if (this.registerForm.invalid) {
@@ -108,14 +105,26 @@ export class Register {
       return;
     }
 
-    // Registro exitoso
-    this.messageService.add({
-      severity: 'success',
-      summary: '¡Registro exitoso!',
-      detail: 'Tu cuenta ha sido creada. Redirigiendo al inicio de sesión...',
-      life: 3000
-    });
+    const { username, email, password, fullName } = this.registerForm.value;
 
-    setTimeout(() => this.router.navigate(['/login']), 2000);
+    const result = await this.auth.register(email, password, username, fullName);
+
+    if (result.success) {
+      this.messageService.add({
+        severity: 'success',
+        summary: '¡Registro exitoso!',
+        detail: 'Tu cuenta ha sido creada. Redirigiendo al inicio de sesión...',
+        life: 3000
+      });
+
+      setTimeout(() => this.router.navigate(['/login']), 2000);
+    } else {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error de registro',
+        detail: result.error || 'No se pudo crear la cuenta. Intenta de nuevo.',
+        life: 4000
+      });
+    }
   }
 }

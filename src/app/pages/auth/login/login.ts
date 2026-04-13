@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
@@ -7,6 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -25,10 +26,7 @@ import { CommonModule } from '@angular/common';
 })
 export class Login {
   loginForm: FormGroup;
-
-  // ─── Credenciales hardcodeadas ───
-  private readonly VALID_EMAIL = 'admin@correo.com';
-  private readonly VALID_PASSWORD = 'Admin@12345';
+  private auth = inject(AuthService);
 
   constructor(
     private fb: FormBuilder,
@@ -45,8 +43,7 @@ export class Login {
     return this.loginForm.controls;
   }
 
-  onLogin(): void {
-    // Marcar todos como tocados para mostrar errores
+  async onLogin(): Promise<void> {
     this.loginForm.markAllAsTouched();
 
     if (this.loginForm.invalid) {
@@ -61,7 +58,9 @@ export class Login {
 
     const { email, password } = this.loginForm.value;
 
-    if (email === this.VALID_EMAIL && password === this.VALID_PASSWORD) {
+    const result = await this.auth.login(email, password);
+
+    if (result.success) {
       this.messageService.add({
         severity: 'success',
         summary: '¡Bienvenido!',
@@ -73,7 +72,7 @@ export class Login {
       this.messageService.add({
         severity: 'error',
         summary: 'Error de autenticación',
-        detail: 'Credenciales incorrectas. Intenta de nuevo.',
+        detail: result.error || 'Credenciales incorrectas. Intenta de nuevo.',
         life: 4000
       });
     }

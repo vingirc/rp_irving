@@ -14,6 +14,8 @@ import { User } from '../../models/ticket.model';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { PermissionService } from '../../services/permission.service';
+import { ApiService } from '../../services/api.service';
+
 @Component({
     selector: 'app-management',
     standalone: true,
@@ -39,82 +41,129 @@ export class ManagementComponent implements OnInit {
     private messageService = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
     private permissionService = inject(PermissionService);
+    private apiService = inject(ApiService);
 
-    allAvailablePermissions = [
-        { label: 'Acceso Total', value: 'all' },
-        { label: 'Ver Usuarios', value: 'users_view' },
-        { label: 'Editar Usuarios', value: 'user_edit' },
-        { label: 'Eliminar Usuarios', value: 'user_delete' },
-        { label: 'Agregar Usuarios', value: 'user_add' },
-        { label: 'Ver Tickets', value: 'ticket_view' },
-        { label: 'Crear Tickets', value: 'ticket_add' },
-        { label: 'Editar Tickets', value: 'ticket_edit' },
-        { label: 'Eliminar Tickets', value: 'ticket_delete' },
-        { label: 'Ver Grupos', value: 'groups_view' },
-        { label: 'Crear Grupos', value: 'group_add' },
-        { label: 'Eliminar Grupos', value: 'group_delete' }
-    ];
+    availablePermissions: { id: string; nombre: string; descripcion: string }[] = [];
+    permissionMap: Map<string, string> = new Map();
 
-    users: User[] = [
-        { id: 'user1', username: 'irving', email: 'irving@example.com', fullName: 'Irving Developer', permissions: ['all'] },
-        { id: 'user2', username: 'ana', email: 'ana@example.com', fullName: 'Ana Quality', permissions: ['ticket_view', 'groups_view'] },
-        { id: 'user3', username: 'luis', email: 'luis@example.com', fullName: 'Luis Support', permissions: ['ticket_view', 'ticket_edit'] },
-        { id: 'user4', username: 'super', email: 'super@example.com', fullName: 'Super Admin', permissions: ['all'] }
-    ];
+    allAvailablePermissions: { label: string; value: string }[] = [];
+
+    users: User[] = [];
 
     userDialog: boolean = false;
     selectedUser: User | null = null;
     submitted: boolean = false;
+    loading: boolean = false;
 
-    constructor() { }
-
-    ngOnInit() {
-        // No loading required for mock data
+    async ngOnInit() {
+        await this.loadPermissions();
+        await this.loadUsers();
     }
 
-    loadUsers() {
-        // Data is already local
+    async loadPermissions() {
+        const response = await this.apiService.getPermissions();
+        if (response.statusCode === 200 && Array.isArray(response.data)) {
+            const perms = response.data[0]?.permissions || response.data;
+            this.availablePermissions = perms;
+            this.availablePermissions.forEach(p => {
+                this.permissionMap.set(p.id, p.nombre);
+            });
+            this.allAvailablePermissions = this.availablePermissions.map(p => ({
+                label: p.descripcion || p.nombre,
+                value: p.nombre
+            }));
+            if (!this.allAvailablePermissions.find(p => p.value === 'all')) {
+                this.allAvailablePermissions.unshift({ label: 'Acceso Total', value: 'all' });
+            }
+        }
+    }
+
+    async loadUsers() {
+        this.loading = true;
+        try {
+            this.users = await this.apiService.getUsersMapped();
+        } catch (error) {
+            console.error('Error loading users:', error);
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'No se pudieron cargar los usuarios'
+            });
+        } finally {
+            this.loading = false;
+        }
     }
 
     editUser(user: User) {
         this.selectedUser = { ...user };
         this.userDialog = true;
+        this.submitted = false;
     }
 
-    deleteUser(user: User) {
+    async deleteUser(user: User) {
         this.confirmationService.confirm({
             message: `¿Estás seguro de que quieres eliminar a ${user.fullName}?`,
-            accept: () => {
-                this.users = this.users.filter(u => u.id !== user.id);
-                this.messageService.add({ severity: 'success', summary: 'Usuario eliminado', detail: 'El usuario ha sido removido del sistema.' });
+            accept: async () => {
+                const response = await this.apiService.deleteUser(user.id);
+                if (response.statusCode === 200) {
+                    this.users = this.users.filter(u => u.id !== user.id);
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Usuario eliminado',
+                        detail: 'El usuario ha sido removido del sistema.'
+                    });
+                } else {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'No se pudo eliminar el usuario'
+                    });
+                }
             }
         });
     }
 
-    saveUser() {
+    async saveUser() {
         this.submitted = true;
-        if (this.selectedUser?.fullName.trim()) {
-            const index = this.users.findIndex(u => u.id === this.selectedUser?.id);
-            if (index !== -1) {
-                this.users[index] = { ...this.selectedUser };
-                this.messageService.add({ severity: 'success', summary: 'Usuario actualizado', detail: 'Los cambios han sido guardados.' });
+        if (this.selectedUser?.fullName?.trim()) {
+            const response = await this.apiService.updateUser(this.selectedUser.id, {
+                nombre_completo: this.selectedUser.fullName,
+                permisos_globales: this.selectedUser.permissions
+            });
+            if (response.statusCode === 200) {
+                const index = this.users.findIndex(u => u.id === this.selectedUser?.id);
+                if (index !== -1 && this.selectedUser) {
+                    this.users[index] = { ...this.selectedUser };
+                }
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Usuario actualizado',
+                    detail: 'Los cambios han sido guardados.'
+                });
+                this.userDialog = false;
+            } else {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'No se pudieron guardar los cambios'
+                });
             }
-            this.userDialog = false;
         }
     }
 
     getPermissionLabel(value: string): string {
+        if (value === 'all') return 'Acceso Total';
         const permission = this.allAvailablePermissions.find(p => p.value === value);
-        return permission ? permission.label : value;
+        if (permission) return permission.label;
+        const mapped = this.permissionMap.get(value);
+        return mapped || value;
     }
 
     get assignablePermissions() {
         const userPerms = this.permissionService.permissions();
-        // Super admins can assign anything
         if (userPerms.includes('all')) {
             return this.allAvailablePermissions;
         }
-        // Others can only assign permissions they already have
         return this.allAvailablePermissions.filter(p => userPerms.includes(p.value));
     }
 }

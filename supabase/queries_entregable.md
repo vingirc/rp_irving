@@ -16,9 +16,10 @@ CREATE TABLE IF NOT EXISTS public.usuarios (
   nombre_completo text,
   permisos_globales uuid[] DEFAULT '{}'::uuid[],
   fecha_nacimiento date,
+  estado boolean DEFAULT true,
   creado_en timestamptz DEFAULT now()
 );
-```
+```k
 
 ### B. Lógica de Sincronización (Trigger)
 Esto asegura que cualquier usuario creado en el sistema de autenticación se refleje en la tabla de perfiles.
@@ -54,7 +55,8 @@ VALUES (
   'alumno_test', 
   'Estudiante de Seguridad',
   '2000-01-01',
-  '{}'::uuid[]
+  '{}'::uuid[],
+  true -- Estado: Activo
 );
 ```
 
@@ -64,10 +66,11 @@ VALUES (
 Query que simula el proceso de inicio de sesión recuperando el perfil completo y sus permisos.
 
 ```sql
--- Consultar datos por correo electrónico
+-- Consultar datos por correo electrónico (Solo si está activo)
 SELECT id, username, email, nombre_completo, permisos_globales 
 FROM public.usuarios 
-WHERE email = 'alumno_seguridad@universidad.edu';
+WHERE email = 'alumno_seguridad@universidad.edu'
+  AND estado = true;
 ```
 
 ---
@@ -104,7 +107,14 @@ SET nombre_completo = 'Nombre Actualizado v2'
 WHERE email = 'alumno_seguridad@universidad.edu';
 ```
 
-### Eliminación de Usuario
+### Baja Lógica (Desactivar Usuario)
+```sql
+UPDATE public.usuarios
+SET estado = false
+WHERE email = 'alumno_seguridad@universidad.edu';
+```
+
+### Eliminación Física (Si es requerida)
 ```sql
 DELETE FROM public.usuarios 
 WHERE email = 'usuario_a_borrar@ejemplo.com';
@@ -120,5 +130,109 @@ SELECT
     nombre_completo, 
     array_length(permisos_globales, 1) as total_permisos
 FROM public.usuarios
-ORDER BY creado_en DESC;
+---
+
+## 7. Configuración de Catálogos (Estados y Prioridades) ⭐
+Inserción de valores iniciales para la lógica de negocio.
+
+```sql
+-- 1. Insertar Estados
+INSERT INTO public.estados (nombre, color) VALUES 
+('Abierto', '#22c55e'),
+('En Progreso', '#3b82f6'),
+('Cerrado', '#64748b');
+
+-- 2. Insertar Prioridades
+INSERT INTO public.prioridades (nombre, orden) VALUES 
+('Baja', 1),
+('Media', 2),
+('Alta', 3);
+```
+
+---
+
+## 8. Gestión de Organigrama (Grupos y Miembros) ⭐
+Creación de departamentos y asignación de personal.
+
+```sql
+-- 1. Crear un Grupo (Soporte Técnico)
+INSERT INTO public.grupos (nombre, descripcion, creador_id)
+VALUES (
+  'Soporte Técnico', 
+  'Departamento de atención a incidentes', 
+  (SELECT id FROM public.usuarios WHERE email = 'alumno_seguridad@universidad.edu' LIMIT 1)
+);
+
+-- 2. Agregar Miembro al Grupo
+INSERT INTO public.grupo_miembros (grupo_id, usuario_id)
+VALUES (
+  (SELECT id FROM public.grupos WHERE nombre = 'Soporte Técnico' LIMIT 1),
+  (SELECT id FROM public.usuarios WHERE email = 'alumno_seguridad@universidad.edu' LIMIT 1)
+);
+```
+
+---
+
+## 9. Ciclo de Vida del Ticket ⭐
+Flujo completo desde la incidencia hasta la atención.
+
+```sql
+-- 1. Crear un Ticket
+INSERT INTO public.tickets (grupo_id, titulo, descripcion, autor_id, estado_id, priority_id)
+VALUES (
+  (SELECT id FROM public.grupos WHERE nombre = 'Soporte Técnico' LIMIT 1),
+  'Fallo en servidor de base de datos',
+  'No se puede conectar al cluster principal desde la DMZ',
+  (SELECT id FROM public.usuarios WHERE email = 'alumno_seguridad@universidad.edu' LIMIT 1),
+  (SELECT id FROM public.estados WHERE nombre = 'Abierto' LIMIT 1),
+  (SELECT id FROM public.prioridades WHERE nombre = 'Alta' LIMIT 1)
+);
+
+-- 2. Asignar Ticket y Cambiar Estado
+UPDATE public.tickets
+SET asignado_id = (SELECT id FROM public.usuarios WHERE email = 'alumno_seguridad@universidad.edu' LIMIT 1),
+    estado_id = (SELECT id FROM public.estados WHERE nombre = 'En Progreso' LIMIT 1)
+WHERE titulo = 'Fallo en servidor de base de datos';
+```
+
+---
+
+## 10. Interacción y Seguimiento ⭐
+Colaboración y auditoría de cambios.
+
+```sql
+-- 1. Agregar un Comentario
+INSERT INTO public.comentarios (ticket_id, autor_id, contenido)
+VALUES (
+  (SELECT id FROM public.tickets WHERE titulo = 'Fallo en servidor de base de datos' LIMIT 1),
+  (SELECT id FROM public.usuarios WHERE email = 'alumno_seguridad@universidad.edu' LIMIT 1),
+  'Se ha iniciado la revisión de los logs del firewall.'
+);
+
+-- 2. Consultar Historial de un Ticket
+SELECT u.username, h.accion, h.detalles, h.creado_en
+FROM public.historial_tickets h
+JOIN public.usuarios u ON h.usuario_id = u.id
+WHERE h.ticket_id = (SELECT id FROM public.tickets WHERE titulo = 'Fallo en servidor de base de datos' LIMIT 1)
+ORDER BY h.creado_en DESC;
+```
+
+---
+
+## 11. Reportes y Estadísticas de Seguridad ⭐
+Consultas agregadas para la toma de decisiones.
+
+```sql
+-- 1. Resumen de Tickets por Estado
+SELECT e.nombre as estado, COUNT(t.id) as total
+FROM public.tickets t
+JOIN public.estados e ON t.estado_id = e.id
+GROUP BY e.nombre;
+
+-- 2. Usuarios más activos (por reporte de tickets)
+SELECT u.username, COUNT(t.id) as tickets_creados
+FROM public.usuarios u
+JOIN public.tickets t ON u.id = t.autor_id
+GROUP BY u.username
+ORDER BY tickets_creados DESC;
 ```

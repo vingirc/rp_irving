@@ -1,0 +1,123 @@
+import { Injectable, signal, computed } from '@angular/core';
+import { environment } from '../../environments/environment';
+
+export interface LoginResponse {
+    statusCode: number;
+    intOpCode: string;
+    data: {
+        token?: string;
+        email?: string;
+        username?: string;
+        nombre?: string;
+        permissions?: string[];
+        error?: string;
+    };
+}
+
+export interface RegisterResponse {
+    statusCode: number;
+    intOpCode: string;
+    data: {
+        message?: string;
+        email?: string;
+        username?: string;
+        error?: string;
+    };
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class AuthService {
+    private readonly API_URL = environment.apiUrl;
+    private readonly TOKEN_KEY = 'auth_token';
+    private readonly USER_KEY = 'auth_user';
+
+    private _isAuthenticated = signal<boolean>(this.hasToken());
+    private _currentUser = signal<{ email: string; username: string; nombre: string; permissions: string[] } | null>(this.getStoredUser());
+
+    isAuthenticated = this._isAuthenticated.asReadonly();
+    currentUser = this._currentUser.asReadonly();
+    permissions = computed(() => this._currentUser()?.permissions || []);
+
+    private hasToken(): boolean {
+        return !!localStorage.getItem(this.TOKEN_KEY);
+    }
+
+    private getStoredUser(): { email: string; username: string; nombre: string; permissions: string[] } | null {
+        const stored = localStorage.getItem(this.USER_KEY);
+        return stored ? JSON.parse(stored) : null;
+    }
+
+    async login(email: string, password: string): Promise<{ success: boolean; error?: string }> {
+        try {
+            const response = await fetch(`${this.API_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data: LoginResponse = await response.json();
+
+            if (data.statusCode === 200 && data.data.token) {
+                localStorage.setItem(this.TOKEN_KEY, data.data.token);
+                const user = {
+                    email: data.data.email || '',
+                    username: data.data.username || '',
+                    nombre: data.data.nombre || '',
+                    permissions: data.data.permissions || []
+                };
+                localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+                this._currentUser.set(user);
+                this._isAuthenticated.set(true);
+                return { success: true };
+            }
+
+            return { success: false, error: data.data?.error || 'Error desconocido' };
+        } catch (error) {
+            console.error('Login error:', error);
+            return { success: false, error: 'Error de conexión' };
+        }
+    }
+
+    async register(email: string, password: string, username: string, nombre: string): Promise<{ success: boolean; error?: string }> {
+        try {
+            const response = await fetch(`${this.API_URL}/auth/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password, username, nombre })
+            });
+
+            const data: RegisterResponse = await response.json();
+
+            if (data.statusCode === 201) {
+                return { success: true };
+            }
+
+            return { success: false, error: data.data?.error || 'Error desconocido' };
+        } catch (error) {
+            console.error('Register error:', error);
+            return { success: false, error: 'Error de conexión' };
+        }
+    }
+
+    logout(): void {
+        localStorage.removeItem(this.TOKEN_KEY);
+        localStorage.removeItem(this.USER_KEY);
+        this._currentUser.set(null);
+        this._isAuthenticated.set(false);
+    }
+
+    getToken(): string | null {
+        return localStorage.getItem(this.TOKEN_KEY);
+    }
+
+    hasPermission(permission: string): boolean {
+        const perms = this.permissions();
+        return perms.includes('all') || perms.includes(permission);
+    }
+}

@@ -39,10 +39,10 @@
                     </td>
                     <td>
                         <div class="flex gap-2">
-                            <p-button *hasPermission="'user_edit'" icon="pi pi-pencil" [rounded]="true"
+                            <p-button *hasPermission="'user:edit'" icon="pi pi-pencil" [rounded]="true"
                                 [outlined]="true" (onClick)="editUser(user)"></p-button>
 
-                            <p-button *hasPermission="'user_delete'" icon="pi pi-trash" severity="danger"
+                            <p-button *hasPermission="'user:delete'" icon="pi pi-trash" severity="danger"
                                 [rounded]="true" [outlined]="true" (onClick)="deleteUser(user)"></p-button>
                         </div>
                     </td>
@@ -53,13 +53,14 @@
 
     <p-dialog [(visible)]="userDialog" header="Editar Usuario" [modal]="true" styleClass="p-fluid"
         [style]="{ width: '450px' }">
+        <ng-container *ngIf="selectedUser">
         <div class="field mb-4">
             <label for="fullName" class="block font-bold mb-2">Nombre Completo</label>
             <input type="text" pInputText id="fullName" [(ngModel)]="selectedUser.fullName" required autofocus class="w-full"
                 [class.ng-invalid]="submitted && !selectedUser.fullName" />
             <small class="text-red-500 block mt-1" *ngIf="submitted && !selectedUser.fullName">El nombre es requerido.</small>
         </div>
-        <div class="field mb-4" *ngIf="selectedUser">
+        <div class="field mb-4">
             <label class="block font-bold mb-2">Permisos de Usuario</label>
             <p-multiSelect [options]="assignablePermissions" [(ngModel)]="selectedUser.permissions"
                 optionLabel="label" optionValue="value" placeholder="Seleccionar permisos"
@@ -69,6 +70,7 @@
         <small class="text-secondary mt-1 block">
             Solo puedes asignar permisos que tú ya posees.
         </small>
+        </ng-container>
         <ng-template pTemplate="footer">
             <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="userDialog = false"></p-button>
             <p-button label="Guardar" icon="pi pi-check" [text]="true" (onClick)="saveUser()"></p-button>
