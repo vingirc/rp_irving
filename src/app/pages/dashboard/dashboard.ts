@@ -52,7 +52,16 @@ export class DashboardComponent implements OnInit {
     private cdr = inject(ChangeDetectorRef);
 
     groups: any[] = [];
-    selectedGroupId: string | null = null;
+    private _selectedGroupIdSignal = signal<string | null>(null);
+    
+    get selectedGroupId(): string | null {
+        return this._selectedGroupIdSignal();
+    }
+    
+    set selectedGroupId(value: string | null) {
+        this._selectedGroupIdSignal.set(value);
+    }
+    
     loading = signal(true);
     
     estados: any[] = [];
@@ -65,8 +74,9 @@ export class DashboardComponent implements OnInit {
     tickets = computed(() => this.ticketService.tickets());
     
     groupTickets = computed(() => {
-        if (!this.selectedGroupId) return this.tickets();
-        return this.tickets().filter(t => t.groupId === this.selectedGroupId);
+        const id = this._selectedGroupIdSignal();
+        if (!id) return this.tickets();
+        return this.tickets().filter(t => t.groupId === id);
     });
 
     kanbanColumns: { label: string; value: TicketStatus; color: string }[] = [];
