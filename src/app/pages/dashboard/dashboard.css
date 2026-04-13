@@ -24,8 +24,8 @@
 }
 
 .group-selector label {
-    font-weight: 500;
-    color: var(--text-color-secondary);
+    font-weight: 600;
+    color: #334155;
 }
 
 .stats-grid {
@@ -64,8 +64,9 @@
 }
 
 .stat-label {
-    font-size: 0.875rem;
-    color: var(--text-color-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #475569;
 }
 
 .kanban-section {
@@ -147,9 +148,14 @@
 }
 
 .ticket-description {
-    font-size: 0.8rem;
-    color: var(--text-color-secondary);
+    font-size: 0.85rem;
+    color: #475569;
     margin: 0 0 0.5rem 0;
+}
+
+.assignee {
+    font-size: 0.8rem;
+    color: #64748b;
 }
 
 .ticket-meta {
@@ -191,8 +197,9 @@
 }
 
 .detail-row strong {
-    font-size: 0.875rem;
-    color: var(--text-color-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #475569;
 }
 
 .new-ticket-form {

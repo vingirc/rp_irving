@@ -20,13 +20,15 @@
 .header-title h1 {
     margin: 0;
     font-size: 1.5rem;
-    font-weight: 600;
+    font-weight: 700;
+    color: #0f172a;
 }
 
 .description {
     margin: 0.25rem 0 0 0;
-    color: var(--text-color-secondary);
+    color: #475569;
     font-size: 0.9rem;
+    font-weight: 500;
 }
 
 .header-actions {
@@ -55,6 +57,7 @@
     margin: 0;
     font-size: 1rem;
     font-weight: 600;
+    color: #0f172a;
 }
 
 .user-cell {
@@ -69,12 +72,14 @@
 }
 
 .user-name {
-    font-weight: 500;
+    font-weight: 600;
+    color: #1e293b;
 }
 
 .user-username {
     font-size: 0.8rem;
-    color: var(--text-color-secondary);
+    color: #475569;
+    font-weight: 500;
 }
 
 .permissions-list {
@@ -93,7 +98,7 @@
 
 .empty-members p {
     margin: 0;
-    color: var(--text-color-secondary);
+    color: #475569;
 }
 
 .text-center {
@@ -113,12 +118,13 @@
 }
 
 .form-field label {
-    font-weight: 500;
+    font-weight: 600;
     font-size: 0.875rem;
+    color: #1e293b;
 }
 
 .required {
-    color: var(--red-500);
+    color: #dc2626;
 }
 
 .add-member-form {
@@ -139,12 +145,13 @@
 }
 
 .user-option-info .name {
-    font-weight: 500;
+    font-weight: 600;
+    color: #1e293b;
 }
 
 .user-option-info .email {
     font-size: 0.8rem;
-    color: var(--text-color-secondary);
+    color: #475569;
 }
 
 .selected-user-preview {
@@ -152,9 +159,9 @@
     align-items: center;
     gap: 1rem;
     padding: 1rem;
-    background: var(--surface-ground);
+    background: #f1f5f9;
     border-radius: 8px;
-    border: 1px solid var(--surface-border);
+    border: 1px solid #e2e8f0;
 }
 
 .preview-info {
@@ -165,16 +172,18 @@
 .preview-name {
     font-weight: 600;
     font-size: 1rem;
+    color: #0f172a;
 }
 
 .preview-email {
     font-size: 0.85rem;
-    color: var(--text-color-secondary);
+    color: #475569;
 }
 
 .preview-username {
     font-size: 0.8rem;
-    color: var(--primary-color);
+    color: #4f46e5;
+    font-weight: 600;
 }
 
 :host ::ng-deep .p-select {

@@ -164,7 +164,7 @@
         </div>
         <div class="form-field">
             <label for="priority">Prioridad</label>
-            <p-select inputId="priority" [options]="priorityOptions" [(ngModel)]="newTicket.priority" optionLabel="label" optionValue="value" />
+            <p-select inputId="priority" [options]="priorityOptions" [(ngModel)]="newTicket.priority" optionLabel="label" optionValue="value" appendTo="body" />
         </div>
     </div>
     <ng-template pTemplate="footer">

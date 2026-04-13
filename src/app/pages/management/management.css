@@ -17,3 +17,29 @@
 .p-tag {
     text-transform: capitalize;
 }
+
+/* Improve table header visibility */
+.management-container .p-datatable .p-datatable-thead > tr > th {
+    color: #0f172a !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem;
+}
+
+.management-container .p-datatable .p-datatable-tbody > tr > td {
+    color: #334155;
+    font-weight: 500;
+}
+
+.management-container .p-datatable .p-datatable-tbody > tr:hover {
+    background: #f1f5f9;
+}
+
+/* Improve form labels */
+.management-container .field label {
+    color: #1e293b !important;
+    font-weight: 600 !important;
+}
+
+.management-container .block.font-bold {
+    color: #0f172a;
+}

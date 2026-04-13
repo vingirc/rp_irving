@@ -2,216 +2,195 @@
     <div class="page-header">
         <div class="header-left">
             <p-button icon="pi pi-arrow-left" [text]="true" (onClick)="goBack()" />
-            <h1>{{ groupName }} - Tickets</h1>
+            <h1>{{ groupName }} Tickets</h1>
         </div>
         <div class="header-actions">
-            <p-selectbutton 
-                [options]="viewModeOptions" 
-                [(ngModel)]="viewMode" 
-                optionLabel="label" 
+            <p-selectbutton [options]="viewModeOptions" [(ngModel)]="viewMode" optionLabel="label"
                 optionValue="value" />
             <p-button label="Nuevo Ticket" icon="pi pi-plus" (onClick)="openNewTicket()" />
         </div>
     </div>
 
     @if (viewMode === 'kanban') {
-        <div class="kanban-board">
-            @for (column of kanbanColumns; track column.value) {
-                <div class="kanban-column">
-                    <div class="column-header">
-                        <span class="column-title">{{ column.label }}</span>
-                        <p-tag [value]="getTicketsByStatus(column.value).length.toString()" [severity]="getSeverity(column.color)" />
-                    </div>
-                    <div 
-                        class="column-content"
-                        cdkDropList
-                        [cdkDropListData]="getTicketsByStatus(column.value)"
-                        [id]="column.value"
-                        [cdkDropListConnectedTo]="connectedColumnIds"
-                        (cdkDropListDropped)="onDrop($event, column.value)">
-                        @for (ticket of getTicketsByStatus(column.value); track ticket.id) {
-                            <p-card styleClass="ticket-card" cdkDrag [cdkDragData]="ticket">
-                                <div class="ticket-card-content">
-                                    <div class="ticket-header">
-                                        <span class="ticket-id">#{{ ticket.id.slice(0, 8) }}</span>
-                                        <p-tag [value]="ticket.priority" [severity]="getPrioritySeverity(ticket.priority)" />
-                                    </div>
-                                    <h4>{{ ticket.title }}</h4>
-                                    <p class="ticket-description">{{ ticket.description | slice:0:100 }}{{ ticket.description.length > 100 ? '...' : '' }}</p>
-                                    <div class="ticket-footer">
-                                        @if (ticket.assignedToName) {
-                                            <span class="assignee">
-                                                <i class="pi pi-user"></i>
-                                                {{ ticket.assignedToName }}
-                                            </span>
-                                        }
-                                        <span class="ticket-date">{{ ticket.createdAt | date:'shortDate' }}</span>
-                                    </div>
-                                </div>
-                                <div class="drag-placeholder" *cdkDragPlaceholder></div>
-                            </p-card>
-                        }
-                        @if (getTicketsByStatus(column.value).length === 0) {
-                            <div class="empty-column">
-                                <i class="pi pi-inbox"></i>
-                                <span>Arrastra tickets aquí</span>
-                            </div>
-                        }
-                    </div>
-                </div>
-            }
-        </div>
-    } @else {
-        <div class="list-view">
-            <div class="filters-bar">
-                <span class="p-input-icon-left">
-                    <i class="pi pi-search"></i>
-                    <input pInputText [(ngModel)]="globalFilter" placeholder="Buscar tickets..." />
-                </span>
-                <p-select 
-                    [options]="statusOptions" 
-                    [(ngModel)]="statusFilter" 
-                    optionLabel="label" 
-                    optionValue="value"
-                    placeholder="Estado"
-                    [showClear]="true" />
-                <p-select 
-                    [options]="priorityOptions" 
-                    [(ngModel)]="priorityFilter" 
-                    optionLabel="label" 
-                    optionValue="value"
-                    placeholder="Prioridad"
-                    [showClear]="true" />
+    <div class="kanban-board">
+        @for (column of kanbanColumns; track column.value) {
+        <div class="kanban-column">
+            <div class="column-header">
+                <span class="column-title">{{ column.label }}</span>
+                <p-tag [value]="getTicketsByStatus(column.value).length.toString()"
+                    [severity]="getSeverity(column.color)" />
             </div>
-
-            <p-table 
-                [value]="groupTickets()" 
-                [paginator]="true" 
-                [rows]="10" 
-                [rowsPerPageOptions]="[5, 10, 25, 50]"
-                [globalFilterFields]="['title', 'description', 'status', 'priority', 'assignedToName', 'creatorName']"
-                [tableStyle]="{'min-width': '60rem'}"
-                styleClass="p-datatable-gridlines">
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th pSortableColumn="id">ID <p-sortIcon field="id" /></th>
-                        <th pSortableColumn="title">Título <p-sortIcon field="title" /></th>
-                        <th pSortableColumn="status">Estado <p-sortIcon field="status" /></th>
-                        <th pSortableColumn="priority">Prioridad <p-sortIcon field="priority" /></th>
-                        <th>Asignado</th>
-                        <th pSortableColumn="createdAt">Fecha <p-sortIcon field="createdAt" /></th>
-                        <th>Acciones</th>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-ticket>
-                    <tr>
-                        <td><span class="ticket-id-cell">#{{ ticket.id.slice(0, 8) }}</span></td>
-                        <td>
-                            <div class="ticket-title-cell">
-                                <span class="ticket-title">{{ ticket.title }}</span>
-                                <span class="ticket-desc">{{ ticket.description | slice:0:50 }}...</span>
-                            </div>
-                        </td>
-                        <td><p-tag [value]="ticket.status" [severity]="getSeverity(getColumnColor(ticket.status))" /></td>
-                        <td><p-tag [value]="ticket.priority" [severity]="getPrioritySeverity(ticket.priority)" /></td>
-                        <td>{{ ticket.assignedToName || '-' }}</td>
-                        <td>{{ ticket.createdAt | date:'medium' }}</td>
-                        <td>
-                            <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="info" (onClick)="viewTicket(ticket)" pTooltip="Ver" />
-                            <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="warn" (onClick)="editTicket(ticket)" pTooltip="Editar" />
-                            <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" (onClick)="deleteTicket(ticket)" pTooltip="Eliminar" />
-                        </td>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="emptymessage">
-                    <tr>
-                        <td colspan="7" class="text-center">
-                            <div class="empty-table">
-                                <i class="pi pi-inbox" style="font-size: 3rem; opacity: 0.3"></i>
-                                <p>No se encontraron tickets</p>
-                            </div>
-                        </td>
-                    </tr>
-                </ng-template>
-            </p-table>
+            <div class="column-content" cdkDropList [cdkDropListData]="getTicketsByStatus(column.value)"
+                [id]="column.value" [cdkDropListConnectedTo]="connectedColumnIds"
+                (cdkDropListDropped)="onDrop($event, column.value)">
+                @for (ticket of getTicketsByStatus(column.value); track ticket.id) {
+                <p-card styleClass="ticket-card" cdkDrag [cdkDragData]="ticket">
+                    <div class="ticket-card-content">
+                        <div class="ticket-header">
+                            <span class="ticket-id">#{{ ticket.id.slice(0, 8) }}</span>
+                            <p-tag [value]="ticket.priority" [severity]="getPrioritySeverity(ticket.priority)" />
+                        </div>
+                        <h4>{{ ticket.title }}</h4>
+                        <p class="ticket-description">{{ ticket.description | slice:0:100 }}{{ ticket.description.length
+                            > 100 ? '...' : '' }}</p>
+                        <div class="ticket-footer">
+                            @if (ticket.assignedToName) {
+                            <span class="assignee">
+                                <i class="pi pi-user"></i>
+                                {{ ticket.assignedToName }}
+                            </span>
+                            }
+                            <span class="ticket-date">{{ ticket.createdAt | date:'shortDate' }}</span>
+                        </div>
+                    </div>
+                    <div class="drag-placeholder" *cdkDragPlaceholder></div>
+                </p-card>
+                }
+                @if (getTicketsByStatus(column.value).length === 0) {
+                <div class="empty-column">
+                    <i class="pi pi-inbox"></i>
+                    <span>Arrastra tickets aquí</span>
+                </div>
+                }
+            </div>
         </div>
+        }
+    </div>
+    } @else {
+    <div class="list-view">
+        <div class="filters-bar">
+            <span class="p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input pInputText [(ngModel)]="globalFilter" placeholder="Buscar tickets..." />
+            </span>
+            <p-select [options]="statusOptions" [(ngModel)]="statusFilter" optionLabel="label" optionValue="value"
+                placeholder="Estado" [showClear]="true" />
+            <p-select [options]="priorityOptions" [(ngModel)]="priorityFilter" optionLabel="label" optionValue="value"
+                placeholder="Prioridad" [showClear]="true" />
+        </div>
+
+        <p-table [value]="groupTickets()" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[5, 10, 25, 50]"
+            [globalFilterFields]="['title', 'description', 'status', 'priority', 'assignedToName', 'creatorName']"
+            [tableStyle]="{'min-width': '60rem'}" styleClass="p-datatable-gridlines">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="id">ID <p-sortIcon field="id" /></th>
+                    <th pSortableColumn="title">Título <p-sortIcon field="title" /></th>
+                    <th pSortableColumn="status">Estado <p-sortIcon field="status" /></th>
+                    <th pSortableColumn="priority">Prioridad <p-sortIcon field="priority" /></th>
+                    <th>Asignado</th>
+                    <th pSortableColumn="createdAt">Fecha <p-sortIcon field="createdAt" /></th>
+                    <th>Acciones</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-ticket>
+                <tr>
+                    <td><span class="ticket-id-cell">#{{ ticket.id.slice(0, 8) }}</span></td>
+                    <td>
+                        <div class="ticket-title-cell">
+                            <span class="ticket-title">{{ ticket.title }}</span>
+                            <span class="ticket-desc">{{ ticket.description | slice:0:50 }}...</span>
+                        </div>
+                    </td>
+                    <td><p-tag [value]="ticket.status" [severity]="getSeverity(getColumnColor(ticket.status))" /></td>
+                    <td><p-tag [value]="ticket.priority" [severity]="getPrioritySeverity(ticket.priority)" /></td>
+                    <td>{{ ticket.assignedToName || '-' }}</td>
+                    <td>{{ ticket.createdAt | date:'medium' }}</td>
+                    <td>
+                        <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="info"
+                            (onClick)="viewTicket(ticket)" pTooltip="Ver" />
+                        <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="warn"
+                            (onClick)="editTicket(ticket)" pTooltip="Editar" />
+                        <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger"
+                            (onClick)="deleteTicket(ticket)" pTooltip="Eliminar" />
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="7" class="text-center">
+                        <div class="empty-table">
+                            <i class="pi pi-inbox" style="font-size: 3rem; opacity: 0.3"></i>
+                            <p>No se encontraron tickets</p>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
     }
 </div>
 
-<p-dialog 
-    [(visible)]="ticketDialog" 
-    [header]="editingTicket ? 'Editar Ticket' : 'Detalle del Ticket'" 
-    [modal]="true" 
-    [style]="{width: '600px'}"
-    [draggable]="false">
+<p-dialog [(visible)]="ticketDialog" [header]="editingTicket ? 'Editar Ticket' : 'Detalle del Ticket'" [modal]="true"
+    [style]="{width: '600px'}" [draggable]="false">
     @if (selectedTicket) {
-        @if (editingTicket) {
-            <div class="edit-form">
-                <div class="form-field">
-                    <label for="edit-title">Título</label>
-                    <input pInputText id="edit-title" [(ngModel)]="selectedTicket.title" />
-                </div>
-                <div class="form-field">
-                    <label for="edit-desc">Descripción</label>
-                    <textarea pTextarea id="edit-desc" [(ngModel)]="selectedTicket.description" rows="4" style="width: 100%"></textarea>
-                </div>
-                <div class="form-row">
-                    <div class="form-field">
-                        <label for="edit-status">Estado</label>
-                        <p-select id="edit-status" [options]="statusOptions" [(ngModel)]="selectedTicket.status" optionLabel="label" optionValue="value" />
-                    </div>
-                    <div class="form-field">
-                        <label for="edit-priority">Prioridad</label>
-                        <p-select id="edit-priority" [options]="priorityOptions" [(ngModel)]="selectedTicket.priority" optionLabel="label" optionValue="value" />
-                    </div>
-                </div>
+    @if (editingTicket) {
+    <div class="edit-form">
+        <div class="form-field">
+            <label for="edit-title">Título</label>
+            <input pInputText id="edit-title" [(ngModel)]="selectedTicket.title" />
+        </div>
+        <div class="form-field">
+            <label for="edit-desc">Descripción</label>
+            <textarea pTextarea id="edit-desc" [(ngModel)]="selectedTicket.description" rows="4"
+                style="width: 100%"></textarea>
+        </div>
+        <div class="form-row">
+            <div class="form-field">
+                <label for="edit-status">Estado</label>
+                <p-select id="edit-status" [options]="statusOptions" [(ngModel)]="selectedTicket.status"
+                    optionLabel="label" optionValue="value" appendTo="body" />
             </div>
-        } @else {
-            <div class="ticket-detail">
-                <div class="detail-section">
-                    <h3>{{ selectedTicket.title }}</h3>
-                    <p class="description">{{ selectedTicket.description }}</p>
-                </div>
-                <div class="detail-grid">
-                    <div class="detail-item">
-                        <span class="label">Estado:</span>
-                        <p-tag [value]="selectedTicket.status" [severity]="getSeverity(getColumnColor(selectedTicket.status))" />
-                    </div>
-                    <div class="detail-item">
-                        <span class="label">Prioridad:</span>
-                        <p-tag [value]="selectedTicket.priority" [severity]="getPrioritySeverity(selectedTicket.priority)" />
-                    </div>
-                    <div class="detail-item">
-                        <span class="label">Asignado:</span>
-                        <span>{{ selectedTicket.assignedToName || 'Sin asignar' }}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="label">Creado por:</span>
-                        <span>{{ selectedTicket.creatorName }}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="label">Fecha:</span>
-                        <span>{{ selectedTicket.createdAt | date:'medium' }}</span>
-                    </div>
-                </div>
+            <div class="form-field">
+                <label for="edit-priority">Prioridad</label>
+                <p-select id="edit-priority" [options]="priorityOptions" [(ngModel)]="selectedTicket.priority"
+                    optionLabel="label" optionValue="value" appendTo="body" />
             </div>
-        }
+        </div>
+    </div>
+    } @else {
+    <div class="ticket-detail">
+        <div class="detail-section">
+            <h3>{{ selectedTicket.title }}</h3>
+            <p class="description">{{ selectedTicket.description }}</p>
+        </div>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <span class="label">Estado:</span>
+                <p-tag [value]="selectedTicket.status"
+                    [severity]="getSeverity(getColumnColor(selectedTicket.status))" />
+            </div>
+            <div class="detail-item">
+                <span class="label">Prioridad:</span>
+                <p-tag [value]="selectedTicket.priority" [severity]="getPrioritySeverity(selectedTicket.priority)" />
+            </div>
+            <div class="detail-item">
+                <span class="label">Asignado:</span>
+                <span>{{ selectedTicket.assignedToName || 'Sin asignar' }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">Creado por:</span>
+                <span>{{ selectedTicket.creatorName }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">Fecha:</span>
+                <span>{{ selectedTicket.createdAt | date:'medium' }}</span>
+            </div>
+        </div>
+    </div>
+    }
     }
     <ng-template pTemplate="footer">
         @if (editingTicket) {
-            <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="ticketDialog = false" />
-            <p-button label="Guardar" icon="pi pi-check" (onClick)="saveTicket()" />
+        <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="ticketDialog = false" />
+        <p-button label="Guardar" icon="pi pi-check" (onClick)="saveTicket()" />
         } @else {
-            <p-button label="Cerrar" icon="pi pi-times" [text]="true" (onClick)="ticketDialog = false" />
+        <p-button label="Cerrar" icon="pi pi-times" [text]="true" (onClick)="ticketDialog = false" />
         }
     </ng-template>
 </p-dialog>
 
-<p-dialog 
-    [(visible)]="newTicketDialog" 
-    header="Nuevo Ticket" 
-    [modal]="true" 
-    [style]="{width: '500px'}"
+<p-dialog [(visible)]="newTicketDialog" header="Nuevo Ticket" [modal]="true" [style]="{width: '500px'}"
     [draggable]="false">
     <div class="new-ticket-form">
         <div class="form-field">
@@ -220,11 +199,13 @@
         </div>
         <div class="form-field">
             <label for="description">Descripción</label>
-            <textarea pTextarea id="description" [(ngModel)]="newTicket.description" rows="4" placeholder="Descripción del ticket"></textarea>
+            <textarea pTextarea id="description" [(ngModel)]="newTicket.description" rows="4"
+                placeholder="Descripción del ticket"></textarea>
         </div>
         <div class="form-field">
             <label for="priority">Prioridad</label>
-            <p-select id="priority" [options]="priorityOptions" [(ngModel)]="newTicket.priority" optionLabel="label" optionValue="value" />
+            <p-select id="priority" [options]="priorityOptions" [(ngModel)]="newTicket.priority" optionLabel="label"
+                optionValue="value" appendTo="body" />
         </div>
     </div>
     <ng-template pTemplate="footer">

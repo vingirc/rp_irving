@@ -86,8 +86,8 @@
 .info-item {
     display: flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 12px;
     padding: 1.25rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -95,8 +95,8 @@
 
 .info-item:hover {
     transform: translateY(-4px);
-    background: rgba(255, 255, 255, 0.08);
-    border-color: #6366f1;
+    background: rgba(255, 255, 255, 0.12);
+    border-color: #818cf8;
 }
 
 .info-item i {
@@ -106,8 +106,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(99, 102, 241, 0.15);
-    color: #818cf8;
+    background: rgba(99, 102, 241, 0.2);
+    color: #a5b4fc;
     border-radius: 12px;
     margin-right: 1rem;
 }
@@ -116,7 +116,7 @@
     font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
-    color: #cbd5e1;
+    color: #e2e8f0;
     letter-spacing: 1px;
     margin-bottom: 0.25rem;
 }

@@ -26,8 +26,8 @@ a {
     color: #1e293b;
 
     /* Override PrimeNG theme variables for light background context */
-    --text-color: #1e293b;
-    --text-color-secondary: #475569;
+    --text-color: #0f172a;
+    --text-color-secondary: #334155;
     --surface-ground: #f4f6f8;
     --surface-card: #ffffff;
     --surface-border: #e2e8f0;
@@ -52,11 +52,11 @@ a {
 }
 
 .layout-content .text-700 {
-    color: #334155 !important;
+    color: #1e293b !important;
 }
 
 .layout-content .text-600 {
-    color: #475569 !important;
+    color: #334155 !important;
 }
 
 .layout-content .text-secondary,
@@ -65,6 +65,69 @@ a {
 .layout-content .text-400,
 .layout-content .text-500 {
     color: #475569 !important;
+}
+
+/* Labels, small text and form labels - enhanced contrast */
+.layout-content label,
+.layout-content .form-label,
+.layout-content .field-label {
+    color: #334155 !important;
+    font-weight: 600 !important;
+}
+
+/* Improved contrast for p-tag, p-badge and small elements */
+.layout-content .p-tag,
+.layout-content .p-badge {
+    font-weight: 600;
+}
+
+/* Dialog and overlay improvements */
+.layout-content .p-dialog,
+.ticket-dialog .p-dialog-content {
+    --text-color: #0f172a;
+    --text-color-secondary: #475569;
+    --surface-ground: #f4f6f8;
+    --surface-card: #ffffff;
+}
+
+/* Improve input labels inside forms */
+.layout-content .p-dropdown-label,
+.layout-content .p-inputtext,
+.layout-content .p-inputtextarea {
+    color: #1e293b !important;
+}
+
+/* Improve table and kanban card text visibility */
+.layout-content .p-datatable .p-datatable-thead>tr>th {
+    color: #0f172a !important;
+    font-weight: 600 !important;
+}
+
+.layout-content .p-datatable .p-datatable-tbody>tr>td {
+    color: #334155;
+}
+
+/* Kanban cards and columns */
+.layout-content .kanban-col {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+}
+
+.layout-content .ticket-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #1e293b;
+}
+
+.layout-content .ticket-card .text-xs,
+.layout-content .ticket-card .text-sm {
+    color: #475569;
+    font-weight: 500;
+}
+
+/* Activity list improvements */
+.layout-content .activity-list .text-secondary {
+    color: #64748b !important;
 }
 
 /* Restore light text inside dark containers (profile card, sidebar) */
