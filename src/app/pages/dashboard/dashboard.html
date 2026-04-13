@@ -1,0 +1,176 @@
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Dashboard</h1>
+        <div class="group-selector">
+            <label for="group-select">Grupo:</label>
+            <p-select 
+                inputId="group-select"
+                [options]="groups" 
+                [(ngModel)]="selectedGroupId" 
+                optionLabel="nombre" 
+                optionValue="id"
+                [style]="{'min-width': '200px'}" />
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <p-card styleClass="stat-card">
+            <div class="stat-content">
+                <i class="pi pi-ticket stat-icon" style="color: var(--primary-color)"></i>
+                <div class="stat-info">
+                    <span class="stat-value">{{ stats().total }}</span>
+                    <span class="stat-label">Total Tickets</span>
+                </div>
+            </div>
+        </p-card>
+        <p-card styleClass="stat-card">
+            <div class="stat-content">
+                <i class="pi pi-clock stat-icon" style="color: var(--blue-500)"></i>
+                <div class="stat-info">
+                    <span class="stat-value">{{ stats().pendiente }}</span>
+                    <span class="stat-label">Pendientes</span>
+                </div>
+            </div>
+        </p-card>
+        <p-card styleClass="stat-card">
+            <div class="stat-content">
+                <i class="pi pi-spin pi-spinner stat-icon" style="color: var(--orange-500)"></i>
+                <div class="stat-info">
+                    <span class="stat-value">{{ stats().enProgreso }}</span>
+                    <span class="stat-label">En Progreso</span>
+                </div>
+            </div>
+        </p-card>
+        <p-card styleClass="stat-card">
+            <div class="stat-content">
+                <i class="pi pi-check-circle stat-icon" style="color: var(--green-500)"></i>
+                <div class="stat-info">
+                    <span class="stat-value">{{ stats().hecho }}</span>
+                    <span class="stat-label">Hechos</span>
+                </div>
+            </div>
+        </p-card>
+        <p-card styleClass="stat-card">
+            <div class="stat-content">
+                <i class="pi pi-ban stat-icon" style="color: var(--red-500)"></i>
+                <div class="stat-info">
+                    <span class="stat-value">{{ stats().bloqueado }}</span>
+                    <span class="stat-label">Bloqueados</span>
+                </div>
+            </div>
+        </p-card>
+    </div>
+
+    <div class="kanban-section">
+        <div class="section-header">
+            <h2>Vista Kanban</h2>
+            <div class="section-actions">
+                <p-button label="Ver Lista" icon="pi pi-list" [outlined]="true" (onClick)="goToGroupTickets()" />
+                <p-button label="Administrar Grupo" icon="pi pi-cog" [outlined]="true" (onClick)="goToAdminGroup()" />
+                <p-button label="Nuevo Ticket" icon="pi pi-plus" (onClick)="openNewTicket()" />
+            </div>
+        </div>
+
+        <div class="kanban-board">
+            @for (column of kanbanColumns; track column.value) {
+                <div class="kanban-column">
+                    <div class="column-header">
+                        <span class="column-title">{{ column.label }}</span>
+                        <p-tag [value]="getTicketsByStatus(column.value).length.toString()" [severity]="getSeverity(column.color)" />
+                    </div>
+                    <div class="column-content">
+                        @for (ticket of getTicketsByStatus(column.value); track ticket.id) {
+                            <p-card styleClass="ticket-card" (click)="viewTicket(ticket)">
+                                <div class="ticket-card-content">
+                                    <h4>{{ ticket.title }}</h4>
+                                    <p class="ticket-description">{{ ticket.description | slice:0:80 }}{{ ticket.description.length > 80 ? '...' : '' }}</p>
+                                    <div class="ticket-meta">
+                                        <p-tag [value]="ticket.priority" [severity]="getPrioritySeverity(ticket.priority)" />
+                                        @if (ticket.assignedToName) {
+                                            <span class="assignee">{{ ticket.assignedToName }}</span>
+                                        }
+                                    </div>
+                                </div>
+                            </p-card>
+                        }
+                        @if (getTicketsByStatus(column.value).length === 0) {
+                            <div class="empty-column">
+                                <i class="pi pi-inbox"></i>
+                                <span>Sin tickets</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<p-dialog 
+    [(visible)]="ticketDialog" 
+    [header]="selectedTicket?.title" 
+    [modal]="true" 
+    [style]="{width: '600px'}"
+    [draggable]="false">
+    @if (selectedTicket) {
+        <div class="ticket-detail">
+            <div class="detail-row">
+                <strong>Estado:</strong>
+                <p-tag [value]="selectedTicket.status" />
+            </div>
+            <div class="detail-row">
+                <strong>Prioridad:</strong>
+                <p-tag [value]="selectedTicket.priority" [severity]="getPrioritySeverity(selectedTicket.priority)" />
+            </div>
+            <div class="detail-row">
+                <strong>Descripción:</strong>
+                <p>{{ selectedTicket.description }}</p>
+            </div>
+            @if (selectedTicket.assignedToName) {
+                <div class="detail-row">
+                    <strong>Asignado a:</strong>
+                    <span>{{ selectedTicket.assignedToName }}</span>
+                </div>
+            }
+            <div class="detail-row">
+                <strong>Creado por:</strong>
+                <span>{{ selectedTicket.creatorName }}</span>
+            </div>
+            <div class="detail-row">
+                <strong>Fecha:</strong>
+                <span>{{ selectedTicket.createdAt | date:'medium' }}</span>
+            </div>
+        </div>
+    }
+    <ng-template pTemplate="footer">
+        <p-button label="Cerrar" icon="pi pi-times" [text]="true" (onClick)="ticketDialog = false" />
+    </ng-template>
+</p-dialog>
+
+<p-dialog 
+    [(visible)]="newTicketDialog" 
+    header="Nuevo Ticket" 
+    [modal]="true" 
+    [style]="{width: '500px'}"
+    [draggable]="false">
+    <div class="new-ticket-form">
+        <div class="form-field">
+            <label for="title">Título <span class="required">*</span></label>
+            <input pInputText id="title" [(ngModel)]="newTicket.title" placeholder="Título del ticket" />
+        </div>
+        <div class="form-field">
+            <label for="description">Descripción</label>
+            <textarea pTextarea id="description" [(ngModel)]="newTicket.description" rows="4" placeholder="Descripción del ticket"></textarea>
+        </div>
+        <div class="form-field">
+            <label for="priority">Prioridad</label>
+            <p-select inputId="priority" [options]="priorityOptions" [(ngModel)]="newTicket.priority" optionLabel="label" optionValue="value" />
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="newTicketDialog = false" />
+        <p-button label="Crear" icon="pi pi-check" (onClick)="saveNewTicket()" />
+    </ng-template>
+</p-dialog>
+
+<p-toast />

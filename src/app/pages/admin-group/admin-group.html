@@ -1,0 +1,163 @@
+<div class="admin-group-container">
+    <div class="page-header">
+        <div class="header-left">
+            <p-button icon="pi pi-arrow-left" [text]="true" (onClick)="goBack()" />
+            <div class="header-title">
+                <h1>{{ groupName }}</h1>
+                @if (groupDescription) {
+                    <p class="description">{{ groupDescription }}</p>
+                }
+            </div>
+        </div>
+        <div class="header-actions">
+            <p-button label="Ver Tickets" icon="pi pi-ticket" [outlined]="true" (onClick)="goToGroupTickets()" />
+            <p-button icon="pi pi-pencil" [outlined]="true" (onClick)="openEditGroupDialog()" pTooltip="Editar grupo" />
+            <p-button icon="pi pi-trash" severity="danger" [outlined]="true" (onClick)="deleteGroup()" pTooltip="Eliminar grupo" />
+        </div>
+    </div>
+
+    <div class="content-grid">
+        <p-card styleClass="members-card">
+            <ng-template pTemplate="header">
+                <div class="card-header">
+                    <h3>Miembros del Grupo</h3>
+                    <p-button icon="pi pi-plus" [rounded]="true" [text]="true" (onClick)="openAddMemberDialog()" 
+                        pTooltip="Agregar miembro" />
+                </div>
+            </ng-template>
+            
+            <p-table 
+                [value]="members" 
+                [paginator]="true" 
+                [rows]="10"
+                [globalFilterFields]="['fullName', 'username', 'email']"
+                [tableStyle]="{'min-width': '40rem'}"
+                styleClass="p-datatable-sm">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Permisos</th>
+                        <th style="width: 80px">Acciones</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-member>
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <p-avatar [label]="getInitials(member.fullName)" shape="circle" />
+                                <div class="user-info">
+                                    <span class="user-name">{{ member.fullName }}</span>
+                                    <span class="user-username">@{{ member.username }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ member.email }}</td>
+                        <td>
+                            <div class="permissions-list">
+                                @for (perm of getMemberPermissions(member).slice(0, 2); track perm) {
+                                    <p-tag [value]="perm" severity="info" />
+                                }
+                                @if (getMemberPermissions(member).length > 2) {
+                                    <p-tag [value]="'+' + (getMemberPermissions(member).length - 2)" severity="secondary" />
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" 
+                                (onClick)="removeMember(member)" pTooltip="Remover" />
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="4" class="text-center">
+                            <div class="empty-members">
+                                <i class="pi pi-users" style="font-size: 2rem; opacity: 0.3"></i>
+                                <p>No hay miembros en este grupo</p>
+                                <p-button label="Agregar miembro" icon="pi pi-plus" (onClick)="openAddMemberDialog()" />
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </p-card>
+    </div>
+</div>
+
+<p-dialog 
+    [(visible)]="editGroupDialog" 
+    header="Editar Grupo" 
+    [modal]="true" 
+    [style]="{width: '450px'}"
+    [draggable]="false">
+    <div class="edit-form">
+        <div class="form-field">
+            <label for="group-name">Nombre del Grupo <span class="required">*</span></label>
+            <input pInputText id="group-name" [(ngModel)]="newGroupName" placeholder="Nombre del grupo" />
+        </div>
+        <div class="form-field">
+            <label for="group-desc">Descripción</label>
+            <textarea pTextarea id="group-desc" [(ngModel)]="newGroupDescription" rows="3" placeholder="Descripción del grupo"></textarea>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="editGroupDialog = false" />
+        <p-button label="Guardar" icon="pi pi-check" (onClick)="saveGroup()" />
+    </ng-template>
+</p-dialog>
+
+<p-dialog 
+    [(visible)]="addMemberDialog" 
+    header="Agregar Miembro" 
+    [modal]="true" 
+    [style]="{width: '450px'}"
+    [draggable]="false">
+    <div class="add-member-form">
+        <div class="form-field">
+            <label for="user-select">Seleccionar Usuario <span class="required">*</span></label>
+            <p-select 
+                id="user-select"
+                [options]="availableUsers" 
+                [(ngModel)]="selectedUserToAdd" 
+                optionLabel="fullName"
+                placeholder="Seleccione un usuario"
+                [filter]="true"
+                filterBy="fullName,email"
+                styleClass="w-full">
+                <ng-template pTemplate="selectedItem" let-selected>
+                    <div class="user-option">
+                        <p-avatar [label]="getInitials(selected.fullName)" shape="circle" />
+                        <span>{{ selected.fullName }}</span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="item" let-user>
+                    <div class="user-option">
+                        <p-avatar [label]="getInitials(user.fullName)" shape="circle" />
+                        <div class="user-option-info">
+                            <span class="name">{{ user.fullName }}</span>
+                            <span class="email">{{ user.email }}</span>
+                        </div>
+                    </div>
+                </ng-template>
+            </p-select>
+        </div>
+        @if (selectedUserToAdd) {
+            <div class="selected-user-preview">
+                <p-avatar [label]="getInitials(selectedUserToAdd.fullName)" shape="circle" size="large" />
+                <div class="preview-info">
+                    <span class="preview-name">{{ selectedUserToAdd.fullName }}</span>
+                    <span class="preview-email">{{ selectedUserToAdd.email }}</span>
+                    <span class="preview-username">@{{ selectedUserToAdd.username }}</span>
+                </div>
+            </div>
+        }
+    </div>
+    <ng-template pTemplate="footer">
+        <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="addMemberDialog = false" />
+        <p-button label="Agregar" icon="pi pi-plus" (onClick)="addMember()" [disabled]="!selectedUserToAdd" />
+    </ng-template>
+</p-dialog>
+
+<p-confirmDialog />
+<p-toast />

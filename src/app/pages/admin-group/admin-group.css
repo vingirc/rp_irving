@@ -1,0 +1,198 @@
+.admin-group-container {
+    padding: 1.5rem;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.header-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.header-title h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.description {
+    margin: 0.25rem 0 0 0;
+    color: var(--text-color-secondary);
+    font-size: 0.9rem;
+}
+
+.header-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.content-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.members-card {
+    width: 100%;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-weight: 500;
+}
+
+.user-username {
+    font-size: 0.8rem;
+    color: var(--text-color-secondary);
+}
+
+.permissions-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.empty-members {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.empty-members p {
+    margin: 0;
+    color: var(--text-color-secondary);
+}
+
+.text-center {
+    text-align: center;
+}
+
+.edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-field label {
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.required {
+    color: var(--red-500);
+}
+
+.add-member-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.user-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-option-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-option-info .name {
+    font-weight: 500;
+}
+
+.user-option-info .email {
+    font-size: 0.8rem;
+    color: var(--text-color-secondary);
+}
+
+.selected-user-preview {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--surface-ground);
+    border-radius: 8px;
+    border: 1px solid var(--surface-border);
+}
+
+.preview-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-name {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.preview-email {
+    font-size: 0.85rem;
+    color: var(--text-color-secondary);
+}
+
+.preview-username {
+    font-size: 0.8rem;
+    color: var(--primary-color);
+}
+
+:host ::ng-deep .p-select {
+    width: 100%;
+}
+
+:host ::ng-deep .p-selectpanel {
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .header-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}

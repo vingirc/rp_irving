@@ -181,7 +181,7 @@
         </div>
         <div class="field mt-3" *ngIf="selectedGroup">
             <label for="description">Descripción</label>
-            <textarea id="description" pInputTextarea [(ngModel)]="selectedGroup.description" rows="3"></textarea>
+            <textarea id="description" pTextarea [(ngModel)]="selectedGroup.description" rows="3"></textarea>
         </div>
         <ng-template pTemplate="footer">
             <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="groupDialog = false"></p-button>

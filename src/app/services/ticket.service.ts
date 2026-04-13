@@ -174,4 +174,9 @@ export class TicketService {
             history: [...(this.getTicketById(ticketId)?.history || []), entry]
         });
     }
+
+    removeTicket(id: string) {
+        this._tickets.update(current => current.filter(t => t.id !== id));
+        this.saveToStorage();
+    }
 }
