@@ -64,10 +64,18 @@
                 <i class="pi pi-search"></i>
                 <input pInputText [(ngModel)]="globalFilter" placeholder="Buscar tickets..." />
             </span>
-            <p-select [options]="statusOptions" [(ngModel)]="statusFilter" optionLabel="label" optionValue="value"
-                placeholder="Estado" [showClear]="true" />
-            <p-select [options]="priorityOptions" [(ngModel)]="priorityFilter" optionLabel="label" optionValue="value"
-                placeholder="Prioridad" [showClear]="true" />
+            @if (statusOptions.length > 0) {
+                <p-select [options]="statusOptions" [(ngModel)]="statusFilter" optionLabel="label" optionValue="value"
+                    placeholder="Estado" [showClear]="true" />
+            } @else {
+                <p-select [options]="[{label: 'Sin estados', value: ''}]" [disabled]="true" />
+            }
+            @if (priorityOptions.length > 0) {
+                <p-select [options]="priorityOptions" [(ngModel)]="priorityFilter" optionLabel="label" optionValue="value"
+                    placeholder="Prioridad" [showClear]="true" />
+            } @else {
+                <p-select [options]="[{label: 'Sin prioridades', value: ''}]" [disabled]="true" />
+            }
         </div>
 
         <p-table [value]="groupTickets()" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[5, 10, 25, 50]"
@@ -205,13 +213,21 @@
         </div>
         <div class="form-field">
             <label for="priority">Prioridad</label>
-            <p-select id="priority" [options]="priorityOptions" [(ngModel)]="newTicket.priority" optionLabel="label"
-                optionValue="value" appendTo="body" />
+            @if (priorityOptions.length > 0) {
+                <p-select id="priority" [options]="priorityOptions" [(ngModel)]="newTicket.priority" optionLabel="label"
+                    optionValue="value" appendTo="body" />
+            } @else {
+                <p-select id="priority" [options]="[{label: 'Cargando...', value: ''}]" [disabled]="true" appendTo="body" />
+            }
         </div>
         <div class="form-field">
             <label for="estado">Estado</label>
-            <p-select id="estado" [options]="statusOptions" [(ngModel)]="newTicket.estado" optionLabel="label"
-                optionValue="value" appendTo="body" />
+            @if (statusOptions.length > 0) {
+                <p-select id="estado" [options]="statusOptions" [(ngModel)]="newTicket.estado" optionLabel="label"
+                    optionValue="value" appendTo="body" />
+            } @else {
+                <p-select id="estado" [options]="[{label: 'Cargando...', value: ''}]" [disabled]="true" appendTo="body" />
+            }
         </div>
     </div>
     <ng-template pTemplate="footer">

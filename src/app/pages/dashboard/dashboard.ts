@@ -195,6 +195,7 @@ export class DashboardComponent implements OnInit {
                 response.data.forEach((e: any) => {
                     this.estadoNombreToId.set(e.nombre, e.id);
                 });
+                this.cdr.detectChanges();
             }
         } catch (error) {
             console.error('Error loading estados:', error);
@@ -205,13 +206,15 @@ export class DashboardComponent implements OnInit {
         try {
             const response = await this.apiService.getPrioridades();
             if (response.statusCode === 200 && Array.isArray(response.data)) {
-                this.priorityOptions = response.data.map((p: any) => ({
+                const sortedData = [...response.data].sort((a: any, b: any) => (a.orden || 0) - (b.orden || 0));
+                this.priorityOptions = sortedData.map((p: any) => ({
                     label: p.nombre,
                     value: p.nombre
                 }));
-                response.data.forEach((p: any) => {
+                sortedData.forEach((p: any) => {
                     this.prioridadNombreToId.set(p.nombre, p.id);
                 });
+                this.cdr.detectChanges();
             }
         } catch (error) {
             console.error('Error loading prioridades:', error);
@@ -251,6 +254,7 @@ export class DashboardComponent implements OnInit {
                         nombre: nested.nombre || g.nombre || g.name || 'Grupo Sin Nombre'
                     };
                 });
+                this.cdr.detectChanges();
 
                 if (this.groups?.length > 0 && !this.selectedGroupId) {
                     this.selectedGroupId = this.groups[0].id;

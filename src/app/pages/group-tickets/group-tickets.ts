@@ -130,6 +130,7 @@ export class GroupTicketsComponent implements OnInit {
                 response.data.forEach((e: any) => {
                     this.estadoNombreToId.set(e.nombre, e.id);
                 });
+                this.cdr.detectChanges();
             }
         } catch (error) {
             console.error('Error loading estados:', error);
@@ -147,6 +148,7 @@ export class GroupTicketsComponent implements OnInit {
                 response.data.forEach((p: any) => {
                     this.prioridadNombreToId.set(p.nombre, p.id);
                 });
+                this.cdr.detectChanges();
             }
         } catch (error) {
             console.error('Error loading prioridades:', error);

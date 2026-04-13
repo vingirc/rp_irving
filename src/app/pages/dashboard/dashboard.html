@@ -8,13 +8,21 @@
         <h1>Dashboard</h1>
         <div class="group-selector">
             <label for="group-select">Grupo:</label>
-            <p-select 
-                inputId="group-select"
-                [options]="groups || []" 
-                [(ngModel)]="selectedGroupId" 
-                optionLabel="nombre" 
-                optionValue="id"
-                [style]="{'min-width': '200px'}" />
+            @if (groups && groups.length > 0) {
+                <p-select 
+                    inputId="group-select"
+                    [options]="groups" 
+                    [(ngModel)]="selectedGroupId" 
+                    optionLabel="nombre" 
+                    optionValue="id"
+                    [style]="{'min-width': '200px'}" />
+            } @else {
+                <p-select 
+                    inputId="group-select"
+                    [options]="[{nombre: 'No hay grupos disponibles', id: ''}]"
+                    [disabled]="true"
+                    [style]="{'min-width': '200px'}" />
+            }
         </div>
     </div>
 
@@ -187,11 +195,19 @@
         </div>
         <div class="form-field">
             <label for="priority">Prioridad</label>
-            <p-select inputId="priority" [options]="priorityOptions" [(ngModel)]="newTicket.priority" optionLabel="label" optionValue="value" appendTo="body" />
+            @if (priorityOptions.length > 0) {
+                <p-select inputId="priority" [options]="priorityOptions" [(ngModel)]="newTicket.priority" optionLabel="label" optionValue="value" appendTo="body" />
+            } @else {
+                <p-select inputId="priority" [options]="[{label: 'Cargando...', value: ''}]" [disabled]="true" appendTo="body" />
+            }
         </div>
         <div class="form-field">
             <label for="estado">Estado</label>
-            <p-select inputId="estado" [options]="estadoOptions" [(ngModel)]="newTicket.estado" optionLabel="label" optionValue="value" appendTo="body" />
+            @if (estadoOptions.length > 0) {
+                <p-select inputId="estado" [options]="estadoOptions" [(ngModel)]="newTicket.estado" optionLabel="label" optionValue="value" appendTo="body" />
+            } @else {
+                <p-select inputId="estado" [options]="[{label: 'Cargando...', value: ''}]" [disabled]="true" appendTo="body" />
+            }
         </div>
     </div>
     <ng-template pTemplate="footer">
