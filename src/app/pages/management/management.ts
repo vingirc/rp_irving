@@ -56,8 +56,13 @@ export class ManagementComponent implements OnInit {
     loading: boolean = false;
 
     async ngOnInit() {
-        await this.loadPermissions();
-        await this.loadUsers();
+        this.loading = true;
+        try {
+            await this.loadPermissions();
+            await this.loadUsers();
+        } finally {
+            this.loading = false;
+        }
     }
 
     async loadPermissions() {
@@ -94,7 +99,6 @@ export class ManagementComponent implements OnInit {
     }
 
     async loadUsers() {
-        this.loading = true;
         try {
             this.users = await this.apiService.getUsersMapped();
         } catch (error) {
@@ -104,8 +108,6 @@ export class ManagementComponent implements OnInit {
                 summary: 'Error',
                 detail: 'No se pudieron cargar los usuarios'
             });
-        } finally {
-            this.loading = false;
         }
     }
 

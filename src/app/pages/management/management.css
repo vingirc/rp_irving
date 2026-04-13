@@ -21,8 +21,10 @@
 /* Improve table header visibility */
 .management-container .p-datatable .p-datatable-thead > tr > th {
     color: #0f172a !important;
-    font-weight: 600 !important;
-    font-size: 0.9rem;
+    font-weight: 700 !important;
+    font-size: 0.85rem;
+    background: #f8fafc !important;
+    text-transform: uppercase;
 }
 
 .management-container .p-datatable .p-datatable-tbody > tr > td {
@@ -36,10 +38,108 @@
 
 /* Improve form labels */
 .management-container .field label {
-    color: #1e293b !important;
+    color: #334155 !important;
     font-weight: 600 !important;
 }
 
 .management-container .block.font-bold {
     color: #0f172a;
+}
+
+/* Dialog form inputs - white backgrounds */
+.management-container .p-dialog .p-inputtext,
+.management-container .p-dialog .p-inputtextarea,
+.management-container .p-dialog .p-multiselect {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #1e293b !important;
+}
+
+.management-container .p-dialog .p-inputtext:focus,
+.management-container .p-dialog .p-inputtextarea:focus {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15) !important;
+}
+
+/* Skeleton loading styles */
+.skeleton-container {
+    padding: 1rem;
+}
+
+.skeleton-header {
+    margin-bottom: 1.5rem;
+}
+
+.skeleton-search {
+    width: 250px;
+    height: 40px;
+    background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: 6px;
+}
+
+.skeleton-table {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.skeleton-row {
+    display: flex;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.skeleton-row-header {
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.skeleton-row-header .skeleton-cell {
+    height: 14px;
+    background: linear-gradient(90deg, #cbd5e1 25%, #e2e8f0 50%, #cbd5e1 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton-cell {
+    height: 16px;
+    background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: 4px;
+}
+
+.skeleton-row:nth-child(odd) .skeleton-cell {
+    animation-delay: 0.15s;
+}
+
+.skeleton-row:nth-child(even) .skeleton-cell {
+    animation-delay: 0.3s;
+}
+
+.skeleton-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    color: #64748b;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.skeleton-status i {
+    font-size: 1.25rem;
+    color: #6366f1;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
 }

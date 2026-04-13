@@ -21,14 +21,13 @@ a {
     text-decoration: none;
 }
 
-/* Contrast Improvements - Override PrimeNG CSS variables for the LIGHT content area */
+/* Light content area - force light theme */
 .layout-content {
+    background: #f8fafc;
     color: #1e293b;
-
-    /* Override PrimeNG theme variables for light background context */
-    --text-color: #0f172a;
-    --text-color-secondary: #334155;
-    --surface-ground: #f4f6f8;
+    --text-color: #1e293b;
+    --text-color-secondary: #475569;
+    --surface-ground: #f8fafc;
     --surface-card: #ffffff;
     --surface-border: #e2e8f0;
     --surface-100: #f1f5f9;
@@ -42,7 +41,59 @@ a {
     --surface-900: #0f172a;
 }
 
-/* Utility classes for high contrast - scoped to light content area only */
+/* Force all dialogs to use light theme */
+.layout-content .p-dialog {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.layout-content .p-dialog .p-dialog-header {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.layout-content .p-dialog .p-dialog-header .p-dialog-title {
+    color: #0f172a !important;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.layout-content .p-dialog .p-dialog-content {
+    background: #ffffff !important;
+    color: #1e293b !important;
+}
+
+.layout-content .p-dialog .p-dialog-footer {
+    background: #ffffff !important;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* Form elements in dialogs */
+.layout-content .p-dialog .p-inputtext,
+.layout-content .p-dialog .p-inputtextarea,
+.layout-content .p-dialog .p-dropdown,
+.layout-content .p-dialog .p-select {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #1e293b !important;
+}
+
+.layout-content .p-dialog .p-inputtext:focus,
+.layout-content .p-dialog .p-inputtextarea:focus,
+.layout-content .p-dialog .p-dropdown:focus,
+.layout-content .p-dialog .p-select:focus {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2) !important;
+}
+
+.layout-content .p-dialog label {
+    color: #334155 !important;
+    font-weight: 600 !important;
+}
+
+/* Utility classes */
 .layout-content .text-900 {
     color: #0f172a !important;
 }
@@ -52,11 +103,11 @@ a {
 }
 
 .layout-content .text-700 {
-    color: #1e293b !important;
+    color: #334155 !important;
 }
 
 .layout-content .text-600 {
-    color: #334155 !important;
+    color: #475569 !important;
 }
 
 .layout-content .text-secondary,
@@ -64,10 +115,11 @@ a {
 .layout-content .text-xs.text-secondary,
 .layout-content .text-400,
 .layout-content .text-500 {
-    color: #475569 !important;
+    color: #64748b !important;
+    font-weight: 500;
 }
 
-/* Labels, small text and form labels - enhanced contrast */
+/* Labels */
 .layout-content label,
 .layout-content .form-label,
 .layout-content .field-label {
@@ -75,39 +127,177 @@ a {
     font-weight: 600 !important;
 }
 
-/* Improved contrast for p-tag, p-badge and small elements */
+/* p-tag and p-badge - stronger colors */
 .layout-content .p-tag,
 .layout-content .p-badge {
     font-weight: 600;
+    color: #ffffff;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
 }
 
-/* Dialog and overlay improvements */
-.layout-content .p-dialog,
-.ticket-dialog .p-dialog-content {
-    --text-color: #0f172a;
-    --text-color-secondary: #475569;
-    --surface-ground: #f4f6f8;
-    --surface-card: #ffffff;
+.layout-content .p-tag.p-tag-success {
+    background: #059669 !important;
 }
 
-/* Improve input labels inside forms */
-.layout-content .p-dropdown-label,
-.layout-content .p-inputtext,
-.layout-content .p-inputtextarea {
+.layout-content .p-tag.p-tag-info {
+    background: #0284c7 !important;
+}
+
+.layout-content .p-tag.p-tag-warning {
+    background: #b45309 !important;
+}
+
+.layout-content .p-tag.p-tag-danger {
+    background: #dc2626 !important;
+}
+
+.layout-content .p-tag.p-tag-secondary {
+    background: #475569 !important;
+}
+
+/* Force all textareas to have white background */
+textarea.p-inputtextarea,
+.p-inputtextarea,
+.p-textarea,
+textarea {
+    background-color: #ffffff !important;
     color: #1e293b !important;
 }
 
-/* Improve table and kanban card text visibility */
-.layout-content .p-datatable .p-datatable-thead>tr>th {
+textarea.p-inputtextarea:focus,
+.p-inputtextarea:focus,
+.p-textarea:focus,
+textarea:focus {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+}
+
+/* Force all textareas to have white background - highest priority */
+.p-inputtextarea,
+textarea.p-inputtextarea,
+.p-textarea,
+textarea,
+.p-inputtext,
+input.p-inputtext {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+    border-color: #cbd5e1 !important;
+}
+
+.p-inputtextarea:focus,
+textarea.p-inputtextarea:focus,
+.p-textarea:focus,
+textarea:focus,
+.p-inputtext:focus,
+input.p-inputtext:focus {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15) !important;
+}
+
+/* Input elements in content area */
+.layout-content .p-inputtext,
+.layout-content .p-inputtextarea {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #1e293b !important;
+}
+
+.layout-content .p-inputtext::placeholder,
+.layout-content .p-inputtextarea::placeholder {
+    color: #94a3b8 !important;
+}
+
+.layout-content .p-inputtext:focus,
+.layout-content .p-inputtextarea:focus {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15) !important;
+}
+
+/* Select and dropdown */
+.layout-content .p-select,
+.layout-content .p-dropdown {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+.layout-content .p-select .p-select-label,
+.layout-content .p-dropdown .p-dropdown-label {
+    color: #1e293b !important;
+    font-weight: 500;
+}
+
+.layout-content .p-select-panel,
+.layout-content .p-dropdown-panel {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.layout-content .p-select-option,
+.layout-content .p-dropdown-option {
+    color: #1e293b !important;
+}
+
+.layout-content .p-select-option:hover,
+.layout-content .p-dropdown-option:hover {
+    background: #f1f5f9 !important;
+}
+
+.layout-content .p-select-option.p-highlight,
+.layout-content .p-dropdown-option.p-highlight {
+    background: #e0e7ff !important;
+    color: #1e293b !important;
+}
+
+/* Tables - light theme */
+.layout-content .p-datatable {
+    background: #ffffff;
+}
+
+.layout-content .p-datatable .p-datatable-header {
+    background: #f8fafc !important;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.layout-content .p-datatable .p-datatable-thead > tr > th {
+    background: #f8fafc !important;
     color: #0f172a !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #e2e8f0 !important;
+    padding: 1rem !important;
 }
 
-.layout-content .p-datatable .p-datatable-tbody>tr>td {
-    color: #334155;
+.layout-content .p-datatable .p-datatable-tbody > tr {
+    background: #ffffff !important;
 }
 
-/* Kanban cards and columns */
+.layout-content .p-datatable .p-datatable-tbody > tr > td {
+    color: #334155 !important;
+    font-weight: 500;
+    padding: 0.75rem 1rem !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.layout-content .p-datatable .p-datatable-tbody > tr:hover {
+    background: #f8fafc !important;
+}
+
+.layout-content .p-datatable .p-sortable-column:hover {
+    background: #f1f5f9 !important;
+}
+
+.layout-content .p-datatable .p-sortable-column.p-highlight {
+    background: #e0e7ff !important;
+    color: #4338ca !important;
+}
+
+/* Kanban */
 .layout-content .kanban-col {
     background: #ffffff;
     border: 1px solid #e2e8f0;
@@ -119,18 +309,17 @@ a {
     color: #1e293b;
 }
 
-.layout-content .ticket-card .text-xs,
-.layout-content .ticket-card .text-sm {
-    color: #475569;
-    font-weight: 500;
+.layout-content .ticket-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-/* Activity list improvements */
-.layout-content .activity-list .text-secondary {
-    color: #64748b !important;
+/* Profile card - dark */
+.profile-card {
+    background: #1a1a2e !important;
+    color: #e2e8f0 !important;
 }
 
-/* Restore light text inside dark containers (profile card, sidebar) */
 .profile-card .text-900 {
     color: #ffffff !important;
 }
@@ -140,33 +329,25 @@ a {
     color: #cbd5e1 !important;
 }
 
-
-/* PrimeNG Specific Overrides */
-.layout-content .p-inputtextarea:disabled,
-.layout-content .p-inputtext:disabled {
-    color: #334155 !important;
-    opacity: 0.8 !important;
+.profile-card .info-item {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-/* Ensure PrimeNG table text is dark */
-.layout-content .p-datatable .p-datatable-tbody>tr>td {
-    color: #1e293b;
+.profile-card .info-item i {
+    background: rgba(99, 102, 241, 0.2);
+    color: #a5b4fc;
 }
 
-.layout-content .p-datatable .p-datatable-thead>tr>th {
-    color: #334155;
+.profile-card .info-label {
+    color: #e2e8f0;
 }
 
-/* Ensure PrimeNG dialog uses light theme when opened from light context */
-.layout-content .p-dialog,
-.ticket-dialog .p-dialog-content {
-    --text-color: #1e293b;
-    --text-color-secondary: #475569;
-    --surface-ground: #f4f6f8;
-    --surface-card: #ffffff;
+.profile-card .info-value {
+    color: #ffffff;
 }
 
-/* CDK Drag & Drop Global Styles (preview renders outside component scope) */
+/* CDK Drag & Drop */
 .cdk-drag-preview {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     border-radius: 12px;

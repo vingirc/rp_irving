@@ -1,18 +1,19 @@
 .ticket-detail-container {
-    background-color: var(--surface-ground);
+    background-color: #f8fafc;
     min-height: 100%;
 }
 
 .card {
-    background: var(--surface-card);
-    border: 1px solid var(--surface-border);
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
     border-radius: 12px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .field label {
-    color: var(--text-color-secondary);
+    color: #475569;
     font-size: 0.875rem;
+    font-weight: 600;
 }
 
 .comment-item {
@@ -33,12 +34,12 @@
 
 .history-item {
     padding: 0.5rem;
-    border-left: 2px solid var(--primary-color);
+    border-left: 2px solid #6366f1;
 }
 
 .title-section input:disabled {
     opacity: 1;
-    color: var(--text-color);
+    color: #1e293b;
 }
 
 .p-inputtextarea:disabled,

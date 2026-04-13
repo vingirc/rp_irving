@@ -11,7 +11,13 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     providePrimeNG({
       theme: {
-        preset: Aura
+        preset: Aura,
+        options: {
+          darkModeSelector: 'system',
+          cssLayer: {
+            order: 'tailwind-base, primeui, tailwind-utilities'
+          }
+        }
       },
       translation: {
         accept: 'Sí',

@@ -86,3 +86,108 @@
 .cursor-grab:active {
     cursor: grabbing;
 }
+
+/* Table improvements */
+.group-container .p-datatable .p-datatable-thead > tr > th {
+    color: #0f172a !important;
+    font-weight: 600 !important;
+}
+
+.group-container .p-datatable .p-datatable-tbody > tr > td {
+    color: #334155;
+    font-weight: 500;
+}
+
+.group-container .p-datatable .p-datatable-tbody > tr:hover {
+    background: #f1f5f9;
+}
+
+/* Form improvements */
+.group-container .field label {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+/* Member list improvements */
+.group-container .text-secondary {
+    color: #475569 !important;
+}
+
+.group-container .member-item .block.font-bold {
+    color: #1e293b;
+}
+
+/* Group dialog - new group modal */
+.group-container .p-dialog {
+    background: #ffffff !important;
+}
+
+.group-container .p-dialog .p-dialog-header {
+    background: #ffffff !important;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 1rem 1.5rem;
+}
+
+.group-container .p-dialog .p-dialog-header .p-dialog-title {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+    font-size: 1.1rem;
+}
+
+.group-container .p-dialog .p-dialog-content {
+    background: #ffffff !important;
+    padding: 1.5rem;
+}
+
+.group-container .p-dialog .p-dialog-footer {
+    background: #ffffff !important;
+    border-top: 1px solid #e2e8f0;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+/* Form fields in group dialog */
+.group-container .p-dialog .field {
+    margin-bottom: 1rem;
+}
+
+.group-container .p-dialog .field label {
+    display: block;
+    color: #334155 !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.5rem;
+}
+
+.group-container .p-dialog .p-inputtext,
+.group-container .p-dialog .p-inputtextarea {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #1e293b !important;
+    width: 100%;
+    border-radius: 6px;
+    padding: 0.75rem;
+    font-family: inherit;
+}
+
+.group-container .p-dialog .p-inputtext:focus,
+.group-container .p-dialog .p-inputtextarea:focus,
+.group-container .p-dialog .p-inputtextarea.p-focus,
+.group-container .p-dialog textarea.p-inputtextarea {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15) !important;
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+}
+
+html .group-container .p-inputtextarea {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+}
+
+.group-container .p-dialog .p-error {
+    color: #dc2626;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}

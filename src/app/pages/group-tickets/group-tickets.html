@@ -207,6 +207,11 @@
             <p-select id="priority" [options]="priorityOptions" [(ngModel)]="newTicket.priority" optionLabel="label"
                 optionValue="value" appendTo="body" />
         </div>
+        <div class="form-field">
+            <label for="estado">Estado</label>
+            <p-select id="estado" [options]="statusOptions" [(ngModel)]="newTicket.estado" optionLabel="label"
+                optionValue="value" appendTo="body" />
+        </div>
     </div>
     <ng-template pTemplate="footer">
         <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="newTicketDialog = false" />

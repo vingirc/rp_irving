@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, ApplicationRef } from '@angular/core';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
 import { User } from '../models/ticket.model';
@@ -30,6 +30,7 @@ export interface BackendUser {
 export class ApiService {
     private readonly API_URL = environment.apiUrl;
     private auth = inject(AuthService);
+    private appRef = inject(ApplicationRef);
 
     mapBackendUserToUser(backendUser: BackendUser): User {
         return {
@@ -67,9 +68,12 @@ export class ApiService {
                 headers
             });
 
-            return await response.json();
+            const result = await response.json();
+            this.appRef.tick();
+            return result;
         } catch (error) {
             console.error('API request error:', error);
+            this.appRef.tick();
             return {
                 statusCode: 0,
                 intOpCode: 'SxER092',
@@ -128,8 +132,20 @@ export class ApiService {
     // Users
     private cachedUsers: User[] | null = null;
 
+    // Permissions
+    private cachedPermissions: ApiResponse<any[]> | null = null;
+
     clearUsersCache() {
         this.cachedUsers = null;
+    }
+
+    clearPermissionsCache() {
+        this.cachedPermissions = null;
+    }
+
+    clearAllCache() {
+        this.cachedUsers = null;
+        this.cachedPermissions = null;
     }
 
     async getUsers(): Promise<ApiResponse<BackendUser[]>> {
@@ -181,8 +197,15 @@ export class ApiService {
     }
 
     // Permissions
-    async getPermissions() {
-        return this.request<any[]>('/permissions');
+    async getPermissions(forceRefresh: boolean = false) {
+        if (!forceRefresh && this.cachedPermissions) {
+            return this.cachedPermissions;
+        }
+        const response = await this.request<any[]>('/permissions');
+        if (response.statusCode === 200) {
+            this.cachedPermissions = response;
+        }
+        return response;
     }
 
     // Estados y Prioridades

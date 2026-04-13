@@ -10,15 +10,15 @@ export class TicketService {
     tickets = this._tickets.asReadonly();
 
     constructor() {
-        this.loadInitialData();
+        // Cargar datos desde localStorage o iniciar vacío
+        this.loadFromStorage();
     }
 
-    private loadInitialData() {
+    private loadFromStorage() {
         const stored = localStorage.getItem(this.STORAGE_KEY);
         if (stored) {
             try {
                 const parsed = JSON.parse(stored);
-                // Convert date strings back to Date objects
                 const ticketsWithDates = parsed.map((t: any) => ({
                     ...t,
                     createdAt: new Date(t.createdAt),
@@ -27,89 +27,15 @@ export class TicketService {
                     history: t.history.map((h: any) => ({ ...h, timestamp: new Date(h.timestamp) }))
                 }));
                 this._tickets.set(ticketsWithDates);
-                return;
             } catch (e) {
                 console.error('Error parsing stored tickets', e);
+                this._tickets.set([]);
             }
         }
+    }
 
-        const initialTickets: Ticket[] = [
-            {
-                id: 'TIC-001',
-                groupId: '1',
-                title: 'Corregir error en el motor core',
-                description: 'Se ha detectado un bug en el procesamiento de colas del motor principal.',
-                status: 'Pendiente',
-                priority: 'Urgente',
-                creatorId: 'user1',
-                creatorName: 'Irving',
-                createdAt: new Date(Date.now() - 86400000 * 2), // 2 days ago
-                deadline: new Date(Date.now() + 86400000 * 3), // 3 days from now
-                comments: [],
-                history: [
-                    {
-                        id: 'H-001',
-                        userId: 'user1',
-                        userName: 'Irving',
-                        action: 'Creado',
-                        details: 'Ticket creado inicialmente',
-                        timestamp: new Date(Date.now() - 86400000 * 2)
-                    }
-                ]
-            },
-            {
-                id: 'TIC-002',
-                groupId: '1',
-                title: 'Actualizar documentación API',
-                description: 'La documentación de los endpoints de seguridad está desactualizada.',
-                status: 'En Progreso',
-                priority: 'Media',
-                assignedTo: 'user2',
-                assignedToName: 'Ana',
-                creatorId: 'user1',
-                creatorName: 'Irving',
-                createdAt: new Date(Date.now() - 86400000 * 5),
-                comments: [
-                    {
-                        id: 'C-001',
-                        userId: 'user2',
-                        userName: 'Ana',
-                        text: 'He empezado con los endpoints de auth.',
-                        createdAt: new Date(Date.now() - 86400000)
-                    }
-                ],
-                history: []
-            },
-            {
-                id: 'TIC-003',
-                groupId: '1',
-                title: 'Review de seguridad trimestral',
-                description: 'Realizar scan de vulnerabilidades en todos los grupos.',
-                status: 'Hecho',
-                priority: 'Muy Alta',
-                assignedTo: 'user1',
-                assignedToName: 'Irving',
-                creatorId: 'user3',
-                creatorName: 'Luis',
-                createdAt: new Date(Date.now() - 86400000 * 10),
-                comments: [],
-                history: []
-            },
-            {
-                id: 'TIC-004',
-                groupId: '2',
-                title: 'Test de carga QA',
-                description: 'Verificar estabilidad bajo carga de 10k usuarios concurrentes.',
-                status: 'Bloqueado',
-                priority: 'Alta',
-                creatorId: 'user2',
-                creatorName: 'Ana',
-                createdAt: new Date(Date.now() - 86400000),
-                comments: [],
-                history: []
-            }
-        ];
-        this._tickets.set(initialTickets);
+    setTickets(tickets: Ticket[]) {
+        this._tickets.set(tickets);
         this.saveToStorage();
     }
 

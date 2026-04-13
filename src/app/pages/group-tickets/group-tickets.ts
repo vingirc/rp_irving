@@ -108,6 +108,7 @@ export class GroupTicketsComponent implements OnInit {
         title: '',
         description: '',
         priority: 'Media' as Priority,
+        estado: 'Pendiente' as TicketStatus,
         assignedTo: ''
     };
 
@@ -115,11 +116,31 @@ export class GroupTicketsComponent implements OnInit {
     statusFilter: TicketStatus | null = null;
     priorityFilter: Priority | null = null;
 
+    private estadoNombreToId: Map<string, string> = new Map();
+    private prioridadNombreToId: Map<string, string> = new Map();
+
     async ngOnInit() {
         this.groupId = this.route.snapshot.paramMap.get('groupId');
+        this.initMaps();
         await this.loadGroupInfo();
         await this.loadTickets();
         this.loading.set(false);
+    }
+
+    private initMaps() {
+        this.estadoNombreToId.set('Pendiente', '6be13254-6efa-4ac0-a5b6-1510bb23eb1d');
+        this.estadoNombreToId.set('En Progreso', '20b5f606-e2ee-43ad-b47e-e346448ce7af');
+        this.estadoNombreToId.set('Revisión', '1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d');
+        this.estadoNombreToId.set('Hecho', '2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e');
+        this.estadoNombreToId.set('Bloqueado', '3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f');
+        
+        this.prioridadNombreToId.set('Muy Baja', '4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a');
+        this.prioridadNombreToId.set('Baja', '5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b');
+        this.prioridadNombreToId.set('Media', '9d73283e-39d2-4546-b540-5cba2dda926e');
+        this.prioridadNombreToId.set('Alta', '6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c');
+        this.prioridadNombreToId.set('Muy Alta', '7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d');
+        this.prioridadNombreToId.set('Urgente', '8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e');
+        this.prioridadNombreToId.set('Inmediato', '9c0d1e2f-3a4b-5c6d-7e8f-9a0b1c2d3e4f');
     }
 
     async loadGroupInfo() {
@@ -149,6 +170,13 @@ export class GroupTicketsComponent implements OnInit {
                 }
 
                 ticketsData.forEach((t: any) => {
+                    if (t.estado_id && t.estado_nombre) {
+                        this.estadoNombreToId.set(t.estado_nombre, t.estado_id);
+                    }
+                    if (t.priority_id && t.prioridad_nombre) {
+                        this.prioridadNombreToId.set(t.prioridad_nombre, t.priority_id);
+                    }
+                    
                     const existing = this.ticketService.tickets().find(ex => ex.id === t.id);
                     if (!existing) {
                         this.ticketService.addTicket({
@@ -235,6 +263,7 @@ export class GroupTicketsComponent implements OnInit {
             title: '',
             description: '',
             priority: 'Media',
+            estado: 'Pendiente',
             assignedTo: ''
         };
         this.newTicketDialog = true;
@@ -251,6 +280,8 @@ export class GroupTicketsComponent implements OnInit {
         }
 
         const currentUser = this.authService.currentUser();
+        const estadoId = this.estadoNombreToId.get(this.newTicket.estado) || this.newTicket.estado;
+        const prioridadId = this.prioridadNombreToId.get(this.newTicket.priority) || this.newTicket.priority;
         
         try {
             const response = await this.apiService.createTicket({
@@ -258,8 +289,8 @@ export class GroupTicketsComponent implements OnInit {
                 titulo: this.newTicket.title,
                 descripcion: this.newTicket.description,
                 autor_id: currentUser?.id || '',
-                estado_id: '1',
-                priority_id: '1',
+                estado_id: estadoId,
+                priority_id: prioridadId,
                 asignado_id: this.newTicket.assignedTo || undefined
             });
 
