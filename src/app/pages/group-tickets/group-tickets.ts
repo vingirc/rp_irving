@@ -238,15 +238,8 @@ export class GroupTicketsComponent implements OnInit {
         );
 
         try {
-            const estadoMap: Record<string, string> = {
-                'Pendiente': '1',
-                'En Progreso': '2',
-                'Revisión': '3',
-                'Hecho': '4',
-                'Bloqueado': '5'
-            };
-
-            await this.apiService.changeTicketState(ticket.id, estadoMap[newStatus] || '1', currentUser?.username || '');
+            const estadoId = this.estadoNombreToId.get(newStatus) || newStatus;
+            await this.apiService.changeTicketState(ticket.id, estadoId, currentUser?.username || '');
         } catch (error) {
             console.error('Error updating ticket status in backend:', error);
         }

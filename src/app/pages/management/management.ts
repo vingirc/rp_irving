@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
@@ -42,6 +42,7 @@ export class ManagementComponent implements OnInit {
     private confirmationService = inject(ConfirmationService);
     private permissionService = inject(PermissionService);
     private apiService = inject(ApiService);
+    private cdr = inject(ChangeDetectorRef);
 
     availablePermissions: { id: string; nombre: string; descripcion: string }[] = [];
     permissionMap: Map<string, string> = new Map();
@@ -57,11 +58,13 @@ export class ManagementComponent implements OnInit {
 
     async ngOnInit() {
         this.loading = true;
+        this.cdr.detectChanges();
         try {
             await this.loadPermissions();
             await this.loadUsers();
         } finally {
             this.loading = false;
+            this.cdr.detectChanges();
         }
     }
 
@@ -137,6 +140,7 @@ export class ManagementComponent implements OnInit {
                         detail: 'No se pudo eliminar el usuario'
                     });
                 }
+                this.cdr.detectChanges();
             }
         });
     }
@@ -167,6 +171,7 @@ export class ManagementComponent implements OnInit {
                     detail: 'No se pudieron guardar los cambios'
                 });
             }
+            this.cdr.detectChanges();
         }
     }
 

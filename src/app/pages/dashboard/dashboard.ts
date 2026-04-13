@@ -113,28 +113,17 @@ export class DashboardComponent implements OnInit {
     };
 
     async ngOnInit() {
+        this.loading.set(true);
         await this.loadGroups();
         await this.loadTickets();
         this.buildMapsFromTickets();
-        this.loading.set(false);
+        setTimeout(() => {
+            this.loading.set(false);
+        });
     }
 
     private buildMapsFromTickets() {
         const allTickets = this.ticketService.tickets();
-        
-        this.estadoNombreToId.set('Pendiente', '6be13254-6efa-4ac0-a5b6-1510bb23eb1d');
-        this.estadoNombreToId.set('En Progreso', '20b5f606-e2ee-43ad-b47e-e346448ce7af');
-        this.estadoNombreToId.set('Revisión', '1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d');
-        this.estadoNombreToId.set('Hecho', '2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e');
-        this.estadoNombreToId.set('Bloqueado', '3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f');
-        
-        this.prioridadNombreToId.set('Muy Baja', '4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a');
-        this.prioridadNombreToId.set('Baja', '5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b');
-        this.prioridadNombreToId.set('Media', '9d73283e-39d2-4546-b540-5cba2dda926e');
-        this.prioridadNombreToId.set('Alta', '6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c');
-        this.prioridadNombreToId.set('Muy Alta', '7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d');
-        this.prioridadNombreToId.set('Urgente', '8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e');
-        this.prioridadNombreToId.set('Inmediato', '9c0d1e2f-3a4b-5c6d-7e8f-9a0b1c2d3e4f');
         
         allTickets.forEach(t => {
             const existingStatus = this.estadoMap.get(t.status as string);
