@@ -22,6 +22,8 @@ import { Ticket, TicketStatus, Group, User } from '../../models/ticket.model';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
 import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ActivatedRoute, Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-group',
@@ -57,6 +59,8 @@ export class GroupComponent implements OnInit {
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
+
 
   view: 'list' | 'detail' = 'list';
   displayMode: 'kanban' | 'list' = 'kanban';
@@ -74,6 +78,8 @@ export class GroupComponent implements OnInit {
   // Ticket detail
   selectedTicket: Ticket | null = null;
   ticketDialog: boolean = false;
+
+  private estadoNombreToId: Map<string, string> = new Map();
 
   displayModes = [
     { label: 'Kanban', value: 'kanban', icon: 'pi pi-th-large' },
@@ -97,39 +103,40 @@ export class GroupComponent implements OnInit {
 
   async ngOnInit() {
     this.loading.set(true);
-    await this.loadGroups();
+    await Promise.all([
+      this.loadGroups(),
+      this.loadEstados()
+    ]);
     this.loading.set(false);
     this.cdr.detectChanges();
     setTimeout(() => this.cdr.detectChanges(), 0);
   }
 
+  async loadEstados() {
+    try {
+      const response = await this.apiService.getEstados();
+      if (response.statusCode === 200 && Array.isArray(response.data)) {
+        response.data.forEach((e: any) => {
+          this.estadoNombreToId.set(e.nombre, e.id);
+        });
+      }
+    } catch (error) {
+      console.error('Error loading estados:', error);
+    }
+  }
+
   async loadGroups() {
     try {
-      const currentUser = this.authService.currentUser();
-      let response: any;
-
-      // Try to get groups for the current user first
-      if (currentUser?.id) {
-        response = await this.apiService.getGroupsByUser(currentUser.id);
-      }
-
-      // Fall back to all groups if user-specific fails
-      if (!response || response.statusCode !== 200) {
-        response = await this.apiService.getGroups();
-      }
+      const response = await this.apiService.getMyGroups();
 
       if (response.statusCode === 200 && Array.isArray(response.data)) {
-        // getUserGroups returns [{grupo_id, grupos: {id, nombre, descripcion}}, ...]
-        this.groups = response.data.map((g: any) => {
-          const nested = g.grupos || g;
-          return {
-            id: nested.id || g.grupo_id || g.id,
-            name: nested.nombre || g.nombre || g.name || 'Grupo Sin Nombre',
-            description: nested.descripcion || g.descripcion || g.description || '',
-            creatorId: nested.creador_id || g.creador_id || g.creatorId || '',
-            members: g.miembros || g.members || []
-          };
-        });
+        this.groups = response.data.map((g: any) => ({
+          id: g.id,
+          name: g.nombre || g.name || 'Grupo Sin Nombre',
+          description: g.descripcion || g.description || '',
+          creatorId: g.creador_id || g.creatorId || '',
+          members: g.miembros || g.members || []
+        }));
       }
     } catch (error) {
       console.error('Error loading groups:', error);
@@ -249,8 +256,20 @@ export class GroupComponent implements OnInit {
     }
   }
 
+  groupedTickets = computed(() => {
+    const tickets = this.groupTickets();
+    const map = new Map<string, any[]>();
+    tickets.forEach(t => {
+      const list = map.get(t.status) || [];
+      list.push(t);
+      map.set(t.status, list);
+    });
+    return map;
+  });
+
+  emptyArray: any[] = [];
   getTicketsByStatus(status: string) {
-    return this.groupTickets().filter(t => t.status === status);
+    return this.groupedTickets().get(status) || this.emptyArray;
   }
 
   viewTicket(ticket: Ticket) {
@@ -258,7 +277,7 @@ export class GroupComponent implements OnInit {
     this.ticketDialog = true;
   }
 
-  dropTicket(event: CdkDragDrop<string>, newStatus: string) {
+  async dropTicket(event: CdkDragDrop<string>, newStatus: string) {
     const ticket = event.item.data as Ticket;
     const currentUser = this.authService.currentUser();
 
@@ -283,9 +302,17 @@ export class GroupComponent implements OnInit {
         ticket.id,
         'Cambio de Estado',
         `Movido a ${newStatus} (arrastrado)`,
-        currentUser?.id || '',
+        currentUser?.username || '',
         currentUser?.nombre || ''
       );
+
+      try {
+        const estadoId = this.estadoNombreToId.get(newStatus) || newStatus;
+        await this.apiService.changeTicketState(ticket.id, estadoId, currentUser?.id || '');
+      } catch (error) {
+        console.error('Error updating ticket status in backend:', error);
+      }
+
       this.messageService.add({ severity: 'info', summary: 'Estado actualizado', detail: `"${ticket.title}" movido a ${newStatus}` });
     }
   }
@@ -316,6 +343,10 @@ export class GroupComponent implements OnInit {
       this.messageService.add({ severity: 'success', summary: 'Miembro añadido', detail: `${this.newMemberEmail} ha sido invitado al grupo.` });
       this.newMemberEmail = '';
     }
+  }
+
+  goBack() {
+    this.router.navigate(['/home']);
   }
 
   removeMember(memberId: string) {

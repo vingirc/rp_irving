@@ -87,6 +87,10 @@ export class ApiService {
         return this.request<any[]>('/groups');
     }
 
+    async getMyGroups() {
+        return this.request<any[]>('/groups/mine');
+    }
+
     async getGroup(id: string) {
         return this.request<any>(`/groups/${id}`);
     }

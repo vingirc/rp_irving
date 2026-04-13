@@ -152,3 +152,25 @@
         background-position: -200% 0;
     }
 }
+
+/* Multiselect dropdown panel */
+.management-container .p-multiselect-panel,
+.management-container .p-multiselect-dropdown-panel,
+.management-container .p-component-overlay,
+.p-multiselect-popup {
+    background: #ffffff !important;
+}
+
+.management-container .p-multiselect-option {
+    background: #ffffff !important;
+    color: #1e293b !important;
+}
+
+.management-container .p-multiselect-option:hover {
+    background: #f1f5f9 !important;
+}
+
+.management-container .p-multiselect-option.p-highlight {
+    background: #e0e7ff !important;
+    color: #3730a3 !important;
+}

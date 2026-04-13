@@ -21,6 +21,22 @@ a {
     text-decoration: none;
 }
 
+.cursor-grab {
+    cursor: grab;
+}
+
+.cursor-grab:active {
+    cursor: grabbing;
+}
+
+.cdk-drag-preview {
+    box-shadow: 0 5px 15px -3px rgba(0, 0, 0, 0.2), 0 8px 20px 1px rgba(0, 0, 0, 0.14);
+    border-radius: 8px;
+    opacity: 0.9;
+}
+
+
+
 /* Light content area - force light theme */
 .layout-content {
     background: #f8fafc;
@@ -205,20 +221,22 @@ input.p-inputtext:focus {
     color: #1e293b !important;
 }
 
-.layout-content .p-input-icon-left > i:first-child {
+.layout-content .p-input-icon-left>i:first-child {
     margin-left: 0.5rem;
+    margin-right: 0.5rem;
     color: #475569 !important;
     opacity: 1 !important;
 }
 
-.layout-content .p-input-icon-left > i,
+.layout-content .p-input-icon-left>i,
 .layout-content .p-input-icon-left i,
 .layout-content .p-input-icon-left .pi-search,
 .layout-content .p-input-icon-left .pi {
     color: #475569 !important;
+    margin-right: 0.5rem;
 }
 
-.layout-content .p-input-icon-left > .p-inputtext {
+.layout-content .p-input-icon-left>.p-inputtext {
     padding-left: 2.5rem;
 }
 
@@ -355,7 +373,7 @@ input.p-inputtext:focus {
     border-bottom: 1px solid #e2e8f0;
 }
 
-.layout-content .p-datatable .p-datatable-thead > tr > th {
+.layout-content .p-datatable .p-datatable-thead>tr>th {
     background: #f8fafc !important;
     color: #0f172a !important;
     font-weight: 700 !important;
@@ -366,18 +384,18 @@ input.p-inputtext:focus {
     padding: 1rem !important;
 }
 
-.layout-content .p-datatable .p-datatable-tbody > tr {
+.layout-content .p-datatable .p-datatable-tbody>tr {
     background: #ffffff !important;
 }
 
-.layout-content .p-datatable .p-datatable-tbody > tr > td {
+.layout-content .p-datatable .p-datatable-tbody>tr>td {
     color: #334155 !important;
     font-weight: 500;
     padding: 0.75rem 1rem !important;
     border-bottom: 1px solid #f1f5f9 !important;
 }
 
-.layout-content .p-datatable .p-datatable-tbody > tr:hover {
+.layout-content .p-datatable .p-datatable-tbody>tr:hover {
     background: #f8fafc !important;
 }
 

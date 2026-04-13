@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { AvatarModule } from 'primeng/avatar';
@@ -12,6 +12,7 @@ import { TicketComponent } from '../../ticket/ticket';
 import { DialogModule } from 'primeng/dialog';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
 import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-home',
@@ -20,10 +21,13 @@ import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
-export class Home {
+export class Home implements OnInit {
   private ticketService = inject(TicketService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private apiService = inject(ApiService);
+
+  private estadoNombreToId: Map<string, string> = new Map();
 
   get currentUserId() { return this.authService.currentUserId(); }
   get currentMember() {
@@ -33,6 +37,19 @@ export class Home {
 
   selectedTicket: any = null;
   ticketDialog: boolean = false;
+
+  async ngOnInit() {
+    try {
+      const response = await this.apiService.getEstados();
+      if (response.statusCode === 200 && Array.isArray(response.data)) {
+        response.data.forEach((e: any) => {
+          this.estadoNombreToId.set(e.nombre, e.id);
+        });
+      }
+    } catch (error) {
+      console.error('Error loading estados:', error);
+    }
+  }
 
   assignedTickets = computed(() => {
     return this.ticketService.tickets().filter(t => t.assignedTo === this.currentUserId);
@@ -70,8 +87,20 @@ export class Home {
   ];
 
 
+  groupedTickets = computed(() => {
+    const tickets = this.assignedTickets();
+    const map = new Map<string, any[]>();
+    tickets.forEach(t => {
+      const list = map.get(t.status) || [];
+      list.push(t);
+      map.set(t.status, list);
+    });
+    return map;
+  });
+
+  emptyArray: any[] = [];
   getTicketsByStatus(status: string) {
-    return this.assignedTickets().filter(t => t.status === status);
+    return this.groupedTickets().get(status) || this.emptyArray;
   }
 
   viewTicket(ticket: any) {
@@ -79,7 +108,7 @@ export class Home {
     this.ticketDialog = true;
   }
 
-  dropTicket(event: CdkDragDrop<string>, newStatus: string) {
+  async dropTicket(event: CdkDragDrop<string>, newStatus: string) {
     const ticket = event.item.data;
     const currentUser = this.authService.currentUser();
     const isAssigned = ticket.assignedTo === currentUser?.id;
@@ -98,6 +127,13 @@ export class Home {
         this.currentUserId,
         this.currentMember.fullName
       );
+
+      try {
+        const estadoId = this.estadoNombreToId.get(newStatus) || newStatus;
+        await this.apiService.changeTicketState(ticket.id, estadoId, currentUser?.id || '');
+      } catch (error) {
+        console.error('Error updating ticket status in backend:', error);
+      }
     }
   }
 

@@ -195,18 +195,18 @@
         </div>
         <div class="form-field">
             <label for="priority">Prioridad</label>
-            @if (priorityOptions.length > 0) {
-                <p-select inputId="priority" [options]="priorityOptions" [(ngModel)]="newTicket.priority" optionLabel="label" optionValue="value" appendTo="body" />
+            @if (priorityOptions && priorityOptions.length > 0) {
+                <p-select inputId="priority" [options]="priorityOptions" [(ngModel)]="newTicket.priority" optionLabel="label" optionValue="value" appendTo="body" placeholder="Seleccionar prioridad" />
             } @else {
-                <p-select inputId="priority" [options]="[{label: 'Cargando...', value: ''}]" [disabled]="true" appendTo="body" />
+                <p-select inputId="priority" [options]="[{label: 'Sin prioridades', value: ''}]" [disabled]="true" appendTo="body" />
             }
         </div>
         <div class="form-field">
             <label for="estado">Estado</label>
-            @if (estadoOptions.length > 0) {
-                <p-select inputId="estado" [options]="estadoOptions" [(ngModel)]="newTicket.estado" optionLabel="label" optionValue="value" appendTo="body" />
+            @if (estadoOptions && estadoOptions.length > 0) {
+                <p-select inputId="estado" [options]="estadoOptions" [(ngModel)]="newTicket.estado" optionLabel="label" optionValue="value" appendTo="body" placeholder="Seleccionar estado" />
             } @else {
-                <p-select inputId="estado" [options]="[{label: 'Cargando...', value: ''}]" [disabled]="true" appendTo="body" />
+                <p-select inputId="estado" [options]="[{label: 'Sin estados', value: ''}]" [disabled]="true" appendTo="body" />
             }
         </div>
     </div>

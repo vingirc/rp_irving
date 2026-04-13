@@ -219,7 +219,15 @@ export class UserComponent implements OnInit {
   }
 
   logout() {
-    this.authService.logout();
-    this.router.navigate(['/login']);
+    this.confirmationService.confirm({
+      message: '¿Estás seguro de que quieres cerrar sesión?',
+      header: 'Cerrar Sesión',
+      icon: 'pi pi-sign-out',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.authService.logout();
+        this.router.navigate(['/login']);
+      }
+    });
   }
 }

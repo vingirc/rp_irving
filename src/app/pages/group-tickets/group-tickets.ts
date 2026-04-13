@@ -72,23 +72,32 @@ export class GroupTicketsComponent implements OnInit {
 
     private estadoNombreToId: Map<string, string> = new Map();
     private prioridadNombreToId: Map<string, string> = new Map();
-
-    get connectedColumnIds(): string[] {
-        return this.kanbanColumns.map(c => c.value);
-    }
+    private estadoMap: Map<string, string> = new Map();
+    private prioridadMap: Map<string, string> = new Map();
 
     tickets = computed(() => this.ticketService.tickets());
-    
+
     groupTickets = computed(() => {
         if (!this.groupId) return this.tickets();
         return this.tickets().filter(t => t.groupId === this.groupId);
+    });
+
+    groupedTickets = computed(() => {
+        const tickets = this.groupTickets();
+        const map = new Map<string, Ticket[]>();
+        tickets.forEach(ticket => {
+            const list = map.get(ticket.status) || [];
+            list.push(ticket);
+            map.set(ticket.status, list);
+        });
+        return map;
     });
 
     selectedTicket: Ticket | null = null;
     ticketDialog = false;
     newTicketDialog = false;
     editingTicket = false;
-    
+
     newTicket = {
         title: '',
         description: '',
@@ -129,6 +138,7 @@ export class GroupTicketsComponent implements OnInit {
                 }));
                 response.data.forEach((e: any) => {
                     this.estadoNombreToId.set(e.nombre, e.id);
+                    this.estadoMap.set(e.id, e.nombre);
                 });
                 this.cdr.detectChanges();
             }
@@ -147,6 +157,7 @@ export class GroupTicketsComponent implements OnInit {
                 }));
                 response.data.forEach((p: any) => {
                     this.prioridadNombreToId.set(p.nombre, p.id);
+                    this.prioridadMap.set(p.id, p.nombre);
                 });
                 this.cdr.detectChanges();
             }
@@ -157,7 +168,7 @@ export class GroupTicketsComponent implements OnInit {
 
     async loadGroupInfo() {
         if (!this.groupId) return;
-        
+
         const response = await this.apiService.getGroup(this.groupId);
         if (response.statusCode === 200) {
             const data = response.data;
@@ -174,54 +185,61 @@ export class GroupTicketsComponent implements OnInit {
             if (response.statusCode === 200 && Array.isArray(response.data)) {
                 const firstItem = response.data[0];
                 let ticketsData: any[] = [];
-                
+
                 if (firstItem?.tickets && Array.isArray(firstItem.tickets)) {
                     ticketsData = firstItem.tickets;
                 } else {
                     ticketsData = response.data;
                 }
 
+                const mappedTickets: Ticket[] = [];
+
                 ticketsData.forEach((t: any) => {
                     if (t.estado_id && t.estado_nombre) {
                         this.estadoNombreToId.set(t.estado_nombre, t.estado_id);
+                        this.estadoMap.set(t.estado_id, t.estado_nombre);
                     }
                     if (t.priority_id && t.prioridad_nombre) {
                         this.prioridadNombreToId.set(t.prioridad_nombre, t.priority_id);
+                        this.prioridadMap.set(t.priority_id, t.prioridad_nombre);
                     }
-                    
-                    const existing = this.ticketService.tickets().find(ex => ex.id === t.id);
-                    if (!existing) {
-                        this.ticketService.addTicket({
-                            id: t.id,
-                            groupId: t.grupo_id || this.groupId!,
-                            title: t.titulo || t.title,
-                            description: t.descripcion || t.description,
-                            status: (t.estado_nombre || t.status) as TicketStatus,
-                            priority: (t.prioridad_nombre || t.priority) as Priority,
-                            assignedTo: t.asignado_id || t.assignedTo,
-                            assignedToName: t.asignado_nombre || t.assignedToName,
-                            creatorId: t.autor_id || t.creatorId,
-                            creatorName: t.autor_nombre || t.creatorName,
-                            createdAt: new Date(t.creado_en || t.createdAt),
-                            deadline: t.fecha_limite ? new Date(t.fecha_limite) : undefined,
-                            comments: [],
-                            history: []
-                        });
-                    }
+
+                    const estadoNombre = t.estado_nombre || this.estadoMap.get(t.estado_id) || t.status || 'Pendiente';
+                    const prioridadNombre = t.prioridad_nombre || this.prioridadMap.get(t.priority_id) || t.priority || 'Media';
+
+                    mappedTickets.push({
+                        id: t.id,
+                        groupId: t.grupo_id || this.groupId!,
+                        title: t.titulo || t.title,
+                        description: t.descripcion || t.description,
+                        status: estadoNombre as TicketStatus,
+                        priority: prioridadNombre as Priority,
+                        assignedTo: t.asignado_id || t.assignedTo,
+                        assignedToName: t.asignado_nombre || t.assignedToName,
+                        creatorId: t.autor_id || t.creatorId,
+                        creatorName: t.autor_nombre || t.creatorName,
+                        createdAt: new Date(t.creado_en || t.createdAt),
+                        deadline: t.fecha_limite ? new Date(t.fecha_limite) : undefined,
+                        comments: [],
+                        history: []
+                    });
                 });
+
+                this.ticketService.upsertTickets(mappedTickets);
             }
         } catch (error) {
             console.error('Error loading tickets:', error);
         }
     }
 
-    getTicketsByStatus(status: TicketStatus) {
-        return this.groupTickets().filter(t => t.status === status);
+    emptyArray: Ticket[] = [];
+    getTicketsByStatus(status: string): Ticket[] {
+        return this.groupedTickets().get(status) || this.emptyArray;
     }
 
-    onDrop(event: CdkDragDrop<Ticket[]>, newStatus: TicketStatus) {
+    onDrop(event: CdkDragDrop<any>, newStatus: TicketStatus) {
         const ticket = event.item.data as Ticket;
-        
+
         // If dropped in the same column, nothing to do
         if (ticket.status === newStatus) return;
 
@@ -246,10 +264,10 @@ export class GroupTicketsComponent implements OnInit {
             this.messageService.add({ severity: 'warn', summary: 'Sin permiso', detail: 'No tienes permiso para cambiar el estado de tickets.' });
             return;
         }
-        
+
         this.ticketService.updateTicket(ticket.id, { status: newStatus });
         this.cdr.detectChanges();
-        
+
         this.ticketService.addHistoryEntry(
             ticket.id,
             'Cambio de Estado',
@@ -260,7 +278,7 @@ export class GroupTicketsComponent implements OnInit {
 
         try {
             const estadoId = this.estadoNombreToId.get(newStatus) || newStatus;
-            await this.apiService.changeTicketState(ticket.id, estadoId, currentUser?.username || '');
+            await this.apiService.changeTicketState(ticket.id, estadoId, currentUser?.id || '');
         } catch (error) {
             console.error('Error updating ticket status in backend:', error);
         }
@@ -285,7 +303,7 @@ export class GroupTicketsComponent implements OnInit {
     }
 
     async saveNewTicket() {
-        if (!this.newTicket.title.trim() || !this.groupId) {
+        if (!this.newTicket.title.trim()) {
             this.messageService.add({
                 severity: 'warn',
                 summary: 'Advertencia',
@@ -294,10 +312,19 @@ export class GroupTicketsComponent implements OnInit {
             return;
         }
 
+        if (!this.groupId) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Advertencia',
+                detail: 'No se ha detectado el identificador del grupo'
+            });
+            return;
+        }
+
         const currentUser = this.authService.currentUser();
         const estadoId = this.estadoNombreToId.get(this.newTicket.estado) || this.newTicket.estado;
         const prioridadId = this.prioridadNombreToId.get(this.newTicket.priority) || this.newTicket.priority;
-        
+
         try {
             const response = await this.apiService.createTicket({
                 grupo_id: this.groupId,
@@ -350,7 +377,7 @@ export class GroupTicketsComponent implements OnInit {
         if (!this.selectedTicket) return;
 
         const currentUser = this.authService.currentUser();
-        
+
         this.ticketService.updateTicket(this.selectedTicket.id, {
             title: this.selectedTicket.title,
             description: this.selectedTicket.description,
@@ -380,7 +407,7 @@ export class GroupTicketsComponent implements OnInit {
             summary: 'Éxito',
             detail: 'Ticket actualizado'
         });
-        
+
         this.ticketDialog = false;
     }
 

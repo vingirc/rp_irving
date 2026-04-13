@@ -69,35 +69,57 @@ export class ManagementComponent implements OnInit {
     }
 
     async loadPermissions() {
-        const response = await this.apiService.getPermissions();
-        if (response.statusCode === 200 && Array.isArray(response.data)) {
-            let perms: any[] = [];
+        try {
+            const response = await this.apiService.getPermissions();
+            console.log('Permissions response:', response);
             
-            const firstItem = response.data[0];
-            if (firstItem?.permissions && Array.isArray(firstItem.permissions)) {
-                perms = firstItem.permissions;
+            if (response.statusCode === 200 && Array.isArray(response.data)) {
+                let perms: any[] = [];
+                
+                const firstItem = response.data[0];
+                if (firstItem?.permissions && Array.isArray(firstItem.permissions)) {
+                    perms = firstItem.permissions;
+                } else {
+                    perms = response.data;
+                }
+                
+                console.log('Mapped permissions:', perms);
+                
+                this.availablePermissions = perms.map(p => ({
+                    id: p.id,
+                    nombre: p.nombre,
+                    descripcion: p.descripcion
+                }));
+                
+                this.availablePermissions.forEach(p => {
+                    this.permissionMap.set(p.id, p.nombre);
+                });
+                
+                this.allAvailablePermissions = this.availablePermissions.map(p => ({
+                    label: p.descripcion || p.nombre,
+                    value: p.nombre
+                }));
+                
+                if (!this.allAvailablePermissions.find(p => p.value === 'all')) {
+                    this.allAvailablePermissions.unshift({ label: 'Acceso Total', value: 'all' });
+                }
+                
+                console.log('allAvailablePermissions:', this.allAvailablePermissions);
             } else {
-                perms = response.data;
+                console.warn('No se pudieron cargar permisos - respuesta inválida:', response);
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Advertencia',
+                    detail: 'No se pudieron cargar los permisos disponibles'
+                });
             }
-            
-            this.availablePermissions = perms.map(p => ({
-                id: p.id,
-                nombre: p.nombre,
-                descripcion: p.descripcion
-            }));
-            
-            this.availablePermissions.forEach(p => {
-                this.permissionMap.set(p.id, p.nombre);
+        } catch (error) {
+            console.error('Error loading permissions:', error);
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error al cargar los permisos'
             });
-            
-            this.allAvailablePermissions = this.availablePermissions.map(p => ({
-                label: p.descripcion || p.nombre,
-                value: p.nombre
-            }));
-            
-            if (!this.allAvailablePermissions.find(p => p.value === 'all')) {
-                this.allAvailablePermissions.unshift({ label: 'Acceso Total', value: 'all' });
-            }
         }
     }
 

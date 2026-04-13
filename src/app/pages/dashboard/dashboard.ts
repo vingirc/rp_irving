@@ -194,6 +194,7 @@ export class DashboardComponent implements OnInit {
                 }));
                 response.data.forEach((e: any) => {
                     this.estadoNombreToId.set(e.nombre, e.id);
+                    this.estadoMap.set(e.id, e.nombre);
                 });
                 this.cdr.detectChanges();
             }
@@ -213,6 +214,7 @@ export class DashboardComponent implements OnInit {
                 }));
                 sortedData.forEach((p: any) => {
                     this.prioridadNombreToId.set(p.nombre, p.id);
+                    this.prioridadMap.set(p.id, p.nombre);
                 });
                 this.cdr.detectChanges();
             }
@@ -236,24 +238,13 @@ export class DashboardComponent implements OnInit {
 
     async loadGroups() {
         try {
-            const currentUser = this.authService.currentUser();
-            let response: any;
-            if (currentUser?.id) {
-                response = await this.apiService.getGroupsByUser(currentUser.id);
-            }
-            if (!response || response.statusCode !== 200) {
-                response = await this.apiService.getGroups();
-            }
+            const response = await this.apiService.getMyGroups();
 
             if (response.statusCode === 200 && Array.isArray(response.data)) {
-                // getUserGroups returns [{grupo_id, grupos: {id, nombre, descripcion}}, ...]
-                this.groups = response.data.map((g: any) => {
-                    const nested = g.grupos || g;
-                    return {
-                        id: nested.id || g.grupo_id || g.id,
-                        nombre: nested.nombre || g.nombre || g.name || 'Grupo Sin Nombre'
-                    };
-                });
+                this.groups = response.data.map((g: any) => ({
+                    id: g.id || g.grupo_id,
+                    nombre: g.nombre || g.grupos?.nombre || g.name || 'Grupo Sin Nombre'
+                }));
                 this.cdr.detectChanges();
 
                 if (this.groups?.length > 0 && !this.selectedGroupId) {
@@ -314,7 +305,7 @@ export class DashboardComponent implements OnInit {
                     };
                 });
 
-                this.ticketService.setTickets(mappedTickets);
+                this.ticketService.upsertTickets(mappedTickets);
             }
         } catch (error) {
             console.error('Error loading tickets:', error);
@@ -371,11 +362,20 @@ export class DashboardComponent implements OnInit {
     }
 
     async saveNewTicket() {
-        if (!this.newTicket.title.trim() || !this.selectedGroupId) {
+        if (!this.newTicket.title.trim()) {
             this.messageService.add({
                 severity: 'warn',
                 summary: 'Advertencia',
-                detail: 'El título es requerido y debe seleccionar un grupo'
+                detail: 'El título es requerido'
+            });
+            return;
+        }
+
+        if (!this.selectedGroupId) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Advertencia',
+                detail: 'Debe seleccionar un grupo'
             });
             return;
         }

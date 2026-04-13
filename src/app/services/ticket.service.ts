@@ -65,6 +65,28 @@ export class TicketService {
         return newTicket;
     }
 
+    upsertTickets(tickets: Ticket[]) {
+        if (!tickets || tickets.length === 0) return;
+        
+        this._tickets.update(current => {
+            const newTickets = [...current];
+            let changed = false;
+            
+            for (const ticket of tickets) {
+                const index = newTickets.findIndex(t => t.id === ticket.id);
+                if (index > -1) {
+                    newTickets[index] = { ...newTickets[index], ...ticket };
+                } else {
+                    newTickets.push(ticket);
+                }
+                changed = true;
+            }
+            
+            return changed ? newTickets : current;
+        });
+        this.saveToStorage();
+    }
+
     updateTicket(id: string, updates: Partial<Ticket>) {
         this._tickets.update(current =>
             current.map(t => t.id === id ? { ...t, ...updates } : t)
