@@ -63,15 +63,30 @@ export class ManagementComponent implements OnInit {
     async loadPermissions() {
         const response = await this.apiService.getPermissions();
         if (response.statusCode === 200 && Array.isArray(response.data)) {
-            const perms = response.data[0]?.permissions || response.data;
-            this.availablePermissions = perms;
+            let perms: any[] = [];
+            
+            const firstItem = response.data[0];
+            if (firstItem?.permissions && Array.isArray(firstItem.permissions)) {
+                perms = firstItem.permissions;
+            } else {
+                perms = response.data;
+            }
+            
+            this.availablePermissions = perms.map(p => ({
+                id: p.id,
+                nombre: p.nombre,
+                descripcion: p.descripcion
+            }));
+            
             this.availablePermissions.forEach(p => {
                 this.permissionMap.set(p.id, p.nombre);
             });
+            
             this.allAvailablePermissions = this.availablePermissions.map(p => ({
                 label: p.descripcion || p.nombre,
                 value: p.nombre
             }));
+            
             if (!this.allAvailablePermissions.find(p => p.value === 'all')) {
                 this.allAvailablePermissions.unshift({ label: 'Acceso Total', value: 'all' });
             }

@@ -59,15 +59,17 @@ export class AuthService {
                 body: JSON.stringify({ email, password })
             });
 
-            const data: LoginResponse = await response.json();
+            const data = await response.json();
 
-            if (data.statusCode === 200 && data.data.token) {
-                localStorage.setItem(this.TOKEN_KEY, data.data.token);
+            const loginData = Array.isArray(data.data) ? data.data[0] : data.data;
+
+            if (data.statusCode === 200 && loginData?.token) {
+                localStorage.setItem(this.TOKEN_KEY, loginData.token);
                 const user = {
-                    email: data.data.email || '',
-                    username: data.data.username || '',
-                    nombre: data.data.nombre || '',
-                    permissions: data.data.permissions || []
+                    email: loginData.email || '',
+                    username: loginData.username || '',
+                    nombre: loginData.nombre || '',
+                    permissions: loginData.permissions || []
                 };
                 localStorage.setItem(this.USER_KEY, JSON.stringify(user));
                 this._currentUser.set(user);
@@ -75,7 +77,8 @@ export class AuthService {
                 return { success: true };
             }
 
-            return { success: false, error: data.data?.error || 'Error desconocido' };
+            const errorMsg = Array.isArray(data.data) ? data.data[0]?.error : data.data?.error;
+            return { success: false, error: errorMsg || 'Error desconocido' };
         } catch (error) {
             console.error('Login error:', error);
             return { success: false, error: 'Error de conexión' };
@@ -92,13 +95,14 @@ export class AuthService {
                 body: JSON.stringify({ email, password, username, nombre })
             });
 
-            const data: RegisterResponse = await response.json();
+            const data = await response.json();
 
             if (data.statusCode === 201) {
                 return { success: true };
             }
 
-            return { success: false, error: data.data?.error || 'Error desconocido' };
+            const errorMsg = Array.isArray(data.data) ? data.data[0]?.error : data.data?.error;
+            return { success: false, error: errorMsg || 'Error desconocido' };
         } catch (error) {
             console.error('Register error:', error);
             return { success: false, error: 'Error de conexión' };
