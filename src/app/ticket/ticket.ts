@@ -1,7 +1,7 @@
-import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Ticket, TicketStatus, Priority } from '../models/ticket.model';
+import { Ticket, TicketStatus, Priority, User } from '../models/ticket.model';
 import { TicketService } from '../services/ticket.service';
 import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
@@ -30,10 +30,11 @@ import { HasPermissionDirective } from '../directives/has-permission.directive';
   templateUrl: './ticket.html',
   styleUrl: './ticket.css',
 })
-export class TicketComponent {
+export class TicketComponent implements OnInit {
   @Input() ticket!: Ticket;
   @Input() currentUserRole: 'user' | 'admin' | 'superAdmin' = 'user';
   @Input() currentUserId: string = '';
+  @Input() groupMembers: User[] = [];
   @Output() onSave = new EventEmitter<Ticket>();
   @Output() onClose = new EventEmitter<void>();
 
@@ -41,7 +42,16 @@ export class TicketComponent {
 
   newComment: string = '';
 
+  memberOptions: { label: string, value: string }[] = [];
+
   statuses: TicketStatus[] = ['Pendiente', 'En Progreso', 'Revisión', 'Hecho', 'Bloqueado'];
+
+  ngOnInit() {
+    this.memberOptions = [
+      { label: 'Sin asignar', value: '' },
+      ...this.groupMembers.map(m => ({ label: m.fullName, value: m.id }))
+    ];
+  }
 
   priorities: { label: string, value: Priority }[] = [
     { label: 'Muy Baja', value: 'Muy Baja' },
@@ -67,6 +77,16 @@ export class TicketComponent {
 
   get canEditStatus(): boolean {
     return this.canEditFull || this.isAssigned;
+  }
+
+  onAssignedChange(event: any) {
+    const selectedId = event.value;
+    if (selectedId) {
+      const member = this.groupMembers.find(m => m.id === selectedId);
+      this.ticket.assignedToName = member ? member.fullName : '';
+    } else {
+      this.ticket.assignedToName = '';
+    }
   }
 
   save() {

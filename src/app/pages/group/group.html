@@ -170,7 +170,7 @@
     <p-dialog [(visible)]="ticketDialog" [modal]="true" [style]="{width: '80vw'}" [maximizable]="true"
         [contentStyle]="{padding: '0'}" [showHeader]="false" styleClass="ticket-dialog">
         <app-ticket [ticket]="$any(selectedTicket)" [currentUserId]="'user1'" [currentUserRole]="'admin'"
-            (onClose)="ticketDialog = false" (onSave)="ticketDialog = false"></app-ticket>
+            [groupMembers]="groupMembers" (onClose)="ticketDialog = false" (onSave)="ticketDialog = false"></app-ticket>
     </p-dialog>
 
     <p-dialog [(visible)]="groupDialog" header="Configuración de Grupo" [modal]="true" styleClass="p-fluid">

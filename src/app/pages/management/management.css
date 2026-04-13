@@ -2,6 +2,15 @@
     animation: fadeIn 0.4s ease-out;
 }
 
+.management-container .p-button.p-button-secondary {
+    color: #475569 !important;
+}
+
+.management-container .p-button.p-button-secondary:hover {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;

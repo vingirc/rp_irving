@@ -192,6 +192,15 @@
 
 :host ::ng-deep .p-selectpanel {
     width: 100%;
+    background: #ffffff;
+}
+
+:host ::ng-deep .p-select-option {
+    background: #ffffff;
+}
+
+:host ::ng-deep .p-select-option:hover {
+    background: #f1f5f9;
 }
 
 @media (max-width: 768px) {

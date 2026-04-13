@@ -62,31 +62,13 @@ export class GroupTicketsComponent implements OnInit {
         { label: 'Lista', value: 'list' }
     ];
 
-    statusOptions: { label: string; value: TicketStatus }[] = [
-        { label: 'Pendiente', value: 'Pendiente' },
-        { label: 'En Progreso', value: 'En Progreso' },
-        { label: 'Revisión', value: 'Revisión' },
-        { label: 'Hecho', value: 'Hecho' },
-        { label: 'Bloqueado', value: 'Bloqueado' }
-    ];
+    statusOptions: { label: string; value: TicketStatus }[] = [];
+    priorityOptions: { label: string; value: Priority }[] = [];
 
-    priorityOptions: { label: string; value: Priority }[] = [
-        { label: 'Muy Baja', value: 'Muy Baja' },
-        { label: 'Baja', value: 'Baja' },
-        { label: 'Media', value: 'Media' },
-        { label: 'Alta', value: 'Alta' },
-        { label: 'Muy Alta', value: 'Muy Alta' },
-        { label: 'Urgente', value: 'Urgente' },
-        { label: 'Inmediato', value: 'Inmediato' }
-    ];
+    kanbanColumns: { label: string; value: TicketStatus; color: string }[] = [];
 
-    kanbanColumns: { label: string; value: TicketStatus; color: string }[] = [
-        { label: 'Pendiente', value: 'Pendiente', color: 'blue' },
-        { label: 'En Progreso', value: 'En Progreso', color: 'orange' },
-        { label: 'Revisión', value: 'Revisión', color: 'purple' },
-        { label: 'Hecho', value: 'Hecho', color: 'green' },
-        { label: 'Bloqueado', value: 'Bloqueado', color: 'red' }
-    ];
+    private estadoNombreToId: Map<string, string> = new Map();
+    private prioridadNombreToId: Map<string, string> = new Map();
 
     get connectedColumnIds(): string[] {
         return this.kanbanColumns.map(c => c.value);
@@ -121,26 +103,52 @@ export class GroupTicketsComponent implements OnInit {
 
     async ngOnInit() {
         this.groupId = this.route.snapshot.paramMap.get('groupId');
-        this.initMaps();
-        await this.loadGroupInfo();
-        await this.loadTickets();
+        await Promise.all([
+            this.loadEstados(),
+            this.loadPrioridades(),
+            this.loadGroupInfo(),
+            this.loadTickets()
+        ]);
         this.loading.set(false);
     }
 
-    private initMaps() {
-        this.estadoNombreToId.set('Pendiente', '6be13254-6efa-4ac0-a5b6-1510bb23eb1d');
-        this.estadoNombreToId.set('En Progreso', '20b5f606-e2ee-43ad-b47e-e346448ce7af');
-        this.estadoNombreToId.set('Revisión', '1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d');
-        this.estadoNombreToId.set('Hecho', '2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e');
-        this.estadoNombreToId.set('Bloqueado', '3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f');
-        
-        this.prioridadNombreToId.set('Muy Baja', '4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a');
-        this.prioridadNombreToId.set('Baja', '5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b');
-        this.prioridadNombreToId.set('Media', '9d73283e-39d2-4546-b540-5cba2dda926e');
-        this.prioridadNombreToId.set('Alta', '6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c');
-        this.prioridadNombreToId.set('Muy Alta', '7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d');
-        this.prioridadNombreToId.set('Urgente', '8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e');
-        this.prioridadNombreToId.set('Inmediato', '9c0d1e2f-3a4b-5c6d-7e8f-9a0b1c2d3e4f');
+    async loadEstados() {
+        try {
+            const response = await this.apiService.getEstados();
+            if (response.statusCode === 200 && Array.isArray(response.data)) {
+                this.statusOptions = response.data.map((e: any) => ({
+                    label: e.nombre,
+                    value: e.nombre
+                }));
+                this.kanbanColumns = response.data.map((e: any) => ({
+                    label: e.nombre,
+                    value: e.nombre as TicketStatus,
+                    color: e.color || 'blue'
+                }));
+                response.data.forEach((e: any) => {
+                    this.estadoNombreToId.set(e.nombre, e.id);
+                });
+            }
+        } catch (error) {
+            console.error('Error loading estados:', error);
+        }
+    }
+
+    async loadPrioridades() {
+        try {
+            const response = await this.apiService.getPrioridades();
+            if (response.statusCode === 200 && Array.isArray(response.data)) {
+                this.priorityOptions = response.data.map((p: any) => ({
+                    label: p.nombre,
+                    value: p.nombre
+                }));
+                response.data.forEach((p: any) => {
+                    this.prioridadNombreToId.set(p.nombre, p.id);
+                });
+            }
+        } catch (error) {
+            console.error('Error loading prioridades:', error);
+        }
     }
 
     async loadGroupInfo() {

@@ -69,10 +69,16 @@
 
                 <div class="field mb-4">
                     <label class="block font-semibold mb-2">Asignado a</label>
-                    <div class="flex align-items-center p-2 border-1 border-round surface-border">
-                        <i class="pi pi-user mr-2"></i>
-                        <span>{{ ticket.assignedToName || 'Sin asignar' }}</span>
-                    </div>
+                    <p-select 
+                        [options]="memberOptions" 
+                        [(ngModel)]="ticket.assignedTo"
+                        optionLabel="label" 
+                        optionValue="value"
+                        placeholder="Seleccionar miembro"
+                        [disabled]="!canEditFull"
+                        (onChange)="onAssignedChange($event)"
+                        class="w-full">
+                    </p-select>
                 </div>
 
                 <p-divider></p-divider>
