@@ -5,10 +5,10 @@
             <p class="text-secondary text-xl font-medium mb-0">Resumen y estadísticas de tus tickets.</p>
         </div>
         <div class="flex gap-2">
-            <p-button *hasPermission="'ticket_add'" label="Nuevo Ticket" icon="pi pi-plus" (onClick)="openNewTicket()"
+            <p-button *hasPermission="'ticket:add'" label="Nuevo Ticket" icon="pi pi-plus" (onClick)="openNewTicket()"
                 styleClass="p-button-raised p-button-success"></p-button>
 
-            <p-button *hasPermission="'groups_view'" label="Resumen de Tickets" icon="pi pi-ticket"
+            <p-button *hasPermission="'group:view'" label="Resumen de Tickets" icon="pi pi-ticket"
                 (onClick)="goToGroups()" styleClass="p-button-raised p-button-primary"></p-button>
         </div>
     </div>

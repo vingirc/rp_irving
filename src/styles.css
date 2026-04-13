@@ -246,6 +246,27 @@ input.p-inputtext:focus {
     font-weight: 500;
 }
 
+/* Select trigger icon (chevron/arrow) — visible on light bg */
+.layout-content .p-select .p-select-dropdown,
+.layout-content .p-select .p-select-dropdown .p-icon,
+.layout-content .p-select .p-select-dropdown svg,
+.layout-content .p-select .p-select-trigger,
+.layout-content .p-select .p-select-trigger .p-icon,
+.layout-content .p-select .p-select-trigger svg,
+.layout-content .p-select .p-icon,
+.layout-content .p-dropdown .p-dropdown-trigger,
+.layout-content .p-dropdown .p-dropdown-trigger .p-icon,
+.layout-content .p-dropdown .p-dropdown-trigger svg {
+    color: #475569 !important;
+    fill: #475569 !important;
+}
+
+/* Select clear icon */
+.layout-content .p-select .p-select-clear-icon,
+.layout-content .p-dropdown .p-dropdown-clear-icon {
+    color: #64748b !important;
+}
+
 /* Select panel dropdown - applies globally including when appended to body */
 .p-select-panel,
 .p-dropdown-panel,
@@ -258,20 +279,38 @@ input.p-inputtext:focus {
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
+/* Option list wrapper */
+.p-select-list-container,
+.p-select-items-wrapper,
+.p-dropdown-items-wrapper {
+    background: #ffffff !important;
+}
+
+.p-select-list,
+.p-select-items,
+.p-dropdown-items {
+    background: #ffffff !important;
+}
+
 .p-select-option,
 .p-dropdown-option,
-.p-select-option,
-.p-dropdown-option {
+.p-select-item,
+.p-dropdown-item {
     color: #1e293b !important;
     background: #ffffff !important;
 }
 
+.p-select-option span,
+.p-dropdown-option span,
+.p-select-item span,
+.p-dropdown-item span {
+    color: #1e293b !important;
+}
+
 .p-select-option:hover,
 .p-dropdown-option:hover,
-.p-select-option.p-select-option-selected,
-.p-dropdown-option.p-dropdown-option-selected,
-.p-select-option.p-highlight,
-.p-dropdown-option.p-highlight {
+.p-select-item:hover,
+.p-dropdown-item:hover {
     background: #f1f5f9 !important;
     color: #1e293b !important;
 }
@@ -279,9 +318,17 @@ input.p-inputtext:focus {
 .p-select-option.p-select-option-selected,
 .p-dropdown-option.p-dropdown-option-selected,
 .p-select-option.p-highlight,
-.p-dropdown-option.p-highlight {
+.p-dropdown-option.p-highlight,
+.p-select-item.p-highlight,
+.p-dropdown-item.p-highlight {
     background: #e0e7ff !important;
     color: #3730a3 !important;
+}
+
+/* Empty message in dropdown */
+.p-select-empty-message,
+.p-dropdown-empty-message {
+    color: #64748b !important;
 }
 
 /* p-select filter input */
@@ -295,6 +342,7 @@ input.p-inputtext:focus {
 
 .p-select-panel .p-select-filter-container i {
     left: 0.5rem !important;
+    color: #475569 !important;
 }
 
 /* Tables - light theme */
@@ -357,6 +405,110 @@ input.p-inputtext:focus {
 .layout-content .ticket-card:hover {
     border-color: #cbd5e1;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== Force dark text/icon colors in light content area ===== */
+
+/* PrimeNG Card text */
+.layout-content .p-card,
+.layout-content .p-card .p-card-body,
+.layout-content .p-card .p-card-content {
+    color: #1e293b !important;
+}
+
+.layout-content .p-card .p-card-title {
+    color: #0f172a !important;
+}
+
+.layout-content .p-card .p-card-subtitle {
+    color: #475569 !important;
+}
+
+/* All icons inside the light content area */
+.layout-content .pi {
+    color: #475569;
+}
+
+/* Stat icons — preserve their inline color */
+.layout-content .stat-icon {
+    /* inline style takes precedence, this is a fallback */
+    opacity: 1;
+}
+
+/* Toolbar text in content area */
+.layout-content .p-toolbar {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #1e293b !important;
+}
+
+.layout-content .p-toolbar .p-button-label {
+    color: inherit;
+}
+
+/* SelectButton in content area */
+.layout-content .p-selectbutton .p-button {
+    color: #334155 !important;
+    background: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+}
+
+.layout-content .p-selectbutton .p-button.p-highlight,
+.layout-content .p-selectbutton .p-button.p-button-primary {
+    background: #6366f1 !important;
+    color: #ffffff !important;
+    border-color: #6366f1 !important;
+}
+
+/* Paginator */
+.layout-content .p-paginator {
+    background: #ffffff !important;
+    color: #334155 !important;
+}
+
+.layout-content .p-paginator .p-paginator-page,
+.layout-content .p-paginator .p-paginator-next,
+.layout-content .p-paginator .p-paginator-prev,
+.layout-content .p-paginator .p-paginator-first,
+.layout-content .p-paginator .p-paginator-last {
+    color: #334155 !important;
+}
+
+.layout-content .p-paginator .p-paginator-page.p-highlight {
+    background: #6366f1 !important;
+    color: #ffffff !important;
+}
+
+/* Confirm dialog (appended to body) */
+.p-confirmdialog,
+.p-confirm-dialog {
+    background: #ffffff !important;
+}
+
+.p-confirmdialog .p-dialog-header,
+.p-confirm-dialog .p-dialog-header {
+    background: #ffffff !important;
+    color: #0f172a !important;
+}
+
+.p-confirmdialog .p-dialog-content,
+.p-confirm-dialog .p-dialog-content {
+    background: #ffffff !important;
+    color: #1e293b !important;
+}
+
+.p-confirmdialog .p-dialog-footer,
+.p-confirm-dialog .p-dialog-footer {
+    background: #ffffff !important;
+}
+
+/* Toast — ensure readability */
+.p-toast .p-toast-message .p-toast-message-text .p-toast-summary {
+    color: #0f172a;
+}
+
+.p-toast .p-toast-message .p-toast-message-text .p-toast-detail {
+    color: #334155;
 }
 
 /* Profile card - dark */

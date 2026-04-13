@@ -6,9 +6,7 @@ export const authGuard: CanActivateFn = (route, state) => {
     const authService = inject(AuthService);
     const router = inject(Router);
 
-    console.log('[AuthGuard] Checking authentication...');
-    console.log('[AuthGuard] Token in localStorage:', localStorage.getItem('auth_token'));
-    console.log('[AuthGuard] isAuthenticated():', authService.isAuthenticated());
+    console.log('[AuthGuard] Checking authentication, isAuthenticated:', authService.isAuthenticated());
 
     if (authService.isAuthenticated()) {
         console.log('[AuthGuard] User is authenticated, allowing access');

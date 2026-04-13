@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, computed, signal } from '@angular/core';
+import { Component, OnInit, inject, computed, signal, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -14,11 +14,12 @@ import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 import { TicketService } from '../../services/ticket.service';
 import { Ticket, TicketStatus, Priority } from '../../models/ticket.model';
+import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
 @Component({
     selector: 'app-group-tickets',
@@ -37,7 +38,8 @@ import { Ticket, TicketStatus, Priority } from '../../models/ticket.model';
         ToastModule,
         ToolbarModule,
         ConfirmDialogModule,
-        DragDropModule
+        DragDropModule,
+        HasPermissionDirective
     ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './group-tickets.html',
@@ -51,6 +53,7 @@ export class GroupTicketsComponent implements OnInit {
     private ticketService = inject(TicketService);
     private messageService = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
+    private cdr = inject(ChangeDetectorRef);
 
     groupId: string | null = null;
     groupName: string = '';
@@ -107,6 +110,8 @@ export class GroupTicketsComponent implements OnInit {
             this.loadTickets()
         ]);
         this.loading.set(false);
+        this.cdr.detectChanges();
+        setTimeout(() => this.cdr.detectChanges(), 0);
     }
 
     async loadEstados() {
@@ -215,24 +220,33 @@ export class GroupTicketsComponent implements OnInit {
     onDrop(event: CdkDragDrop<Ticket[]>, newStatus: TicketStatus) {
         const ticket = event.item.data as Ticket;
         
-        if (event.previousContainer === event.container) {
-            moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-        } else {
-            transferArrayItem(
-                event.previousContainer.data,
-                event.container.data,
-                event.previousIndex,
-                event.currentIndex
-            );
-            
-            this.updateTicketStatus(ticket, newStatus);
-        }
+        // If dropped in the same column, nothing to do
+        if (ticket.status === newStatus) return;
+
+        // Delegate status change — the computed signal will re-render columns
+        this.updateTicketStatus(ticket, newStatus);
     }
 
     async updateTicketStatus(ticket: Ticket, newStatus: TicketStatus) {
         const currentUser = this.authService.currentUser();
+
+        // Kanban D&D validation
+        const isAssigned = ticket.assignedTo === currentUser?.id;
+        const isAdmin = this.authService.hasPermission('all');
+        const hasMovePerm = this.authService.hasPermission('ticket:edit') || this.authService.hasPermission('ticket:edit:state');
+
+        if (!isAssigned && !isAdmin) {
+            this.messageService.add({ severity: 'warn', summary: 'No permitido', detail: 'Solo puedes mover tickets asignados a ti.' });
+            return;
+        }
+
+        if (!hasMovePerm && !isAdmin) {
+            this.messageService.add({ severity: 'warn', summary: 'Sin permiso', detail: 'No tienes permiso para cambiar el estado de tickets.' });
+            return;
+        }
         
         this.ticketService.updateTicket(ticket.id, { status: newStatus });
+        this.cdr.detectChanges();
         
         this.ticketService.addHistoryEntry(
             ticket.id,
@@ -254,6 +268,7 @@ export class GroupTicketsComponent implements OnInit {
             summary: 'Actualizado',
             detail: `Ticket movido a ${newStatus}`
         });
+        this.cdr.detectChanges();
     }
 
     openNewTicket() {

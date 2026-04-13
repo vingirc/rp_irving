@@ -11,11 +11,13 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ChartModule } from 'primeng/chart';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 import { Router } from '@angular/router';
 import { TicketService } from '../../services/ticket.service';
+import { HasPermissionDirective } from '../../directives/has-permission.directive';
 import { Group, Ticket, TicketStatus, Priority } from '../../models/ticket.model';
 
 @Component({
@@ -33,7 +35,9 @@ import { Group, Ticket, TicketStatus, Priority } from '../../models/ticket.model
         DialogModule,
         InputTextModule,
         ToastModule,
-        ProgressSpinnerModule
+        ProgressSpinnerModule,
+        ChartModule,
+        HasPermissionDirective
     ],
     providers: [MessageService],
     templateUrl: './dashboard.html',
@@ -83,6 +87,12 @@ export class DashboardComponent implements OnInit {
         };
     });
 
+    // Chart data
+    statusChartData: any = {};
+    statusChartOptions: any = {};
+    priorityChartData: any = {};
+    priorityChartOptions: any = {};
+
     selectedTicket: Ticket | null = null;
     ticketDialog = false;
     newTicketDialog = false;
@@ -97,6 +107,7 @@ export class DashboardComponent implements OnInit {
 
     async ngOnInit() {
         this.loading.set(true);
+        this.cdr.detectChanges();
         await Promise.all([
             this.loadEstados(),
             this.loadPrioridades(),
@@ -104,7 +115,68 @@ export class DashboardComponent implements OnInit {
             this.loadTickets()
         ]);
         this.buildMapsFromTickets();
+        this.updateCharts();
         this.loading.set(false);
+        this.cdr.detectChanges();
+        
+        // Re-render after a microtask to ensure all computed signals have propagated
+        setTimeout(() => this.cdr.detectChanges(), 0);
+    }
+
+    updateCharts() {
+        const s = this.stats();
+        this.statusChartData = {
+            labels: ['Pendiente', 'En Progreso', 'Revisión', 'Hecho', 'Bloqueado'],
+            datasets: [{
+                data: [s.pendiente, s.enProgreso, s.revision, s.hecho, s.bloqueado],
+                backgroundColor: ['#3B82F6', '#F59E0B', '#8B5CF6', '#10B981', '#EF4444'],
+                hoverBackgroundColor: ['#2563EB', '#D97706', '#7C3AED', '#059669', '#DC2626']
+            }]
+        };
+        this.statusChartOptions = {
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#495057', font: { size: 13 } }
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        };
+
+        // Priority chart
+        const tks = this.groupTickets();
+        const prioridadCounts: Record<string, number> = {};
+        tks.forEach(t => {
+            prioridadCounts[t.priority] = (prioridadCounts[t.priority] || 0) + 1;
+        });
+
+        this.priorityChartData = {
+            labels: Object.keys(prioridadCounts),
+            datasets: [{
+                label: 'Tickets por Prioridad',
+                data: Object.values(prioridadCounts),
+                backgroundColor: ['#6366F1', '#3B82F6', '#06B6D4', '#F59E0B', '#F97316', '#EF4444', '#DC2626'],
+                borderRadius: 6
+            }]
+        };
+        this.priorityChartOptions = {
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#495057' },
+                    grid: { color: '#ebedef' }
+                },
+                y: {
+                    ticks: { color: '#495057', stepSize: 1 },
+                    grid: { color: '#ebedef' }
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        };
     }
 
     async loadEstados() {
@@ -161,14 +233,25 @@ export class DashboardComponent implements OnInit {
 
     async loadGroups() {
         try {
-            const response = await this.apiService.getGroups();
+            const currentUser = this.authService.currentUser();
+            let response: any;
+            if (currentUser?.id) {
+                response = await this.apiService.getGroupsByUser(currentUser.id);
+            }
+            if (!response || response.statusCode !== 200) {
+                response = await this.apiService.getGroups();
+            }
+
             if (response.statusCode === 200 && Array.isArray(response.data)) {
-                const firstItem = response.data[0];
-                if (firstItem?.groups && Array.isArray(firstItem.groups)) {
-                    this.groups = firstItem.groups;
-                } else {
-                    this.groups = response.data;
-                }
+                // getUserGroups returns [{grupo_id, grupos: {id, nombre, descripcion}}, ...]
+                this.groups = response.data.map((g: any) => {
+                    const nested = g.grupos || g;
+                    return {
+                        id: nested.id || g.grupo_id || g.id,
+                        nombre: nested.nombre || g.nombre || g.name || 'Grupo Sin Nombre'
+                    };
+                });
+
                 if (this.groups?.length > 0 && !this.selectedGroupId) {
                     this.selectedGroupId = this.groups[0].id;
                 }
@@ -176,7 +259,6 @@ export class DashboardComponent implements OnInit {
         } catch (error) {
             console.error('Error loading groups:', error);
         } finally {
-            this.loading.set(false);
             this.cdr.detectChanges();
         }
     }
@@ -318,6 +400,8 @@ export class DashboardComponent implements OnInit {
                 });
                 this.newTicketDialog = false;
                 await this.loadTickets();
+                this.updateCharts();
+                this.cdr.detectChanges();
             } else {
                 this.messageService.add({
                     severity: 'error',

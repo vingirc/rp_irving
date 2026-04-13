@@ -66,13 +66,29 @@
         </p-card>
     </div>
 
+    <!-- Charts Section -->
+    <div class="charts-section">
+        <div class="chart-card">
+            <h3>Tickets por Estado</h3>
+            <div class="chart-wrapper">
+                <p-chart type="doughnut" [data]="statusChartData" [options]="statusChartOptions" [style]="{'height': '280px'}" />
+            </div>
+        </div>
+        <div class="chart-card">
+            <h3>Tickets por Prioridad</h3>
+            <div class="chart-wrapper">
+                <p-chart type="bar" [data]="priorityChartData" [options]="priorityChartOptions" [style]="{'height': '280px'}" />
+            </div>
+        </div>
+    </div>
+
     <div class="kanban-section">
         <div class="section-header">
             <h2>Vista Kanban</h2>
             <div class="section-actions">
                 <p-button label="Ver Lista" icon="pi pi-list" [outlined]="true" (onClick)="goToGroupTickets()" />
                 <p-button label="Administrar Grupo" icon="pi pi-cog" [outlined]="true" (onClick)="goToAdminGroup()" />
-                <p-button label="Nuevo Ticket" icon="pi pi-plus" (onClick)="openNewTicket()" />
+                <p-button *hasPermission="'ticket:add'" label="Nuevo Ticket" icon="pi pi-plus" (onClick)="openNewTicket()" />
             </div>
         </div>
 
@@ -123,8 +139,7 @@
         <div class="ticket-detail">
             <div class="detail-row">
                 <strong>Estado:</strong>
-                <p-tag [value]="selectedTicket.status" [severity]="getStatusSeverity(selectedTicket.status)" 
-                       [style]="{'background-color': getStatusColor(selectedTicket.status), 'color': 'white'}" />
+                <p-tag [value]="selectedTicket.status" [severity]="getStatusSeverity(selectedTicket.status)" />
             </div>
             <div class="detail-row">
                 <strong>Prioridad:</strong>

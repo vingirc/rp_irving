@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { AvatarModule } from 'primeng/avatar';
 import { TicketService } from '../../services/ticket.service';
+import { AuthService } from '../../services/auth.service';
 import { TicketStatus } from '../../models/ticket.model';
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
@@ -21,10 +22,14 @@ import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
 })
 export class Home {
   private ticketService = inject(TicketService);
+  private authService = inject(AuthService);
   private router = inject(Router);
 
-  currentUserId = 'user1'; // Mock current user
-  currentMember = { id: 'user1', fullName: 'Irving Developer', role: 'admin' };
+  get currentUserId() { return this.authService.currentUserId(); }
+  get currentMember() {
+    const u = this.authService.currentUser();
+    return { id: u?.id || '', fullName: u?.nombre || 'Usuario', role: 'user' };
+  }
 
   selectedTicket: any = null;
   ticketDialog: boolean = false;
@@ -76,6 +81,14 @@ export class Home {
 
   dropTicket(event: CdkDragDrop<string>, newStatus: string) {
     const ticket = event.item.data;
+    const currentUser = this.authService.currentUser();
+    const isAssigned = ticket.assignedTo === currentUser?.id;
+    const isAdmin = this.authService.hasPermission('all');
+
+    if (!isAssigned && !isAdmin) {
+      return; // silently ignore
+    }
+
     if (ticket.status !== newStatus) {
       this.ticketService.updateTicket(ticket.id, { status: newStatus as any });
       this.ticketService.addHistoryEntry(

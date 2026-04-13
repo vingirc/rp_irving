@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
@@ -16,9 +16,12 @@ import { AvatarModule } from 'primeng/avatar';
 import { TicketComponent } from '../../ticket/ticket';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { TicketService } from '../../services/ticket.service';
+import { AuthService } from '../../services/auth.service';
+import { ApiService } from '../../services/api.service';
 import { Ticket, TicketStatus, Group, User } from '../../models/ticket.model';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
 import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-group',
@@ -40,7 +43,8 @@ import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
     AvatarModule,
     TicketComponent,
     HasPermissionDirective,
-    DragDropModule
+    DragDropModule,
+    ProgressSpinnerModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './group.html',
@@ -48,11 +52,15 @@ import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
 })
 export class GroupComponent implements OnInit {
   private ticketService = inject(TicketService);
+  private authService = inject(AuthService);
+  private apiService = inject(ApiService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
+  private cdr = inject(ChangeDetectorRef);
 
   view: 'list' | 'detail' = 'list';
   displayMode: 'kanban' | 'list' = 'kanban';
+  loading = signal(true);
 
   groups: Group[] = [];
   selectedGroup: Group | null = null;
@@ -61,11 +69,7 @@ export class GroupComponent implements OnInit {
 
   // Member management
   newMemberEmail: string = '';
-  groupMembers: User[] = [
-    { id: 'user1', username: 'irving', email: 'irving@example.com', fullName: 'Irving', permissions: [] },
-    { id: 'user2', username: 'ana', email: 'ana@example.com', fullName: 'Ana', permissions: [] },
-    { id: 'user3', username: 'luis', email: 'luis@example.com', fullName: 'Luis', permissions: [] }
-  ];
+  groupMembers: User[] = [];
 
   // Ticket detail
   selectedTicket: Ticket | null = null;
@@ -91,17 +95,86 @@ export class GroupComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit() {
-    this.groups = [
-      { id: '1', name: 'Desarrollo Core', description: 'Mantenimiento del motor principal', creatorId: 'user1', members: ['user1', 'user2'] },
-      { id: '2', name: 'QA Team', description: 'Pruebas de regresión y automatización', creatorId: 'user1', members: ['user1', 'user2', 'user3'] },
-      { id: '3', name: 'Soporte', description: 'Atención a usuarios finales y tickets N1', creatorId: 'user2', members: ['user2', 'user3'] }
-    ];
+  async ngOnInit() {
+    this.loading.set(true);
+    await this.loadGroups();
+    this.loading.set(false);
+    this.cdr.detectChanges();
+    setTimeout(() => this.cdr.detectChanges(), 0);
+  }
+
+  async loadGroups() {
+    try {
+      const currentUser = this.authService.currentUser();
+      let response: any;
+
+      // Try to get groups for the current user first
+      if (currentUser?.id) {
+        response = await this.apiService.getGroupsByUser(currentUser.id);
+      }
+
+      // Fall back to all groups if user-specific fails
+      if (!response || response.statusCode !== 200) {
+        response = await this.apiService.getGroups();
+      }
+
+      if (response.statusCode === 200 && Array.isArray(response.data)) {
+        // getUserGroups returns [{grupo_id, grupos: {id, nombre, descripcion}}, ...]
+        this.groups = response.data.map((g: any) => {
+          const nested = g.grupos || g;
+          return {
+            id: nested.id || g.grupo_id || g.id,
+            name: nested.nombre || g.nombre || g.name || 'Grupo Sin Nombre',
+            description: nested.descripcion || g.descripcion || g.description || '',
+            creatorId: nested.creador_id || g.creador_id || g.creatorId || '',
+            members: g.miembros || g.members || []
+          };
+        });
+      }
+    } catch (error) {
+      console.error('Error loading groups:', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No se pudieron cargar los grupos'
+      });
+    }
   }
 
   selectGroup(group: Group) {
     this.selectedGroup = group;
     this.view = 'detail';
+    this.loadGroupMembers(group.id);
+  }
+
+  async loadGroupMembers(groupId: string) {
+    try {
+      const response = await this.apiService.getGroupMembers(groupId);
+      if (response.statusCode === 200 && Array.isArray(response.data)) {
+        const firstItem = response.data[0];
+        let membersData: any[] = [];
+
+        if (firstItem?.members && Array.isArray(firstItem.members)) {
+          membersData = firstItem.members;
+        } else if (firstItem?.usuarios && Array.isArray(firstItem.usuarios)) {
+          membersData = firstItem.usuarios;
+        } else {
+          membersData = response.data;
+        }
+
+        this.groupMembers = membersData.map((m: any) => ({
+          id: m.usuario_id || m.id,
+          username: m.username || m.usuario_username || '',
+          email: m.email || m.usuario_email || '',
+          fullName: m.nombre_completo || m.usuario_nombre || m.username || '',
+          permissions: m.permisos_globales || [],
+          avatar: undefined
+        }));
+        this.cdr.detectChanges();
+      }
+    } catch (error) {
+      console.error('Error loading members:', error);
+    }
   }
 
   backToGroups() {
@@ -110,7 +183,8 @@ export class GroupComponent implements OnInit {
   }
 
   openNewGroup() {
-    this.selectedGroup = { id: '', name: '', description: '', creatorId: 'user1', members: [] };
+    const currentUser = this.authService.currentUser();
+    this.selectedGroup = { id: '', name: '', description: '', creatorId: currentUser?.id || '', members: [] };
     this.submitted = false;
     this.groupDialog = true;
   }
@@ -125,27 +199,53 @@ export class GroupComponent implements OnInit {
       message: '¿Estás seguro de que quieres eliminar ' + group.name + '?',
       header: 'Confirmar',
       icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.groups = this.groups.filter(val => val.id !== group.id);
-        this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Grupo Eliminado', life: 3000 });
+      accept: async () => {
+        const response = await this.apiService.deleteGroup(group.id);
+        if (response.statusCode === 200) {
+          this.groups = this.groups.filter(val => val.id !== group.id);
+          this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Grupo Eliminado', life: 3000 });
+        } else {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar el grupo', life: 3000 });
+        }
+        this.cdr.detectChanges();
       }
     });
   }
 
-  saveGroup() {
+  async saveGroup() {
     this.submitted = true;
     if (this.selectedGroup?.name.trim()) {
+      const currentUser = this.authService.currentUser();
       if (this.selectedGroup.id) {
-        const index = this.groups.findIndex(g => g.id === this.selectedGroup?.id);
-        this.groups[index] = this.selectedGroup;
-        this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Grupo Actualizado', life: 3000 });
+        // Update existing group
+        const response = await this.apiService.updateGroup(this.selectedGroup.id, {
+          nombre: this.selectedGroup.name,
+          descripcion: this.selectedGroup.description
+        });
+        if (response.statusCode === 200) {
+          const index = this.groups.findIndex(g => g.id === this.selectedGroup?.id);
+          if (index !== -1) this.groups[index] = this.selectedGroup;
+          this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Grupo Actualizado', life: 3000 });
+        } else {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo actualizar el grupo', life: 3000 });
+        }
       } else {
-        this.selectedGroup.id = Math.random().toString(36).substr(2, 5);
-        this.groups.push(this.selectedGroup);
-        this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Grupo Creado', life: 3000 });
+        // Create new group — include creador_id
+        const response = await this.apiService.createGroup({
+          nombre: this.selectedGroup.name,
+          descripcion: this.selectedGroup.description,
+          creador_id: currentUser?.id || ''
+        });
+        if (response.statusCode === 201 || response.statusCode === 200) {
+          await this.loadGroups();
+          this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Grupo Creado', life: 3000 });
+        } else {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo crear el grupo', life: 3000 });
+        }
       }
       this.groups = [...this.groups];
       this.groupDialog = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -160,14 +260,31 @@ export class GroupComponent implements OnInit {
 
   dropTicket(event: CdkDragDrop<string>, newStatus: string) {
     const ticket = event.item.data as Ticket;
+    const currentUser = this.authService.currentUser();
+
+    // Kanban D&D validation: only move if assigned to user or user is admin
+    const isAssigned = ticket.assignedTo === currentUser?.id;
+    const isAdmin = this.authService.hasPermission('all');
+    const hasMovePerm = this.authService.hasPermission('ticket:edit') || this.authService.hasPermission('ticket:edit:state');
+
+    if (!isAssigned && !isAdmin) {
+      this.messageService.add({ severity: 'warn', summary: 'No permitido', detail: 'Solo puedes mover tickets asignados a ti.' });
+      return;
+    }
+
+    if (!hasMovePerm && !isAdmin) {
+      this.messageService.add({ severity: 'warn', summary: 'Sin permiso', detail: 'No tienes permiso para cambiar el estado de tickets.' });
+      return;
+    }
+
     if (ticket.status !== newStatus) {
       this.ticketService.updateTicket(ticket.id, { status: newStatus as TicketStatus });
       this.ticketService.addHistoryEntry(
         ticket.id,
         'Cambio de Estado',
         `Movido a ${newStatus} (arrastrado)`,
-        'user1',
-        'Irving'
+        currentUser?.id || '',
+        currentUser?.nombre || ''
       );
       this.messageService.add({ severity: 'info', summary: 'Estado actualizado', detail: `"${ticket.title}" movido a ${newStatus}` });
     }
@@ -175,6 +292,7 @@ export class GroupComponent implements OnInit {
 
   openNewTicket() {
     if (!this.selectedGroup) return;
+    const currentUser = this.authService.currentUser();
 
     this.selectedTicket = {
       id: '',
@@ -183,8 +301,8 @@ export class GroupComponent implements OnInit {
       description: '',
       status: 'Pendiente',
       priority: 'Media',
-      creatorId: 'user1',
-      creatorName: 'Irving',
+      creatorId: currentUser?.id || '',
+      creatorName: currentUser?.nombre || '',
       createdAt: new Date(),
       comments: [],
       history: []
@@ -194,7 +312,7 @@ export class GroupComponent implements OnInit {
   }
 
   addMember() {
-    if (this.newMemberEmail.trim()) {
+    if (this.newMemberEmail.trim() && this.selectedGroup) {
       this.messageService.add({ severity: 'success', summary: 'Miembro añadido', detail: `${this.newMemberEmail} ha sido invitado al grupo.` });
       this.newMemberEmail = '';
     }
@@ -203,8 +321,16 @@ export class GroupComponent implements OnInit {
   removeMember(memberId: string) {
     this.confirmationService.confirm({
       message: '¿Estás seguro de eliminar a este miembro?',
-      accept: () => {
-        this.messageService.add({ severity: 'info', summary: 'Miembro eliminado', detail: 'El usuario ha sido removido del grupo.' });
+      accept: async () => {
+        if (!this.selectedGroup) return;
+        const response = await this.apiService.removeGroupMember(this.selectedGroup.id, memberId);
+        if (response.statusCode === 200) {
+          this.groupMembers = this.groupMembers.filter(m => m.id !== memberId);
+          this.messageService.add({ severity: 'info', summary: 'Miembro eliminado', detail: 'El usuario ha sido removido del grupo.' });
+        } else {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo remover el miembro.' });
+        }
+        this.cdr.detectChanges();
       }
     });
   }

@@ -91,7 +91,7 @@ export class ApiService {
         return this.request<any>(`/groups/${id}`);
     }
 
-    async createGroup(data: { nombre: string; descripcion?: string }) {
+    async createGroup(data: { nombre: string; descripcion?: string; creador_id: string }) {
         return this.request<any>('/groups', {
             method: 'POST',
             body: JSON.stringify(data)
@@ -127,6 +127,14 @@ export class ApiService {
             method: 'DELETE',
             body: JSON.stringify({ grupo_id: groupId, usuario_id: userId })
         });
+    }
+
+    async getGroupsByUser(userId: string) {
+        return this.request<any[]>(`/groups/user/${userId}`);
+    }
+
+    async getProfile(userId: string): Promise<ApiResponse<BackendUser>> {
+        return this.request<BackendUser>(`/users/${userId}`);
     }
 
     // Users

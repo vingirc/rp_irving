@@ -7,7 +7,7 @@
         <div class="header-actions">
             <p-selectbutton [options]="viewModeOptions" [(ngModel)]="viewMode" optionLabel="label"
                 optionValue="value" />
-            <p-button label="Nuevo Ticket" icon="pi pi-plus" (onClick)="openNewTicket()" />
+            <p-button *hasPermission="'ticket:add'" label="Nuevo Ticket" icon="pi pi-plus" (onClick)="openNewTicket()" />
         </div>
     </div>
 
