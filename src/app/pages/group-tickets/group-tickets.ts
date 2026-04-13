@@ -98,9 +98,6 @@ export class GroupTicketsComponent implements OnInit {
     statusFilter: TicketStatus | null = null;
     priorityFilter: Priority | null = null;
 
-    private estadoNombreToId: Map<string, string> = new Map();
-    private prioridadNombreToId: Map<string, string> = new Map();
-
     async ngOnInit() {
         this.groupId = this.route.snapshot.paramMap.get('groupId');
         await Promise.all([

@@ -190,17 +190,33 @@
     width: 100%;
 }
 
-:host ::ng-deep .p-selectpanel {
-    width: 100%;
-    background: #ffffff;
+:host ::ng-deep .p-select-input {
+    background: #ffffff !important;
+    color: #1e293b !important;
+}
+
+:host ::ng-deep .p-component-overlay,
+.p-select-popup,
+.p-select-dropdown-panel,
+.p-select-panel,
+.p-select-overlay,
+[class*="p-select-panel"] {
+    background: #ffffff !important;
 }
 
 :host ::ng-deep .p-select-option {
-    background: #ffffff;
+    background: #ffffff !important;
+    color: #1e293b !important;
 }
 
 :host ::ng-deep .p-select-option:hover {
-    background: #f1f5f9;
+    background: #f1f5f9 !important;
+}
+
+:host ::ng-deep .p-select-option.p-select-option-selected,
+:host ::ng-deep .p-select-option.p-highlight {
+    background: #e0e7ff !important;
+    color: #3730a3 !important;
 }
 
 @media (max-width: 768px) {

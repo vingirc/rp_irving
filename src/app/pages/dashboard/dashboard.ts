@@ -10,6 +10,7 @@ import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
@@ -31,7 +32,8 @@ import { Group, Ticket, TicketStatus, Priority } from '../../models/ticket.model
         TableModule,
         DialogModule,
         InputTextModule,
-        ToastModule
+        ToastModule,
+        ProgressSpinnerModule
     ],
     providers: [MessageService],
     templateUrl: './dashboard.html',
@@ -102,6 +104,7 @@ export class DashboardComponent implements OnInit {
             this.loadTickets()
         ]);
         this.buildMapsFromTickets();
+        this.loading.set(false);
     }
 
     async loadEstados() {
@@ -245,6 +248,16 @@ export class DashboardComponent implements OnInit {
             'red': 'danger'
         };
         return map[color] || 'info';
+    }
+
+    getStatusSeverity(status: TicketStatus): "success" | "info" | "warn" | "danger" | "secondary" | "contrast" | undefined {
+        const column = this.kanbanColumns.find(c => c.value === status);
+        return this.getSeverity(column?.color || 'blue');
+    }
+
+    getStatusColor(status: TicketStatus): string {
+        const column = this.kanbanColumns.find(c => c.value === status);
+        return column?.color || 'blue';
     }
 
     getPrioritySeverity(priority: Priority): "success" | "info" | "warn" | "danger" | "secondary" | "contrast" | undefined {

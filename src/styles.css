@@ -229,27 +229,42 @@ input.p-inputtext:focus {
     font-weight: 500;
 }
 
-.layout-content .p-select-panel,
-.layout-content .p-dropdown-panel {
+/* Select panel dropdown - applies globally including when appended to body */
+.p-select-panel,
+.p-dropdown-panel,
+.p-select-overlay,
+.p-dropdown-overlay,
+[class*="p-select-panel"],
+[class*="p-dropdown-panel"] {
     background: #ffffff !important;
     border: 1px solid #e2e8f0 !important;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-.layout-content .p-select-option,
-.layout-content .p-dropdown-option {
+.p-select-option,
+.p-dropdown-option,
+.p-select-option,
+.p-dropdown-option {
     color: #1e293b !important;
+    background: #ffffff !important;
 }
 
-.layout-content .p-select-option:hover,
-.layout-content .p-dropdown-option:hover {
+.p-select-option:hover,
+.p-dropdown-option:hover,
+.p-select-option.p-select-option-selected,
+.p-dropdown-option.p-dropdown-option-selected,
+.p-select-option.p-highlight,
+.p-dropdown-option.p-highlight {
     background: #f1f5f9 !important;
+    color: #1e293b !important;
 }
 
-.layout-content .p-select-option.p-highlight,
-.layout-content .p-dropdown-option.p-highlight {
+.p-select-option.p-select-option-selected,
+.p-dropdown-option.p-dropdown-option-selected,
+.p-select-option.p-highlight,
+.p-dropdown-option.p-highlight {
     background: #e0e7ff !important;
-    color: #1e293b !important;
+    color: #3730a3 !important;
 }
 
 /* Tables - light theme */

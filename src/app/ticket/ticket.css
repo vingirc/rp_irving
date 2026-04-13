@@ -47,3 +47,31 @@
 .p-calendar.p-disabled {
     opacity: 0.7;
 }
+
+:host ::ng-deep .p-select-overlay,
+:host ::ng-deep .p-select-panel,
+:host ::ng-deep .p-select-panel .p-select-list,
+:host ::ng-deep .p-select-panel .p-select-items {
+    background: #ffffff !important;
+}
+
+:host ::ng-deep .p-select-option {
+    background: #ffffff !important;
+    color: #1e293b !important;
+}
+
+:host ::ng-deep .p-select-option:hover {
+    background: #f1f5f9 !important;
+}
+
+:host ::ng-deep .p-select-option.p-select-option-selected,
+:host ::ng-deep .p-select-option.p-highlight {
+    background: #e0e7ff !important;
+    color: #3730a3 !important;
+}
+
+:host ::ng-deep .p-component-overlay,
+.p-select-popup,
+.p-select-dropdown-panel {
+    background: #ffffff !important;
+}
