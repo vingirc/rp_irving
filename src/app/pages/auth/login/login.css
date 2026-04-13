@@ -180,3 +180,18 @@
 .auth-footer a:hover {
     color: #c0ccff;
 }
+
+.loading-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 3rem;
+    animation: fadeIn 0.3s ease;
+}
+
+.loading-overlay span {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}

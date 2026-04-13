@@ -1,19 +1,28 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { ButtonModule } from 'primeng/button';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule, ButtonModule, ConfirmDialogModule],
+  providers: [ConfirmationService],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css',
 })
 export class Sidebar {
-  menuItems: any[] = [];
-  isCollapsed: boolean = true; // El sidebar iniciará plegado por defecto
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private confirmationService = inject(ConfirmationService);
 
-  constructor(private router: Router) {
+  menuItems: any[] = [];
+  isCollapsed: boolean = true;
+
+  constructor() {
     this.generateMenu();
   }
 
@@ -33,5 +42,18 @@ export class Sidebar {
 
   toggleSidebar() {
     this.isCollapsed = !this.isCollapsed;
+  }
+
+  logout() {
+    this.confirmationService.confirm({
+      message: '¿Estás seguro de que quieres cerrar sesión?',
+      header: 'Cerrar Sesión',
+      icon: 'pi pi-sign-out',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.authService.logout();
+        this.router.navigate(['/login']);
+      }
+    });
   }
 }

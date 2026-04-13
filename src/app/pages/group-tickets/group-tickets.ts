@@ -257,7 +257,7 @@ export class GroupTicketsComponent implements OnInit {
                 grupo_id: this.groupId,
                 titulo: this.newTicket.title,
                 descripcion: this.newTicket.description,
-                autor_id: currentUser?.username || '',
+                autor_id: currentUser?.id || '',
                 estado_id: '1',
                 priority_id: '1',
                 asignado_id: this.newTicket.assignedTo || undefined

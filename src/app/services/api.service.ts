@@ -126,14 +126,24 @@ export class ApiService {
     }
 
     // Users
+    private cachedUsers: User[] | null = null;
+
+    clearUsersCache() {
+        this.cachedUsers = null;
+    }
+
     async getUsers(): Promise<ApiResponse<BackendUser[]>> {
         return this.request<BackendUser[]>('/users');
     }
 
-    async getUsersMapped(): Promise<User[]> {
+    async getUsersMapped(forceRefresh: boolean = false): Promise<User[]> {
+        if (!forceRefresh && this.cachedUsers) {
+            return this.cachedUsers;
+        }
         const response = await this.getUsers();
         if (response.statusCode === 200 && Array.isArray(response.data)) {
-            return response.data.map(u => this.mapBackendUserToUser(u));
+            this.cachedUsers = response.data.map(u => this.mapBackendUserToUser(u));
+            return this.cachedUsers;
         }
         return [];
     }

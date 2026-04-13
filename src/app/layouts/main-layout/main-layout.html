@@ -6,7 +6,7 @@
         <i class="pi pi-shield ml-2"></i> Dashboard Principal
       </div>
       <div class="topbar-user">
-        <span class="user-greeting">Hola, Administrador</span>
+        <span class="user-greeting">Hola, {{ userName() }}</span>
         <p-avatar icon="pi pi-user" styleClass="mr-2" size="large" shape="circle" class="custom-avatar"></p-avatar>
       </div>
     </header>
@@ -15,3 +15,5 @@
     </main>
   </div>
 </div>
+
+<p-toast />

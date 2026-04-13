@@ -5,6 +5,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../services/auth.service';
@@ -18,7 +19,8 @@ import { AuthService } from '../../../services/auth.service';
     PasswordModule,
     ButtonModule,
     RouterModule,
-    ToastModule
+    ToastModule,
+    ProgressSpinnerModule
   ],
   providers: [MessageService],
   templateUrl: './login.html',
@@ -26,6 +28,7 @@ import { AuthService } from '../../../services/auth.service';
 })
 export class Login {
   loginForm: FormGroup;
+  loading = false;
   private auth = inject(AuthService);
 
   constructor(
@@ -56,18 +59,15 @@ export class Login {
       return;
     }
 
+    this.loading = true;
     const { email, password } = this.loginForm.value;
 
     const result = await this.auth.login(email, password);
+    this.loading = false;
 
     if (result.success) {
-      this.messageService.add({
-        severity: 'success',
-        summary: '¡Bienvenido!',
-        detail: 'Inicio de sesión exitoso. Redirigiendo...',
-        life: 2500
-      });
-      setTimeout(() => this.router.navigate(['/home']), 1500);
+      console.log('[Login] Login successful, navigating to /home');
+      this.router.navigate(['/home']);
     } else {
       this.messageService.add({
         severity: 'error',

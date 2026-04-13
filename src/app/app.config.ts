@@ -12,6 +12,11 @@ export const appConfig: ApplicationConfig = {
     providePrimeNG({
       theme: {
         preset: Aura
+      },
+      translation: {
+        accept: 'Sí',
+        reject: 'No',
+        cancel: 'Cancelar'
       }
     })
   ]

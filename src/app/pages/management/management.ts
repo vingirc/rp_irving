@@ -121,6 +121,7 @@ export class ManagementComponent implements OnInit {
             accept: async () => {
                 const response = await this.apiService.deleteUser(user.id);
                 if (response.statusCode === 200) {
+                    this.apiService.clearUsersCache();
                     this.users = this.users.filter(u => u.id !== user.id);
                     this.messageService.add({
                         severity: 'success',
@@ -146,6 +147,7 @@ export class ManagementComponent implements OnInit {
                 permisos_globales: this.selectedUser.permissions
             });
             if (response.statusCode === 200) {
+                this.apiService.clearUsersCache();
                 const index = this.users.findIndex(u => u.id === this.selectedUser?.id);
                 if (index !== -1 && this.selectedUser) {
                     this.users[index] = { ...this.selectedUser };

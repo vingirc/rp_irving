@@ -25,7 +25,7 @@
 
         <div class="menu-section mt-auto">Sesión</div>
 
-        <a routerLink="/login" class="menu-item logout" [title]="isCollapsed ? 'Cerrar Sesión' : ''">
+        <a (click)="logout()" class="menu-item logout" [title]="isCollapsed ? 'Cerrar Sesión' : ''" style="cursor: pointer;">
             <i class="pi pi-sign-out"></i>
             <span class="menu-text">Cerrar Sesión</span>
         </a>
@@ -35,3 +35,5 @@
         </div>
     </div>
 </div>
+
+<p-confirmDialog />

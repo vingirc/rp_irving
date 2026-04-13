@@ -8,7 +8,7 @@
             <p-button label="Exportar" icon="pi pi-upload" severity="secondary" [text]="true"></p-button>
         </div>
 
-        <p-table [value]="users" [rows]="10" [paginator]="true" [rowHover]="true" #dt>
+        <p-table [value]="users" [rows]="10" [paginator]="true" [rowHover]="true" [loading]="loading" #dt>
             <ng-template pTemplate="caption">
                 <div class="flex justify-content-between">
                     <span class="p-input-icon-left">
