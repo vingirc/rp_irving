@@ -88,6 +88,12 @@
                 <p-chart type="bar" [data]="priorityChartData" [options]="priorityChartOptions" [style]="{'height': '280px'}" />
             </div>
         </div>
+        <div class="chart-card">
+            <h3>Tickets por Grupo</h3>
+            <div class="chart-wrapper">
+                <p-chart type="doughnut" [data]="groupChartData" [options]="groupChartOptions" [style]="{'height': '280px'}" />
+            </div>
+        </div>
     </div>
 
     <div class="kanban-section">

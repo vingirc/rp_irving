@@ -102,6 +102,8 @@ export class DashboardComponent implements OnInit {
     statusChartOptions: any = {};
     priorityChartData: any = {};
     priorityChartOptions: any = {};
+    groupChartData: any = {};
+    groupChartOptions: any = {};
 
     selectedTicket: Ticket | null = null;
     ticketDialog = false;
@@ -182,6 +184,33 @@ export class DashboardComponent implements OnInit {
                 y: {
                     ticks: { color: '#495057', stepSize: 1 },
                     grid: { color: '#ebedef' }
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        };
+
+        // Group chart uses all tickets, not just groupTickets
+        const allTks = this.tickets();
+        const groupCounts: Record<string, number> = {};
+        allTks.forEach(t => {
+            const groupName = this.groups.find(g => g.id === t.groupId)?.nombre || 'Atrapados';
+            groupCounts[groupName] = (groupCounts[groupName] || 0) + 1;
+        });
+
+        this.groupChartData = {
+            labels: Object.keys(groupCounts),
+            datasets: [{
+                data: Object.values(groupCounts),
+                backgroundColor: ['#8B5CF6', '#10B981', '#3B82F6', '#F59E0B', '#EF4444'],
+                hoverBackgroundColor: ['#7C3AED', '#059669', '#2563EB', '#D97706', '#DC2626']
+            }]
+        };
+        this.groupChartOptions = {
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#495057', font: { size: 13 } }
                 }
             },
             responsive: true,

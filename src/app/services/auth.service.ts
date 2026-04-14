@@ -155,6 +155,7 @@ export class AuthService {
     logout(): void {
         this.deleteCookie(this.TOKEN_COOKIE);
         localStorage.removeItem(this.USER_KEY);
+        localStorage.removeItem('rp_tickets_data'); // Clear cached tickets to prevent session bleed
         this._currentUser.set(null);
         this._isAuthenticated.set(false);
         // Clear permissions
