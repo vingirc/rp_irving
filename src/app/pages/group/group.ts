@@ -23,6 +23,7 @@ import { HasPermissionDirective } from '../../directives/has-permission.directiv
 import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ActivatedRoute, Router } from '@angular/router';
+import { SelectModule } from 'primeng/select';
 
 
 @Component({
@@ -46,7 +47,8 @@ import { ActivatedRoute, Router } from '@angular/router';
     TicketComponent,
     HasPermissionDirective,
     DragDropModule,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    SelectModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './group.html',
@@ -72,8 +74,9 @@ export class GroupComponent implements OnInit {
   submitted: boolean = false;
 
   // Member management
-  newMemberEmail: string = '';
+  selectedNewMember: User | null = null;
   groupMembers: User[] = [];
+  availableUsers: User[] = [];
 
   // Ticket detail
   selectedTicket: Ticket | null = null;
@@ -105,7 +108,8 @@ export class GroupComponent implements OnInit {
     this.loading.set(true);
     await Promise.all([
       this.loadGroups(),
-      this.loadEstados()
+      this.loadEstados(),
+      this.loadAvailableUsers()
     ]);
     this.loading.set(false);
     this.cdr.detectChanges();
@@ -131,10 +135,10 @@ export class GroupComponent implements OnInit {
 
       if (response.statusCode === 200 && Array.isArray(response.data)) {
         this.groups = response.data.map((g: any) => ({
-          id: g.id,
-          name: g.nombre || g.name || 'Grupo Sin Nombre',
-          description: g.descripcion || g.description || '',
-          creatorId: g.creador_id || g.creatorId || '',
+          id: g.grupos?.id || g.id || g.grupo_id,
+          name: g.grupos?.nombre || g.nombre || g.name || 'Grupo Sin Nombre',
+          description: g.grupos?.descripcion || g.descripcion || g.description || '',
+          creatorId: g.grupos?.creador_id || g.creador_id || g.creatorId || '',
           members: g.miembros || g.members || []
         }));
       }
@@ -145,6 +149,14 @@ export class GroupComponent implements OnInit {
         summary: 'Error',
         detail: 'No se pudieron cargar los grupos'
       });
+    }
+  }
+
+  async loadAvailableUsers() {
+    try {
+      this.availableUsers = await this.apiService.getUsersMapped();
+    } catch (error) {
+      console.error('Error loading available users:', error);
     }
   }
 
@@ -338,10 +350,27 @@ export class GroupComponent implements OnInit {
     this.ticketDialog = true;
   }
 
-  addMember() {
-    if (this.newMemberEmail.trim() && this.selectedGroup) {
-      this.messageService.add({ severity: 'success', summary: 'Miembro añadido', detail: `${this.newMemberEmail} ha sido invitado al grupo.` });
-      this.newMemberEmail = '';
+  async addMember() {
+    if (this.selectedNewMember && this.selectedGroup) {
+      // Check if user is already in the group
+      if (this.groupMembers.some(m => m.id === this.selectedNewMember!.id)) {
+        this.messageService.add({ severity: 'warn', summary: 'Advertencia', detail: 'El usuario ya es miembro del grupo.' });
+        return;
+      }
+
+      try {
+        const response = await this.apiService.addGroupMember(this.selectedGroup.id, this.selectedNewMember.id);
+        if (response.statusCode === 201 || response.statusCode === 200) {
+          this.messageService.add({ severity: 'success', summary: 'Miembro añadido', detail: `${this.selectedNewMember.fullName} ha sido añadido al grupo.` });
+          await this.loadGroupMembers(this.selectedGroup.id);
+          this.selectedNewMember = null;
+        } else {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo añadir el miembro al grupo.' });
+        }
+      } catch (error) {
+         console.error('Error adding member:', error);
+         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Ocurrió un error al añadir al miembro.' });
+      }
     }
   }
 

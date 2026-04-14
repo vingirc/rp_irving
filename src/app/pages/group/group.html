@@ -36,7 +36,11 @@
                             <p-tag [value]="group.members.length + ' miembros'" severity="info"></p-tag>
                         </td>
                         <td class="text-right">
-                            <p-button icon="pi pi-chevron-right" [rounded]="true" [text]="true"></p-button>
+                            <div class="flex justify-content-end gap-1">
+                                <p-button *hasPermission="'group:edit'" icon="pi pi-pencil" [rounded]="true" [text]="true" severity="info" (onClick)="editGroup(group); $event.stopPropagation()"></p-button>
+                                <p-button *hasPermission="'group:delete'" icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" (onClick)="deleteGroup(group); $event.stopPropagation()"></p-button>
+                                <p-button icon="pi pi-chevron-right" [rounded]="true" [text]="true"></p-button>
+                            </div>
                         </td>
                     </tr>
                 </ng-template>
@@ -155,11 +159,17 @@
                 <div class="flex justify-content-between align-items-center mb-4">
                     <h3 class="m-0">Gestión de Miembros</h3>
                     <div class="flex gap-2">
-                        <span class="p-input-icon-left">
-                            <i class="pi pi-envelope"></i>
-                            <input type="text" pInputText placeholder="Email o Usuario" [(ngModel)]="newMemberEmail" />
-                        </span>
-                        <p-button label="Añadir" icon="pi pi-user-plus" (onClick)="addMember()"></p-button>
+                        <p-select [options]="availableUsers" [(ngModel)]="selectedNewMember" optionLabel="fullName" [filter]="true" filterBy="fullName,email" placeholder="Seleccionar usuario..." [showClear]="true" [style]="{'width': '20rem'}">
+                            <ng-template let-user pTemplate="item">
+                                <div class="flex align-items-center gap-2">
+                                    <div>
+                                        <span class="font-bold block">{{user.fullName}}</span>
+                                        <small class="text-500">{{user.email}}</small>
+                                    </div>
+                                </div>
+                            </ng-template>
+                        </p-select>
+                        <p-button label="Añadir" icon="pi pi-user-plus" (onClick)="addMember()" [disabled]="!selectedNewMember"></p-button>
                     </div>
                 </div>
                 <div class="grid">

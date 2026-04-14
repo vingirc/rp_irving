@@ -58,6 +58,10 @@ export class ApiService {
             ...(options.headers as Record<string, string> || {})
         };
 
+        if (!options.body) {
+            delete headers['Content-Type'];
+        }
+
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
         }
