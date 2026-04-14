@@ -9,7 +9,6 @@ import { TextareaModule } from 'primeng/textarea';
 import { DatePickerModule } from 'primeng/datepicker';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
-import { ChipModule } from 'primeng/chip';
 import { HasPermissionDirective } from '../directives/has-permission.directive';
 
 @Component({
@@ -24,7 +23,6 @@ import { HasPermissionDirective } from '../directives/has-permission.directive';
     DatePickerModule,
     ButtonModule,
     DividerModule,
-    ChipModule,
     HasPermissionDirective
   ],
   templateUrl: './ticket.html',

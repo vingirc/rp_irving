@@ -18,6 +18,7 @@ import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 import { TicketService } from '../../services/ticket.service';
+import { PermissionService } from '../../services/permission.service';
 import { Ticket, TicketStatus, Priority } from '../../models/ticket.model';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
@@ -54,6 +55,7 @@ export class GroupTicketsComponent implements OnInit {
     private messageService = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
     private cdr = inject(ChangeDetectorRef);
+    private permissionService = inject(PermissionService);
 
     groups: any[] = [];
     private _groupIdSignal = signal<string | null>(null);
@@ -138,11 +140,16 @@ export class GroupTicketsComponent implements OnInit {
         // Load groups sequentially after config
         await this.loadGroups();
 
-        // Si ya había un routeId explícito, cargamos sus tickets aquí, ya que loadGroups no disparará onGroupChange porque groupId ya existe
+        // Si ya había un routeId explícito, cargamos sus tickets y permisos aquí,
+        // ya que loadGroups no disparará onGroupChange porque groupId ya existe
         if (routeId) {
+            const currentUser = this.authService.currentUser();
             await Promise.all([
                 this.loadGroupInfo(),
-                this.loadTickets()
+                this.loadTickets(),
+                currentUser?.id
+                    ? this.loadGroupPermissions(routeId, currentUser.id)
+                    : Promise.resolve()
             ]);
         }
         
@@ -179,6 +186,12 @@ export class GroupTicketsComponent implements OnInit {
         this.loading.set(true);
         // Ensure UI updates before doing heavy loading
         this.cdr.detectChanges();
+
+        // Refresh group-scoped permissions for the current user
+        const currentUser = this.authService.currentUser();
+        if (currentUser?.id) {
+            await this.loadGroupPermissions(this.groupId, currentUser.id);
+        }
         
         await Promise.all([
             this.loadGroupInfo(),
@@ -187,6 +200,24 @@ export class GroupTicketsComponent implements OnInit {
         
         this.loading.set(false);
         this.cdr.detectChanges();
+    }
+
+    /**
+     * Fetches group-scoped permissions from the API and sets them in PermissionService.
+     */
+    private async loadGroupPermissions(groupId: string, userId: string): Promise<void> {
+        try {
+            const response = await this.apiService.getGroupUserPermissions(groupId, userId);
+            if (response.statusCode === 200 && Array.isArray(response.data)) {
+                this.permissionService.setGroupPermissions(groupId, response.data);
+            } else {
+                console.warn('[GroupTickets] Could not load group permissions, using globals only.');
+                this.permissionService.setGroupPermissions(groupId, []);
+            }
+        } catch (error) {
+            console.error('[GroupTickets] Error fetching group permissions:', error);
+            this.permissionService.setGroupPermissions(groupId, []);
+        }
     }
 
     async loadEstados() {
@@ -316,18 +347,20 @@ export class GroupTicketsComponent implements OnInit {
     async updateTicketStatus(ticket: Ticket, newStatus: TicketStatus) {
         const currentUser = this.authService.currentUser();
 
-        // Kanban D&D validation
-        const isAssigned = ticket.assignedTo === currentUser?.id;
-        const isAdmin = this.authService.hasPermission('all');
-        const hasMovePerm = this.authService.hasPermission('ticket:edit') || this.authService.hasPermission('ticket:edit:state');
+        // Kanban D&D validation using group-scoped permissions
+        const isOwnerOrAssigned = ticket.assignedTo === currentUser?.id || ticket.creatorId === currentUser?.id;
+        const isAdmin = this.permissionService.hasPermission('all');
+        const hasMovePerm = this.permissionService.hasPermission('tickets:move')
+            || this.permissionService.hasPermission('ticket:edit')
+            || this.permissionService.hasPermission('ticket:edit:state');
 
-        if (!isAssigned && !isAdmin) {
-            this.messageService.add({ severity: 'warn', summary: 'No permitido', detail: 'Solo puedes mover tickets asignados a ti.' });
+        if (!isOwnerOrAssigned && !isAdmin) {
+            this.messageService.add({ severity: 'warn', summary: 'No permitido', detail: 'Solo puedes mover tickets asignados a ti o creados por ti.' });
             return;
         }
 
         if (!hasMovePerm && !isAdmin) {
-            this.messageService.add({ severity: 'warn', summary: 'Sin permiso', detail: 'No tienes permiso para cambiar el estado de tickets.' });
+            this.messageService.add({ severity: 'warn', summary: 'Sin permiso', detail: 'No tienes permiso para cambiar el estado de tickets en este grupo.' });
             return;
         }
 
@@ -528,6 +561,8 @@ export class GroupTicketsComponent implements OnInit {
     }
 
     goBack() {
+        // Restore global-only permissions when leaving the group view
+        this.permissionService.restoreGlobalPermissions();
         this.router.navigate(['/home']);
     }
 

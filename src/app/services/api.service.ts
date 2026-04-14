@@ -141,6 +141,10 @@ export class ApiService {
         return this.request<any[]>(`/groups/user/${userId}`);
     }
 
+    async getGroupUserPermissions(groupId: string, userId: string) {
+        return this.request<string[]>(`/groups/${groupId}/users/${userId}/permissions`);
+    }
+
     async getProfile(userId: string): Promise<ApiResponse<BackendUser>> {
         return this.request<BackendUser>(`/users/${userId}`);
     }
