@@ -134,13 +134,35 @@ export class GroupComponent implements OnInit {
       const response = await this.apiService.getMyGroups();
 
       if (response.statusCode === 200 && Array.isArray(response.data)) {
-        this.groups = response.data.map((g: any) => ({
+        const groupsData = response.data.map((g: any) => ({
           id: g.grupos?.id || g.id || g.grupo_id,
           name: g.grupos?.nombre || g.nombre || g.name || 'Grupo Sin Nombre',
           description: g.grupos?.descripcion || g.descripcion || g.description || '',
           creatorId: g.grupos?.creador_id || g.creador_id || g.creatorId || '',
           members: g.miembros || g.members || []
         }));
+
+        await Promise.all(groupsData.map(async (group: any) => {
+          if (group.id) {
+            try {
+              const mResp = await this.apiService.getGroupMembers(group.id);
+              if (mResp.statusCode === 200 && Array.isArray(mResp.data)) {
+                const firstItem = mResp.data[0];
+                if (firstItem?.members && Array.isArray(firstItem.members)) {
+                  group.members = firstItem.members;
+                } else if (firstItem?.usuarios && Array.isArray(firstItem.usuarios)) {
+                  group.members = firstItem.usuarios;
+                } else {
+                  group.members = mResp.data;
+                }
+              }
+            } catch (e) {
+              console.error(`Error loading members for ${group.id}:`, e);
+            }
+          }
+        }));
+
+        this.groups = groupsData;
       }
     } catch (error) {
       console.error('Error loading groups:', error);
