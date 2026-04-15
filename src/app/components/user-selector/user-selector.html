@@ -1,0 +1,22 @@
+<p-select 
+    [options]="users" 
+    [(ngModel)]="selectedUser" 
+    (onChange)="onUserChange($event)"
+    optionLabel="fullName" 
+    [filter]="true" 
+    filterBy="fullName,email" 
+    [placeholder]="placeholder" 
+    [showClear]="true" 
+    [disabled]="disabled"
+    [style]="{'width': '100%'}"
+    appendTo="body">
+    
+    <ng-template let-user pTemplate="item">
+        <div class="flex align-items-center gap-2">
+            <div>
+                <span class="font-bold block">{{user.fullName}}</span>
+                <small class="text-500">{{user.email}}</small>
+            </div>
+        </div>
+    </ng-template>
+</p-select>

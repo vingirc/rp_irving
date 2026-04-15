@@ -22,11 +22,11 @@ export const routes: Routes = [
         canActivate: [authGuard],
         children: [
             { path: '', component: DashboardComponent, data: { title: 'Panel Principal', icon: 'pi pi-home' } },
-            { path: 'group', component: GroupComponent, data: { title: 'Mis Grupos', icon: 'pi pi-users' } },
-            { path: 'group-tickets/:groupId', component: GroupTicketsComponent, data: { title: 'Tickets del Grupo', icon: 'pi pi-ticket' } },
-            { path: 'admin-group/:groupId', component: AdminGroupComponent, data: { title: 'Administración del Grupo', icon: 'pi pi-cog' } },
+            { path: 'group', component: GroupComponent, data: { title: 'Mis Grupos', icon: 'pi pi-users', permission: 'group:view' } },
+            { path: 'group-tickets/:groupId', component: GroupTicketsComponent, data: { title: 'Tickets del Grupo', icon: 'pi pi-ticket', hideFromSidebar: true } },
+            { path: 'admin-group/:groupId', component: AdminGroupComponent, data: { title: 'Administración del Grupo', icon: 'pi pi-cog', hideFromSidebar: true } },
             { path: 'user', component: UserComponent, data: { title: 'Mi Perfil', icon: 'pi pi-user' } },
-            { path: 'management', component: ManagementComponent, data: { title: 'Gestión de Usuarios', icon: 'pi pi-user-edit' } }
+            { path: 'management', component: ManagementComponent, data: { title: 'Gestión de Usuarios', icon: 'pi pi-user-edit', permission: 'user:manage' } }
         ]
     },
     { path: '**', redirectTo: '' }

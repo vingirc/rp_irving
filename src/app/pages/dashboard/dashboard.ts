@@ -19,6 +19,8 @@ import { Router } from '@angular/router';
 import { TicketService } from '../../services/ticket.service';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
 import { Group, Ticket, TicketStatus, Priority } from '../../models/ticket.model';
+import { GroupSelectorComponent } from '../../components/group-selector/group-selector';
+import { KanbanBoardComponent } from '../../components/kanban-board/kanban-board';
 
 @Component({
     selector: 'app-dashboard',
@@ -37,7 +39,9 @@ import { Group, Ticket, TicketStatus, Priority } from '../../models/ticket.model
         ToastModule,
         ProgressSpinnerModule,
         ChartModule,
-        HasPermissionDirective
+        HasPermissionDirective,
+        GroupSelectorComponent,
+        KanbanBoardComponent
     ],
     providers: [MessageService],
     templateUrl: './dashboard.html',
@@ -71,6 +75,8 @@ export class DashboardComponent implements OnInit {
     private estadoNombreToId: Map<string, string> = new Map();
     private prioridadNombreToId: Map<string, string> = new Map();
 
+    kanbanColumns: { label: string; value: TicketStatus; color: string }[] = [];
+
     tickets = computed(() => this.ticketService.tickets());
     
     groupTickets = computed(() => {
@@ -79,11 +85,7 @@ export class DashboardComponent implements OnInit {
         return this.tickets().filter(t => t.groupId === id);
     });
 
-    kanbanColumns: { label: string; value: TicketStatus; color: string }[] = [];
 
-    priorityOptions: { label: string; value: Priority }[] = [];
-
-    estadoOptions: { label: string; value: TicketStatus }[] = [];
 
     stats = computed(() => {
         const tks = this.groupTickets();
@@ -102,20 +104,8 @@ export class DashboardComponent implements OnInit {
     statusChartOptions: any = {};
     priorityChartData: any = {};
     priorityChartOptions: any = {};
-    groupChartData: any = {};
-    groupChartOptions: any = {};
 
-    selectedTicket: Ticket | null = null;
-    ticketDialog = false;
-    newTicketDialog = false;
-    
-    newTicket = {
-        title: '',
-        description: '',
-        priority: 'Media' as Priority,
-        estado: 'Pendiente' as TicketStatus,
-        assignedTo: ''
-    };
+
 
     async ngOnInit() {
         this.loading.set(true);
@@ -189,43 +179,12 @@ export class DashboardComponent implements OnInit {
             responsive: true,
             maintainAspectRatio: false
         };
-
-        // Group chart uses all tickets, not just groupTickets
-        const allTks = this.tickets();
-        const groupCounts: Record<string, number> = {};
-        allTks.forEach(t => {
-            const groupName = this.groups.find(g => g.id === t.groupId)?.nombre || 'Atrapados';
-            groupCounts[groupName] = (groupCounts[groupName] || 0) + 1;
-        });
-
-        this.groupChartData = {
-            labels: Object.keys(groupCounts),
-            datasets: [{
-                data: Object.values(groupCounts),
-                backgroundColor: ['#8B5CF6', '#10B981', '#3B82F6', '#F59E0B', '#EF4444'],
-                hoverBackgroundColor: ['#7C3AED', '#059669', '#2563EB', '#D97706', '#DC2626']
-            }]
-        };
-        this.groupChartOptions = {
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: { color: '#495057', font: { size: 13 } }
-                }
-            },
-            responsive: true,
-            maintainAspectRatio: false
-        };
     }
 
     async loadEstados() {
         try {
             const response = await this.apiService.getEstados();
             if (response.statusCode === 200 && Array.isArray(response.data)) {
-                this.estadoOptions = response.data.map((e: any) => ({
-                    label: e.nombre,
-                    value: e.nombre
-                }));
                 this.kanbanColumns = response.data.map((e: any) => ({
                     label: e.nombre,
                     value: e.nombre as TicketStatus,
@@ -247,10 +206,6 @@ export class DashboardComponent implements OnInit {
             const response = await this.apiService.getPrioridades();
             if (response.statusCode === 200 && Array.isArray(response.data)) {
                 const sortedData = [...response.data].sort((a: any, b: any) => (a.orden || 0) - (b.orden || 0));
-                this.priorityOptions = sortedData.map((p: any) => ({
-                    label: p.nombre,
-                    value: p.nombre
-                }));
                 sortedData.forEach((p: any) => {
                     this.prioridadNombreToId.set(p.nombre, p.id);
                     this.prioridadMap.set(p.id, p.nombre);
@@ -351,121 +306,7 @@ export class DashboardComponent implements OnInit {
         }
     }
 
-    getTicketsByStatus(status: TicketStatus) {
-        return this.groupTickets().filter(t => t.status === status);
-    }
 
-    getSeverity(color: string): "success" | "info" | "warn" | "danger" | "secondary" | "contrast" | undefined {
-        const map: Record<string, "success" | "info" | "warn" | "danger" | "secondary" | "contrast"> = {
-            'blue': 'info',
-            'orange': 'warn',
-            'purple': 'secondary',
-            'green': 'success',
-            'red': 'danger'
-        };
-        return map[color] || 'info';
-    }
-
-    getStatusSeverity(status: TicketStatus): "success" | "info" | "warn" | "danger" | "secondary" | "contrast" | undefined {
-        const column = this.kanbanColumns.find(c => c.value === status);
-        return this.getSeverity(column?.color || 'blue');
-    }
-
-    getStatusColor(status: TicketStatus): string {
-        const column = this.kanbanColumns.find(c => c.value === status);
-        return column?.color || 'blue';
-    }
-
-    getPrioritySeverity(priority: Priority): "success" | "info" | "warn" | "danger" | "secondary" | "contrast" | undefined {
-        const map: Record<string, "success" | "info" | "warn" | "danger" | "secondary" | "contrast"> = {
-            'Muy Baja': 'secondary',
-            'Baja': 'info',
-            'Media': 'info',
-            'Alta': 'warn',
-            'Muy Alta': 'warn',
-            'Urgente': 'danger',
-            'Inmediato': 'danger'
-        };
-        return map[priority] || 'info';
-    }
-
-    openNewTicket() {
-        this.newTicket = {
-            title: '',
-            description: '',
-            priority: 'Media',
-            estado: 'Pendiente',
-            assignedTo: ''
-        };
-        this.newTicketDialog = true;
-    }
-
-    async saveNewTicket() {
-        if (!this.newTicket.title.trim()) {
-            this.messageService.add({
-                severity: 'warn',
-                summary: 'Advertencia',
-                detail: 'El título es requerido'
-            });
-            return;
-        }
-
-        if (!this.selectedGroupId) {
-            this.messageService.add({
-                severity: 'warn',
-                summary: 'Advertencia',
-                detail: 'Debe seleccionar un grupo'
-            });
-            return;
-        }
-
-        const currentUser = this.authService.currentUser();
-        
-        const estadoId = this.estadoNombreToId.get(this.newTicket.estado) || this.newTicket.estado;
-        const prioridadId = this.prioridadNombreToId.get(this.newTicket.priority) || this.newTicket.priority;
-        
-        try {
-            const response = await this.apiService.createTicket({
-                grupo_id: this.selectedGroupId,
-                titulo: this.newTicket.title,
-                descripcion: this.newTicket.description,
-                autor_id: currentUser?.id || '',
-                estado_id: estadoId,
-                priority_id: prioridadId,
-                asignado_id: this.newTicket.assignedTo || undefined
-            });
-
-            if (response.statusCode === 201 || response.statusCode === 200) {
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Éxito',
-                    detail: 'Ticket creado correctamente'
-                });
-                this.newTicketDialog = false;
-                await this.loadTickets();
-                this.updateCharts();
-                this.cdr.detectChanges();
-            } else {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'No se pudo crear el ticket'
-                });
-            }
-        } catch (error) {
-            console.error('Error creating ticket:', error);
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Error de conexión'
-            });
-        }
-    }
-
-    viewTicket(ticket: Ticket) {
-        this.selectedTicket = { ...ticket };
-        this.ticketDialog = true;
-    }
 
     goToGroupTickets() {
         if (this.selectedGroupId) {
@@ -477,5 +318,31 @@ export class DashboardComponent implements OnInit {
         if (this.selectedGroupId) {
             this.router.navigate(['/home/admin-group', this.selectedGroupId]);
         }
+    }
+
+    onGroupSelected(newId: string) {
+        this.selectedGroupId = newId;
+    }
+
+    async onTicketDrop(event: { ticket: Ticket, newStatus: string | TicketStatus }) {
+        const currentUser = this.authService.currentUser();
+        const ticket = event.ticket;
+        const newStatus = event.newStatus as TicketStatus;
+        if (ticket.status === newStatus) return;
+
+        this.ticketService.updateTicket(ticket.id, { status: newStatus });
+        
+        try {
+            const estadoId = this.estadoNombreToId.get(newStatus) || newStatus;
+            await this.apiService.changeTicketState(ticket.id, estadoId, currentUser?.id || '');
+            this.messageService.add({ severity: 'success', summary: 'Actualizado', detail: `Ticket movido a ${newStatus}` });
+        } catch (error) {
+            console.error('Error updating ticket:', error);
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo actualizar el ticket' });
+        }
+    }
+
+    viewTicket(ticket: Ticket) {
+        this.router.navigate(['/home/group-tickets', ticket.groupId]);
     }
 }

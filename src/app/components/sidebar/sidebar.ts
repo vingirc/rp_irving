@@ -30,7 +30,8 @@ export class Sidebar {
     const homeRoute = this.router.config.find(r => r.path === 'home');
     if (homeRoute && homeRoute.children) {
       this.menuItems = homeRoute.children
-        .filter(route => route.data && route.data['title'])
+        .filter(route => route.data && route.data['title'] && !route.data['hideFromSidebar'])
+        .filter(route => !route.data!['permission'] || this.authService.hasPermission(route.data!['permission']))
         .map(route => ({
           path: `/home${route.path ? '/' + route.path : ''}`,
           title: route.data!['title'],

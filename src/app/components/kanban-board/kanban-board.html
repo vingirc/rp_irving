@@ -1,0 +1,59 @@
+<div class="kanban-board" cdkDropListGroup>
+    @for (column of columns; track column.value) {
+    <div class="kanban-column">
+        <div class="column-header">
+            <span class="column-title">{{ column.label }}</span>
+            <p-tag [value]="getTicketsByStatus(column.value).length.toString()"
+                [severity]="getSeverity(column.color)" />
+        </div>
+        <div class="column-content" cdkDropList [cdkDropListData]="column.value"
+            (cdkDropListDropped)="handleDrop($event, column.value)">
+            @for (ticket of getTicketsByStatus(column.value); track ticket.id) {
+            <div class="ticket-card surface-card shadow-1 border-round-xl mb-3 cursor-grab p-3" cdkDrag
+                [cdkDragData]="ticket" (click)="handleTicketClick(ticket)">
+
+                <!-- Header info -->
+                <div class="flex justify-content-between align-items-start mb-3">
+                    <span class="ticket-id font-bold text-500 text-sm">#{{ ticket.id.slice(0, 6) }}</span>
+                    <p-tag [value]="ticket.priority" [severity]="getPrioritySeverity(ticket.priority)" />
+                </div>
+
+                <!-- Title (prominent) -->
+                <h4 class="m-0 mb-2 text-900 font-bold ticket-title text-base line-height-3">
+                    {{ ticket.title || 'Sin Título' }}
+                </h4>
+
+                <!-- Description Snippet -->
+                @if (ticket.description) {
+                    <p class="text-600 m-0 text-sm line-height-3 mb-3">{{ ticket.description | slice:0:70 }}{{
+                        ticket.description && ticket.description.length > 70 ? '...' : '' }}
+                    </p>
+                }
+
+                <!-- Footer / Assignee / Date -->
+                <div class="flex justify-content-between align-items-center mt-3 pt-3 border-top-1 surface-border">
+                    @if (ticket.assignedToName) {
+                        <div class="assignee flex align-items-center text-xs text-700 bg-blue-50 px-2 py-1 border-round-3xl">
+                            <i class="pi pi-user mr-1 text-blue-500"></i>
+                            <span class="font-medium text-blue-900">{{ ticket.assignedToName }}</span>
+                        </div>
+                    } @else {
+                        <span class="text-xs text-500 font-italic">Sin asignar</span>
+                    }
+                    <span class="ticket-date text-xs text-500 font-medium"><i class="pi pi-calendar mr-1"></i>{{ ticket.createdAt | date:'MMM d' }}</span>
+                </div>
+
+                <div class="drag-placeholder surface-200 border-round-xl" *cdkDragPlaceholder
+                    style="min-height: 120px; border: 2px dashed #94a3b8;"></div>
+            </div>
+            }
+            @if (getTicketsByStatus(column.value).length === 0) {
+            <div class="empty-column">
+                <i class="pi pi-inbox"></i>
+                <span>Arrastra tickets aquí</span>
+            </div>
+            }
+        </div>
+    </div>
+    }
+</div>

@@ -10,6 +10,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { HasPermissionDirective } from '../directives/has-permission.directive';
+import { UserSelectorComponent } from '../components/user-selector/user-selector';
 
 @Component({
   selector: 'app-ticket',
@@ -23,7 +24,8 @@ import { HasPermissionDirective } from '../directives/has-permission.directive';
     DatePickerModule,
     ButtonModule,
     DividerModule,
-    HasPermissionDirective
+    HasPermissionDirective,
+    UserSelectorComponent
   ],
   templateUrl: './ticket.html',
   styleUrl: './ticket.css',
@@ -44,11 +46,21 @@ export class TicketComponent implements OnInit {
 
   statuses: TicketStatus[] = ['Pendiente', 'En Progreso', 'Revisión', 'Hecho', 'Bloqueado'];
 
+  get selectedAssignee(): User | null {
+    return this.groupMembers.find(m => m.id === this.ticket.assignedTo) || null;
+  }
+
+  onAssigneeChange(user: User | null) {
+    if (user) {
+      this.ticket.assignedTo = user.id;
+      this.ticket.assignedToName = user.fullName;
+    } else {
+      this.ticket.assignedTo = '';
+      this.ticket.assignedToName = '';
+    }
+  }
+
   ngOnInit() {
-    this.memberOptions = [
-      { label: 'Sin asignar', value: '' },
-      ...this.groupMembers.map(m => ({ label: m.fullName, value: m.id }))
-    ];
   }
 
   priorities: { label: string, value: Priority }[] = [
@@ -75,16 +87,6 @@ export class TicketComponent implements OnInit {
 
   get canEditStatus(): boolean {
     return this.canEditFull || this.isAssigned;
-  }
-
-  onAssignedChange(event: any) {
-    const selectedId = event.value;
-    if (selectedId) {
-      const member = this.groupMembers.find(m => m.id === selectedId);
-      this.ticket.assignedToName = member ? member.fullName : '';
-    } else {
-      this.ticket.assignedToName = '';
-    }
   }
 
   save() {

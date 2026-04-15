@@ -21,6 +21,8 @@ import { TicketService } from '../../services/ticket.service';
 import { PermissionService } from '../../services/permission.service';
 import { Ticket, TicketStatus, Priority } from '../../models/ticket.model';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
+import { KanbanBoardComponent } from '../../components/kanban-board/kanban-board';
+import { GroupSelectorComponent } from '../../components/group-selector/group-selector';
 
 @Component({
     selector: 'app-group-tickets',
@@ -40,7 +42,9 @@ import { HasPermissionDirective } from '../../directives/has-permission.directiv
         ToolbarModule,
         ConfirmDialogModule,
         DragDropModule,
-        HasPermissionDirective
+        HasPermissionDirective,
+        KanbanBoardComponent,
+        GroupSelectorComponent
     ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './group-tickets.html',
@@ -334,13 +338,10 @@ export class GroupTicketsComponent implements OnInit {
         return this.groupedTickets().get(status) || this.emptyArray;
     }
 
-    onDrop(event: CdkDragDrop<any>, newStatus: TicketStatus) {
-        const ticket = event.item.data as Ticket;
-
-        // If dropped in the same column, nothing to do
+    onDrop(event: { ticket: Ticket, newStatus: string | TicketStatus }) {
+        const ticket = event.ticket;
+        const newStatus = event.newStatus as TicketStatus;
         if (ticket.status === newStatus) return;
-
-        // Delegate status change — the computed signal will re-render columns
         this.updateTicketStatus(ticket, newStatus);
     }
 

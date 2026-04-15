@@ -3,23 +3,12 @@
         <div class="header-left">
             <p-button icon="pi pi-arrow-left" [text]="true" (onClick)="goBack()" />
             <h1 class="mr-4">{{ groupName }} Tickets</h1>
-            
-            <div class="group-selector flex align-items-center ml-4">
-                <span class="mr-2 text-700 font-medium">Grupo:</span>
-                @if (groups && groups.length > 0) {
-                    <p-select 
-                        [options]="groups" 
-                        [(ngModel)]="groupId" 
-                        optionLabel="nombre" 
-                        optionValue="id"
-                        [style]="{'min-width': '200px'}" />
-                } @else {
-                    <p-select 
-                        [options]="[{nombre: 'No hay grupos disponibles', id: ''}]"
-                        [disabled]="true"
-                        [style]="{'min-width': '200px'}" />
-                }
-            </div>
+            <app-group-selector 
+                class="ml-4"
+                [groups]="groups" 
+                [selectedGroupId]="groupId"
+                (selectedGroupIdChange)="groupId = $event">
+            </app-group-selector>
         </div>
         <div class="header-actions">
             <p-selectbutton [options]="viewModeOptions" [(ngModel)]="viewMode" optionLabel="label"
@@ -37,63 +26,12 @@
         </div>
     } @else {
         @if (viewMode === 'kanban') {
-        <div class="kanban-board" cdkDropListGroup>
-            @for (column of kanbanColumns; track column.value) {
-            <div class="kanban-column">
-                <div class="column-header">
-                    <span class="column-title">{{ column.label }}</span>
-                    <p-tag [value]="getTicketsByStatus(column.value).length.toString()"
-                        [severity]="getSeverity(column.color)" />
-                </div>
-                <div class="column-content" cdkDropList [cdkDropListData]="column.value"
-                    (cdkDropListDropped)="onDrop($event, column.value)">
-                    @for (ticket of getTicketsByStatus(column.value); track ticket.id) {
-                    <div class="ticket-card surface-card shadow-1 border-round mb-3 bg-white" cdkDrag
-                        [cdkDragData]="ticket">
-
-                        <div class="ticket-header p-3 pb-2 flex justify-content-between align-items-center cursor-grab border-bottom-1 surface-border hover:surface-100"
-                            cdkDragHandle>
-                            <div class="flex align-items-center gap-2">
-                                <i class="pi pi-grip-lines text-500"></i>
-                                <span class="ticket-id font-semibold text-500 text-sm">#{{ ticket.id.slice(0, 8) }}</span>
-                            </div>
-                            <p-tag [value]="ticket.priority" [severity]="getPrioritySeverity(ticket.priority)" />
-                        </div>
-
-                        <div class="ticket-content p-3 cursor-pointer" (click)="viewTicket(ticket)">
-                            <h4 class="m-0 mb-2 text-900">{{ ticket.title }}</h4>
-                            @if (ticket.description) {
-                            <p class="text-600 m-0 text-sm line-height-3">{{ ticket.description | slice:0:80 }}{{
-                                ticket.description && ticket.description.length > 80 ? '...' : '' }}</p>
-                            }
-
-                            <div class="flex justify-content-between align-items-center mt-3 pt-2">
-                                @if (ticket.assignedToName) {
-                                <span class="assignee flex align-items-center text-xs text-700">
-                                    <i class="pi pi-user mr-1"></i>
-                                    {{ ticket.assignedToName }}
-                                </span>
-                                } @else {
-                                <span class="text-xs text-500">Sin asignar</span>
-                                }
-                                <span class="ticket-date text-xs text-500">{{ ticket.createdAt | date:'shortDate' }}</span>
-                            </div>
-                        </div>
-
-                        <div class="drag-placeholder surface-200 border-round" *cdkDragPlaceholder
-                            style="min-height: 120px; border: 2px dashed #aaa;"></div>
-                    </div>
-                    }
-                    @if (getTicketsByStatus(column.value).length === 0) {
-                    <div class="empty-column">
-                        <i class="pi pi-inbox"></i>
-                        <span>Arrastra tickets aquí</span>
-                    </div>
-                    }
-                </div>
-            </div>
-            }
-        </div>
+        <app-kanban-board 
+            [tickets]="groupTickets()" 
+            [columns]="kanbanColumns" 
+            (onTicketDrop)="onDrop($event)"
+            (onTicketClick)="viewTicket($event)">
+        </app-kanban-board>
         } @else {
         <div class="list-view">
             <div class="filters-bar">

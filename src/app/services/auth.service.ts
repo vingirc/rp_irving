@@ -166,9 +166,8 @@ export class AuthService {
         return this.getCookie(this.TOKEN_COOKIE);
     }
 
-    hasPermission(permission: string): boolean {
-        const perms = this.permissions();
-        return perms.includes('all') || perms.includes(permission);
+    hasPermission(permission: string | string[]): boolean {
+        return this.permissionService.hasPermission(permission);
     }
 
     private decodeToken(token: string): any {

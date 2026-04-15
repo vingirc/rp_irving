@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ChangeDetectorRef } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -17,6 +18,8 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 import { User } from '../../models/ticket.model';
+import { GroupSelectorComponent } from '../../components/group-selector/group-selector';
+import { UserSelectorComponent } from '../../components/user-selector/user-selector';
 
 @Component({
     selector: 'app-admin-group',
@@ -34,7 +37,9 @@ import { User } from '../../models/ticket.model';
         TagModule,
         ToastModule,
         ConfirmDialogModule,
-        AvatarModule
+        AvatarModule,
+        GroupSelectorComponent,
+        UserSelectorComponent
     ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './admin-group.html',
@@ -47,6 +52,7 @@ export class AdminGroupComponent implements OnInit {
     private apiService = inject(ApiService);
     private messageService = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
+    private cdr = inject(ChangeDetectorRef);
 
     groupId: string | null = null;
     groupName: string = '';
@@ -64,26 +70,69 @@ export class AdminGroupComponent implements OnInit {
     selectedUserToAdd: User | null = null;
     
     globalFilter: string = '';
+    groups: any[] = [];
 
     async ngOnInit() {
-        this.groupId = this.route.snapshot.paramMap.get('groupId');
-        await this.loadGroupInfo();
-        await this.loadMembers();
-        await this.loadAllUsers();
-        this.loading.set(false);
+        this.loading.set(true);
+        await this.loadMyGroups();
+        
+        this.route.paramMap.subscribe(async (params) => {
+            const newGroupId = params.get('groupId');
+            if (newGroupId && newGroupId !== 'null' && newGroupId !== 'undefined') {
+                this.groupId = newGroupId;
+                this.loading.set(true);
+                await this.loadGroupInfo();
+                await this.loadMembers();
+                await this.loadAllUsers();
+                this.loading.set(false);
+                this.cdr.detectChanges();
+            } else if (this.groups.length > 0) {
+                this.router.navigate(['/home/admin-group', this.groups[0].id]);
+            }
+        });
+    }
+
+    async loadMyGroups() {
+        try {
+            const response = await this.apiService.getMyGroups();
+            if (response.statusCode === 200 && Array.isArray(response.data)) {
+                this.groups = response.data.map((g: any) => ({
+                    id: String(g.id || g.grupo_id || ''),
+                    nombre: g.nombre || g.grupos?.nombre || g.name || 'Grupo Sin Nombre',
+                    descripcion: g.grupos?.descripcion || g.descripcion || ''
+                }));
+                this.cdr.detectChanges();
+            }
+        } catch (error) {
+            console.error('Error loading generic groups:', error);
+        }
+    }
+
+    onGroupSelected(newId: string) {
+        if (newId && newId !== this.groupId) {
+            this.router.navigate(['/home/admin-group', newId]);
+        }
     }
 
     async loadGroupInfo() {
         if (!this.groupId) return;
         
-        const response = await this.apiService.getGroup(this.groupId);
-        if (response.statusCode === 200) {
-            const data = response.data;
-            const group = Array.isArray(data) ? data[0]?.group || data[0] : data;
-            this.groupName = group?.nombre || 'Grupo';
-            this.groupDescription = group?.descripcion || '';
+        const localGroup = this.groups.find(g => g.id === this.groupId);
+        if (localGroup) {
+            this.groupName = localGroup.nombre;
+            this.groupDescription = localGroup.descripcion;
             this.newGroupName = this.groupName;
             this.newGroupDescription = this.groupDescription;
+        } else {
+            const response = await this.apiService.getGroup(this.groupId);
+            if (response.statusCode === 200) {
+                const data = response.data;
+                const group = Array.isArray(data) ? data[0]?.group || data[0] : data;
+                this.groupName = group?.nombre || 'Grupo';
+                this.groupDescription = group?.descripcion || '';
+                this.newGroupName = this.groupName;
+                this.newGroupDescription = this.groupDescription;
+            }
         }
     }
 
@@ -130,6 +179,7 @@ export class AdminGroupComponent implements OnInit {
     updateAvailableUsers() {
         const memberIds = this.members.map(m => m.id);
         this.availableUsers = this.allUsers.filter(u => !memberIds.includes(u.id));
+        this.cdr.detectChanges();
     }
 
     openEditGroupDialog() {

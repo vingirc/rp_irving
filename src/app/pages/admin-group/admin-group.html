@@ -1,12 +1,17 @@
 <div class="admin-group-container">
     <div class="page-header">
-        <div class="header-left">
+        <div class="header-left" style="display: flex; gap: 1rem; align-items: baseline;">
             <p-button icon="pi pi-arrow-left" [text]="true" (onClick)="goBack()" />
             <div class="header-title">
-                <h1>{{ groupName }}</h1>
+                <h1 class="m-0 mb-1">{{ groupName }}</h1>
                 @if (groupDescription) {
-                    <p class="description">{{ groupDescription }}</p>
+                    <p class="description m-0 mb-3">{{ groupDescription }}</p>
                 }
+                <app-group-selector 
+                    [groups]="groups" 
+                    [selectedGroupId]="groupId"
+                    (selectedGroupIdChange)="onGroupSelected($event)">
+                </app-group-selector>
             </div>
         </div>
         <div class="header-actions">
@@ -116,40 +121,19 @@
     <div class="add-member-form">
         <div class="form-field">
             <label for="user-select">Seleccionar Usuario <span class="required">*</span></label>
-            <p-select 
-                id="user-select"
-                [options]="availableUsers" 
-                [(ngModel)]="selectedUserToAdd" 
-                optionLabel="fullName"
-                placeholder="Seleccione un usuario"
-                [filter]="true"
-                filterBy="fullName,email"
-                styleClass="w-full"
-                appendTo="body">
-                <ng-template pTemplate="selectedItem" let-selected>
-                    <div class="user-option">
-                        <p-avatar [label]="getInitials(selected.fullName)" shape="circle" />
-                        <span>{{ selected.fullName }}</span>
-                    </div>
-                </ng-template>
-                <ng-template pTemplate="item" let-user>
-                    <div class="user-option">
-                        <p-avatar [label]="getInitials(user.fullName)" shape="circle" />
-                        <div class="user-option-info">
-                            <span class="name">{{ user.fullName }}</span>
-                            <span class="email">{{ user.email }}</span>
-                        </div>
-                    </div>
-                </ng-template>
-            </p-select>
+            <app-user-selector 
+                [users]="availableUsers"
+                [(selectedUser)]="selectedUserToAdd">
+            </app-user-selector>
         </div>
+        
         @if (selectedUserToAdd) {
-            <div class="selected-user-preview">
+            <div class="selected-user-preview mt-3 p-3 surface-50 border-round">
                 <p-avatar [label]="getInitials(selectedUserToAdd.fullName)" shape="circle" size="large" />
-                <div class="preview-info">
-                    <span class="preview-name">{{ selectedUserToAdd.fullName }}</span>
-                    <span class="preview-email">{{ selectedUserToAdd.email }}</span>
-                    <span class="preview-username">@{{ selectedUserToAdd.username }}</span>
+                <div class="preview-info ml-3 flex flex-column">
+                    <span class="preview-name font-semibold text-900">{{ selectedUserToAdd.fullName }}</span>
+                    <span class="preview-email text-600 text-sm">{{ selectedUserToAdd.email }}</span>
+                    <span class="preview-username text-500 text-sm font-italic">@{{ selectedUserToAdd.username }}</span>
                 </div>
             </div>
         }

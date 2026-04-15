@@ -6,24 +6,11 @@
     }
     <div class="dashboard-header">
         <h1>Dashboard</h1>
-        <div class="group-selector">
-            <label for="group-select">Grupo:</label>
-            @if (groups && groups.length > 0) {
-                <p-select 
-                    inputId="group-select"
-                    [options]="groups" 
-                    [(ngModel)]="selectedGroupId" 
-                    optionLabel="nombre" 
-                    optionValue="id"
-                    [style]="{'min-width': '200px'}" />
-            } @else {
-                <p-select 
-                    inputId="group-select"
-                    [options]="[{nombre: 'No hay grupos disponibles', id: ''}]"
-                    [disabled]="true"
-                    [style]="{'min-width': '200px'}" />
-            }
-        </div>
+        <app-group-selector 
+            [groups]="groups" 
+            [selectedGroupId]="selectedGroupId"
+            (selectedGroupIdChange)="onGroupSelected($event)">
+        </app-group-selector>
     </div>
 
     <div class="stats-grid">
@@ -88,138 +75,31 @@
                 <p-chart type="bar" [data]="priorityChartData" [options]="priorityChartOptions" [style]="{'height': '280px'}" />
             </div>
         </div>
-        <div class="chart-card">
-            <h3>Tickets por Grupo</h3>
-            <div class="chart-wrapper">
-                <p-chart type="doughnut" [data]="groupChartData" [options]="groupChartOptions" [style]="{'height': '280px'}" />
-            </div>
-        </div>
     </div>
 
-    <div class="kanban-section">
-        <div class="section-header">
-            <h2>Vista Kanban</h2>
-            <div class="section-actions">
-                <p-button label="Ver Lista" icon="pi pi-list" [outlined]="true" (onClick)="goToGroupTickets()" />
-                <p-button label="Administrar Grupo" icon="pi pi-cog" [outlined]="true" (onClick)="goToAdminGroup()" />
-                <p-button *hasPermission="'ticket:add'" label="Nuevo Ticket" icon="pi pi-plus" (onClick)="openNewTicket()" />
-            </div>
-        </div>
+    <!-- Actions: navigate to group workspace -->
+    <div class="actions-section" style="display: flex; gap: 1rem; margin-top: 1.5rem; margin-bottom: 2rem;">
+        <p-button label="Ir al Espacio de Trabajo" icon="pi pi-external-link" [outlined]="true" (onClick)="goToGroupTickets()" />
+        <p-button *hasPermission="'group:manage'" label="Administrar Grupo" icon="pi pi-cog" [outlined]="true" (onClick)="goToAdminGroup()" />
+    </div>
 
-        <div class="kanban-board">
-            @for (column of kanbanColumns; track column.value) {
-                <div class="kanban-column">
-                    <div class="column-header">
-                        <span class="column-title">{{ column.label }}</span>
-                        <p-tag [value]="getTicketsByStatus(column.value).length.toString()" [severity]="getSeverity(column.color)" />
-                    </div>
-                    <div class="column-content">
-                        @for (ticket of getTicketsByStatus(column.value); track ticket.id) {
-                            <p-card styleClass="ticket-card" (click)="viewTicket(ticket)">
-                                <div class="ticket-card-content">
-                                    <h4>{{ ticket.title }}</h4>
-                                    @if (ticket.description) {
-                                        <p class="ticket-description">{{ ticket.description | slice:0:80 }}{{ ticket.description && ticket.description.length > 80 ? '...' : '' }}</p>
-                                    }
-                                    <div class="ticket-meta">
-                                        <p-tag [value]="ticket.priority" [severity]="getPrioritySeverity(ticket.priority)" />
-                                        @if (ticket.assignedToName) {
-                                            <span class="assignee">{{ ticket.assignedToName }}</span>
-                                        }
-                                    </div>
-                                </div>
-                            </p-card>
-                        }
-                        @if (getTicketsByStatus(column.value).length === 0) {
-                            <div class="empty-column">
-                                <i class="pi pi-inbox"></i>
-                                <span>Sin tickets</span>
-                            </div>
-                        }
-                    </div>
-                </div>
-            }
-        </div>
+    <!-- Kanban Section -->
+    <div class="dashboard-kanban-section pb-6">
+        <h3 class="mb-4 text-900 border-bottom-1 surface-border pb-2">Tablero de Trabajo Activo</h3>
+        @if (selectedGroupId && kanbanColumns.length > 0) {
+            <app-kanban-board 
+                [tickets]="groupTickets()" 
+                [columns]="kanbanColumns" 
+                (onTicketDrop)="onTicketDrop($event)"
+                (onTicketClick)="viewTicket($event)">
+            </app-kanban-board>
+        } @else if (!selectedGroupId) {
+            <div class="empty-column text-center p-5 surface-100 border-round">
+                <i class="pi pi-compass text-400 mb-3" style="font-size: 2.5rem;"></i>
+                <p class="text-600 m-0">Selecciona un grupo para ver su tablero aquí.</p>
+            </div>
+        }
     </div>
 </div>
-
-<p-dialog 
-    [(visible)]="ticketDialog" 
-    [header]="selectedTicket?.title" 
-    [modal]="true" 
-    [style]="{width: '600px'}"
-    [draggable]="false">
-    @if (selectedTicket) {
-        <div class="ticket-detail">
-            <div class="detail-row">
-                <strong>Estado:</strong>
-                <p-tag [value]="selectedTicket.status" [severity]="getStatusSeverity(selectedTicket.status)" />
-            </div>
-            <div class="detail-row">
-                <strong>Prioridad:</strong>
-                <p-tag [value]="selectedTicket.priority" [severity]="getPrioritySeverity(selectedTicket.priority)" />
-            </div>
-            <div class="detail-row">
-                <strong>Descripción:</strong>
-                <p>{{ selectedTicket.description || 'Sin descripción' }}</p>
-            </div>
-            @if (selectedTicket.assignedToName) {
-                <div class="detail-row">
-                    <strong>Asignado a:</strong>
-                    <span>{{ selectedTicket.assignedToName }}</span>
-                </div>
-            }
-            <div class="detail-row">
-                <strong>Creado por:</strong>
-                <span>{{ selectedTicket.creatorName || selectedTicket.creatorId || 'No disponible' }}</span>
-            </div>
-            <div class="detail-row">
-                <strong>Fecha:</strong>
-                <span>{{ selectedTicket.createdAt | date:'medium' }}</span>
-            </div>
-        </div>
-    }
-    <ng-template pTemplate="footer">
-        <p-button label="Cerrar" icon="pi pi-times" [text]="true" (onClick)="ticketDialog = false" />
-    </ng-template>
-</p-dialog>
-
-<p-dialog 
-    [(visible)]="newTicketDialog" 
-    header="Nuevo Ticket" 
-    [modal]="true" 
-    [style]="{width: '500px'}"
-    [draggable]="false">
-    <div class="new-ticket-form">
-        <div class="form-field">
-            <label for="title">Título <span class="required">*</span></label>
-            <input pInputText id="title" [(ngModel)]="newTicket.title" placeholder="Título del ticket" />
-        </div>
-        <div class="form-field">
-            <label for="description">Descripción</label>
-            <textarea pTextarea id="description" [(ngModel)]="newTicket.description" rows="4" placeholder="Descripción del ticket"></textarea>
-        </div>
-        <div class="form-field">
-            <label for="priority">Prioridad</label>
-            @if (priorityOptions && priorityOptions.length > 0) {
-                <p-select inputId="priority" [options]="priorityOptions" [(ngModel)]="newTicket.priority" optionLabel="label" optionValue="value" appendTo="body" placeholder="Seleccionar prioridad" />
-            } @else {
-                <p-select inputId="priority" [options]="[{label: 'Sin prioridades', value: ''}]" [disabled]="true" appendTo="body" />
-            }
-        </div>
-        <div class="form-field">
-            <label for="estado">Estado</label>
-            @if (estadoOptions && estadoOptions.length > 0) {
-                <p-select inputId="estado" [options]="estadoOptions" [(ngModel)]="newTicket.estado" optionLabel="label" optionValue="value" appendTo="body" placeholder="Seleccionar estado" />
-            } @else {
-                <p-select inputId="estado" [options]="[{label: 'Sin estados', value: ''}]" [disabled]="true" appendTo="body" />
-            }
-        </div>
-    </div>
-    <ng-template pTemplate="footer">
-        <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="newTicketDialog = false" />
-        <p-button label="Crear" icon="pi pi-check" (onClick)="saveNewTicket()" />
-    </ng-template>
-</p-dialog>
 
 <p-toast />

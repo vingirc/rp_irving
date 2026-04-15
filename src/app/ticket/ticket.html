@@ -33,7 +33,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="add-comment flex gap-2" *hasPermission="'ticket_edit'">
+                <div class="add-comment flex gap-2" *hasPermission="'ticket:edit'">
                     <input type="text" pInputText [(ngModel)]="newComment" placeholder="Escribe un comentario..."
                         class="flex-grow-1" (keyup.enter)="addComment()" />
                     <p-button icon="pi pi-send" (onClick)="addComment()" [disabled]="!newComment.trim()"></p-button>
@@ -69,16 +69,13 @@
 
                 <div class="field mb-4">
                     <label class="block font-semibold mb-2">Asignado a</label>
-                    <p-select 
-                        [options]="memberOptions" 
-                        [(ngModel)]="ticket.assignedTo"
-                        optionLabel="label" 
-                        optionValue="value"
-                        placeholder="Seleccionar miembro"
+                    <app-user-selector 
+                        [users]="groupMembers" 
+                        [selectedUser]="selectedAssignee" 
+                        (selectedUserChange)="onAssigneeChange($event)"
                         [disabled]="!canEditFull"
-                        (onChange)="onAssignedChange($event)"
-                        class="w-full">
-                    </p-select>
+                        placeholder="Seleccionar miembro">
+                    </app-user-selector>
                 </div>
 
                 <p-divider></p-divider>
@@ -100,7 +97,7 @@
             </div>
 
             <div class="flex flex-column gap-2">
-                <ng-container *hasPermission="'ticket_edit'">
+                <ng-container *hasPermission="'ticket:edit'">
                     <p-button label="Guardar Cambios" icon="pi pi-check" (onClick)="save()" severity="success"
                         class="w-full" *ngIf="canEditStatus"></p-button>
                 </ng-container>
