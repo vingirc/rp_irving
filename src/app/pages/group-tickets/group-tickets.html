@@ -7,7 +7,7 @@
                 class="ml-4"
                 [groups]="groups" 
                 [selectedGroupId]="groupId"
-                (selectedGroupIdChange)="groupId = $event">
+                (selectedGroupIdChange)="onGroupSelected($event)">
             </app-group-selector>
         </div>
         <div class="header-actions">

@@ -16,8 +16,8 @@
         </div>
         <div class="header-actions">
             <p-button label="Ver Tickets" icon="pi pi-ticket" [outlined]="true" (onClick)="goToGroupTickets()" />
-            <p-button icon="pi pi-pencil" [outlined]="true" (onClick)="openEditGroupDialog()" pTooltip="Editar grupo" />
-            <p-button icon="pi pi-trash" severity="danger" [outlined]="true" (onClick)="deleteGroup()" pTooltip="Eliminar grupo" />
+            <p-button *hasPermission="'group:edit'" icon="pi pi-pencil" [outlined]="true" (onClick)="openEditGroupDialog()" pTooltip="Editar grupo" />
+            <p-button *hasPermission="'group:delete'" icon="pi pi-trash" severity="danger" [outlined]="true" (onClick)="deleteGroup()" pTooltip="Eliminar grupo" />
         </div>
     </div>
 
@@ -26,7 +26,7 @@
             <ng-template pTemplate="header">
                 <div class="card-header">
                     <h3>Miembros del Grupo</h3>
-                    <p-button icon="pi pi-plus" [rounded]="true" [text]="true" (onClick)="openAddMemberDialog()" 
+                    <p-button *hasPermission="'group:manage'" icon="pi pi-plus" [rounded]="true" [text]="true" (onClick)="openAddMemberDialog()" 
                         pTooltip="Agregar miembro" />
                 </div>
             </ng-template>
@@ -69,7 +69,7 @@
                             </div>
                         </td>
                         <td>
-                            <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" 
+                            <p-button *hasPermission="'group:manage'" icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" 
                                 (onClick)="removeMember(member)" pTooltip="Remover" />
                         </td>
                     </tr>

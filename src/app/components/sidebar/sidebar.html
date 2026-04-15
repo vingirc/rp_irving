@@ -15,7 +15,7 @@
     <div class="sidebar-menu">
         <div class="menu-section">Navegación</div>
 
-        <a *ngFor="let item of menuItems" [routerLink]="item.path" routerLinkActive="active-link"
+        <a *ngFor="let item of menuItems()" [routerLink]="item.path" routerLinkActive="active-link"
             [routerLinkActiveOptions]="{exact: item.exact}" class="menu-item" [title]="isCollapsed ? item.title : ''">
             <i [class]="item.icon"></i>
             <span class="menu-text">{{item.title}}</span>

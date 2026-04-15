@@ -294,15 +294,28 @@
 }
 
 .ticket-card {
-    background: #ffffff;
+    background: #ffffff !important;
     border: 1px solid #e2e8f0;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: all 0.25s ease;
+    color: #1e293b !important;
 }
 
 .ticket-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    border-color: #1e293b;
+    background: #1e293b !important;
+    color: #ffffff !important;
+}
+
+.ticket-card:hover h4,
+.ticket-card:hover .ticket-title,
+.ticket-card:hover .ticket-description,
+.ticket-card:hover .assignee,
+.ticket-card:hover p,
+.ticket-card:hover span {
+    color: #ffffff !important;
 }
 
 .ticket-card-content h4 {

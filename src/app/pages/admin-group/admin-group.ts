@@ -20,6 +20,7 @@ import { ApiService } from '../../services/api.service';
 import { User } from '../../models/ticket.model';
 import { GroupSelectorComponent } from '../../components/group-selector/group-selector';
 import { UserSelectorComponent } from '../../components/user-selector/user-selector';
+import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
 @Component({
     selector: 'app-admin-group',
@@ -39,7 +40,8 @@ import { UserSelectorComponent } from '../../components/user-selector/user-selec
         ConfirmDialogModule,
         AvatarModule,
         GroupSelectorComponent,
-        UserSelectorComponent
+        UserSelectorComponent,
+        HasPermissionDirective
     ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './admin-group.html',

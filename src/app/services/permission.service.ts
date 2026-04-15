@@ -66,6 +66,7 @@ export class PermissionService {
      * Clears any group context.
      */
     setPermissions(permissions: string[]) {
+        console.log('[PermissionService] Setting global permissions:', permissions);
         this.globalPermissions.set(permissions);
         // Reset group context when global perms are set (login/logout)
         this.groupPermissions.set([]);
@@ -101,6 +102,8 @@ export class PermissionService {
      * Checks if the user has a specific permission or set of permissions,
      * considering both global and group-scoped permissions.
      * If an array is provided, it checks if the user has ALL of them.
+     * 
+     * Supports checking by permission name (e.g., 'group:view') or by UUID.
      */
     hasPermission(permission: string | string[]): boolean {
         const userPerms = this.activePermissions();
@@ -109,9 +112,16 @@ export class PermissionService {
         }
 
         const checkSingle = (p: string) => {
-            // Map nominal request to corresponding UUID, or fallback if passing direct UUID
-            const targetUuid = this.permissionMap.get(p) || p;
-            return userPerms.includes(targetUuid) || userPerms.includes(p);
+            // Direct match first (name-to-name or uuid-to-uuid)
+            if (userPerms.includes(p)) {
+                return true;
+            }
+            // Try mapping the requested permission name to its UUID and check
+            const targetUuid = this.permissionMap.get(p);
+            if (targetUuid && userPerms.includes(targetUuid)) {
+                return true;
+            }
+            return false;
         };
 
         if (Array.isArray(permission)) {

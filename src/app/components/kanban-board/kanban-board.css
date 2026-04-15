@@ -82,20 +82,41 @@
 }
 
 .ticket-card {
-    background: #f8fafc;
-    border: 1px solid #cbd5e1;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
     cursor: grab;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+    transition: all 0.25s ease;
     touch-action: none !important;
-    color: #1e293b;
+    color: #1e293b !important;
 }
 
 .ticket-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
-    border-color: #94a3b8;
-    background-color: #ffffff;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25) !important;
+    border-color: #1e293b;
+    background: #1e293b !important;
+    color: #ffffff !important;
+}
+
+.ticket-card:hover h4,
+.ticket-card:hover .ticket-title,
+.ticket-card:hover .ticket-id,
+.ticket-card:hover .ticket-description,
+.ticket-card:hover .ticket-date,
+.ticket-card:hover .assignee,
+.ticket-card:hover .assignee span,
+.ticket-card:hover p,
+.ticket-card:hover span {
+    color: #ffffff !important;
+}
+
+.ticket-card:hover .assignee {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.ticket-card:hover .assignee i {
+    color: #93c5fd !important;
 }
 
 .ticket-card:active {
@@ -133,14 +154,35 @@
 }
 
 .cdk-drag-preview {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3) !important;
     border-radius: 12px !important;
-    background: #ffffff !important;
+    background: #1e293b !important;
+    color: #ffffff !important;
     z-index: 1000 !important;
-    border: 1px solid #e2e8f0 !important;
+    border: 1px solid #334155 !important;
     /* Kill transition on transform while dragging to eliminate cursor latency! */
     transition: none !important; 
     transform-origin: center center;
+}
+
+.cdk-drag-preview h4,
+.cdk-drag-preview .ticket-title,
+.cdk-drag-preview .ticket-id,
+.cdk-drag-preview .ticket-description,
+.cdk-drag-preview .ticket-date,
+.cdk-drag-preview .assignee,
+.cdk-drag-preview .assignee span,
+.cdk-drag-preview p,
+.cdk-drag-preview span {
+    color: #ffffff !important;
+}
+
+.cdk-drag-preview .assignee {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.cdk-drag-preview .assignee i {
+    color: #93c5fd !important;
 }
 
 .cdk-drag-placeholder {

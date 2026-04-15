@@ -10,7 +10,7 @@ import { ManagementComponent } from './pages/management/management';
 import { DashboardComponent } from './pages/dashboard/dashboard';
 import { GroupTicketsComponent } from './pages/group-tickets/group-tickets';
 import { AdminGroupComponent } from './pages/admin-group/admin-group';
-import { authGuard } from './guards/auth.guard';
+import { authGuard, permissionGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
     { path: '', component: LandingPage },
@@ -22,11 +22,13 @@ export const routes: Routes = [
         canActivate: [authGuard],
         children: [
             { path: '', component: DashboardComponent, data: { title: 'Panel Principal', icon: 'pi pi-home' } },
-            { path: 'group', component: GroupComponent, data: { title: 'Mis Grupos', icon: 'pi pi-users', permission: 'group:view' } },
-            { path: 'group-tickets/:groupId', component: GroupTicketsComponent, data: { title: 'Tickets del Grupo', icon: 'pi pi-ticket', hideFromSidebar: true } },
-            { path: 'admin-group/:groupId', component: AdminGroupComponent, data: { title: 'Administración del Grupo', icon: 'pi pi-cog', hideFromSidebar: true } },
+            { path: 'group', component: GroupComponent, data: { title: 'Mis Grupos', icon: 'pi pi-users', permission: 'group:view' }, canActivate: [permissionGuard('group:view')] },
+            { path: 'group-tickets', component: GroupTicketsComponent, data: { title: 'Tickets de Grupo', icon: 'pi pi-ticket', permission: 'ticket:view' }, canActivate: [permissionGuard('ticket:view')] },
+            { path: 'group-tickets/:groupId', component: GroupTicketsComponent, data: { hideFromSidebar: true, permission: 'ticket:view' }, canActivate: [permissionGuard('ticket:view')] },
+            { path: 'admin-group', component: AdminGroupComponent, data: { title: 'Admin. de Grupo', icon: 'pi pi-cog', permission: 'group:manage' }, canActivate: [permissionGuard('group:manage')] },
+            { path: 'admin-group/:groupId', component: AdminGroupComponent, data: { hideFromSidebar: true, permission: 'group:manage' }, canActivate: [permissionGuard('group:manage')] },
             { path: 'user', component: UserComponent, data: { title: 'Mi Perfil', icon: 'pi pi-user' } },
-            { path: 'management', component: ManagementComponent, data: { title: 'Gestión de Usuarios', icon: 'pi pi-user-edit', permission: 'user:manage' } }
+            { path: 'management', component: ManagementComponent, data: { title: 'Gestión de Usuarios', icon: 'pi pi-user-edit', permission: 'user:manage' }, canActivate: [permissionGuard('user:manage')] }
         ]
     },
     { path: '**', redirectTo: '' }

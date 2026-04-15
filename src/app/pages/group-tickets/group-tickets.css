@@ -24,10 +24,19 @@
 
 /* 3. Estética para que el drag se vea profesional (opcional pero recomendado) */
 .cdk-drag-preview {
-    box-shadow: 0 5px 15px -3px rgba(0, 0, 0, 0.2), 0 8px 20px 1px rgba(0, 0, 0, 0.14) !important;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3) !important;
     border-radius: 8px !important;
-    background: white !important;
+    background: #1e293b !important;
+    color: #ffffff !important;
     z-index: 1000 !important;
+}
+
+.cdk-drag-preview h4,
+.cdk-drag-preview .ticket-title,
+.cdk-drag-preview .ticket-id,
+.cdk-drag-preview p,
+.cdk-drag-preview span {
+    color: #ffffff !important;
 }
 
 .cdk-drag-placeholder {
@@ -152,15 +161,36 @@
 }
 
 .ticket-card {
-    background: #ffffff;
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
     cursor: grab;
-    transition: transform 0.2s, box-shadow 0.2s;
-    color: #1e293b;
+    transition: all 0.25s ease;
+    color: #1e293b !important;
 }
 
 .ticket-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    border-color: #1e293b;
+    background: #1e293b !important;
+    color: #ffffff !important;
+}
+
+.ticket-card:hover h4,
+.ticket-card:hover .ticket-title,
+.ticket-card:hover .ticket-id,
+.ticket-card:hover .ticket-description,
+.ticket-card:hover .ticket-date,
+.ticket-card:hover .assignee,
+.ticket-card:hover .assignee span,
+.ticket-card:hover p,
+.ticket-card:hover span {
+    color: #ffffff !important;
+}
+
+.ticket-card:hover .assignee {
+    background-color: rgba(255, 255, 255, 0.15) !important;
 }
 
 .ticket-card:active {

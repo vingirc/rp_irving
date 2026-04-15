@@ -131,35 +131,25 @@ export class GroupTicketsComponent implements OnInit {
     priorityFilter: Priority | null = null;
 
     async ngOnInit() {
-        const routeId = this.route.snapshot.paramMap.get('groupId');
-        if (routeId) {
-            this._groupIdSignal.set(routeId);
-        }
-
         await Promise.all([
             this.loadEstados(),
             this.loadPrioridades(),
         ]);
         
-        // Load groups sequentially after config
         await this.loadGroups();
 
-        // Si ya había un routeId explícito, cargamos sus tickets y permisos aquí,
-        // ya que loadGroups no disparará onGroupChange porque groupId ya existe
-        if (routeId) {
-            const currentUser = this.authService.currentUser();
-            await Promise.all([
-                this.loadGroupInfo(),
-                this.loadTickets(),
-                currentUser?.id
-                    ? this.loadGroupPermissions(routeId, currentUser.id)
-                    : Promise.resolve()
-            ]);
-        }
-        
-        this.loading.set(false);
-        this.cdr.detectChanges();
-        setTimeout(() => this.cdr.detectChanges(), 0);
+        this.route.paramMap.subscribe(async (params) => {
+            const routeId = params.get('groupId');
+            
+            if (routeId && routeId !== 'null' && routeId !== 'undefined') {
+                this.groupId = routeId; // triggers setter and onGroupChange systematically
+            } else if (this.groups.length > 0) {
+                this.router.navigate(['/home/group-tickets', this.groups[0].id]);
+            } else {
+                this.loading.set(false);
+                this.cdr.detectChanges();
+            }
+        });
     }
 
     async loadGroups() {
@@ -171,12 +161,6 @@ export class GroupTicketsComponent implements OnInit {
                     id: String(g.id || g.grupo_id || ''),
                     nombre: g.nombre || g.grupos?.nombre || g.name || 'Grupo Sin Nombre'
                 }));
-
-                if (this.groups?.length > 0) {
-                    if (!this.groupId || !this.groups.find(g => g.id === this.groupId)) {
-                        this.groupId = this.groups[0].id;
-                    }
-                }
             }
         } catch (error) {
             console.error('Error loading groups:', error);
@@ -193,6 +177,8 @@ export class GroupTicketsComponent implements OnInit {
 
         // Refresh group-scoped permissions for the current user
         const currentUser = this.authService.currentUser();
+        
+        // Wait for permissions first before fetching data that relies on them
         if (currentUser?.id) {
             await this.loadGroupPermissions(this.groupId, currentUser.id);
         }
@@ -213,7 +199,17 @@ export class GroupTicketsComponent implements OnInit {
         try {
             const response = await this.apiService.getGroupUserPermissions(groupId, userId);
             if (response.statusCode === 200 && Array.isArray(response.data)) {
-                this.permissionService.setGroupPermissions(groupId, response.data);
+                const dataArray = response.data as any[];
+                let permsStr: string[] = [];
+                if (dataArray.length > 0 && dataArray[0]?.permissions && Array.isArray(dataArray[0].permissions)) {
+                    permsStr = dataArray[0].permissions.map((p: any) => p.nombre || p);
+                } else if (dataArray.length > 0 && typeof dataArray[0] === 'string') {
+                    permsStr = dataArray;
+                } else if (dataArray.length > 0 && dataArray[0]?.nombre) {
+                    permsStr = dataArray.map((p: any) => p.nombre);
+                }
+                
+                this.permissionService.setGroupPermissions(groupId, permsStr);
             } else {
                 console.warn('[GroupTickets] Could not load group permissions, using globals only.');
                 this.permissionService.setGroupPermissions(groupId, []);
@@ -350,7 +346,7 @@ export class GroupTicketsComponent implements OnInit {
 
         // Kanban D&D validation using group-scoped permissions
         const isOwnerOrAssigned = ticket.assignedTo === currentUser?.id || ticket.creatorId === currentUser?.id;
-        const isAdmin = this.permissionService.hasPermission('all');
+        const isAdmin = this.permissionService.hasPermission('all') || this.permissionService.hasPermission('ticket:manage') || this.permissionService.hasPermission('group:manage');
         const hasMovePerm = this.permissionService.hasPermission('tickets:move')
             || this.permissionService.hasPermission('ticket:edit')
             || this.permissionService.hasPermission('ticket:edit:state');
@@ -570,5 +566,11 @@ export class GroupTicketsComponent implements OnInit {
     getColumnColor(status: TicketStatus): string {
         const column = this.kanbanColumns.find(c => c.value === status);
         return column?.color || 'blue';
+    }
+
+    onGroupSelected(newId: string) {
+        if (newId && newId !== this.groupId) {
+            this.router.navigate(['/home/group-tickets', newId]);
+        }
     }
 }
